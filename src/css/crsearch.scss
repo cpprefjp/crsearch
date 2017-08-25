@@ -1,4 +1,113 @@
+@import 'clearfix';
+
+$google-logo: 'https://www.google.com/cse/static/images/1x/googlelogo_lightgrey_46x16dp.png';
+
+$cs-bg-result: #FDFDFD;
+$cs-bd-result: #888;
+$cs-bg-result-hover: rgb(240, 246, 255);
+$cs-bd-result-sep: #AAA;
+
+$cs-fg-badge: #EEE;
+
+
 .crsearch {
   position: relative;
-}
+  display: block;
+  margin: 0.8em 0 0 1.2em;
+
+  > .control {
+  } // .control
+
+  > .result-wrapper {
+    position: absolute;
+    display: block;
+    padding: 0;
+    margin: 0;
+    border: 2px solid $cs-bd-result;
+    border-radius: 4px;
+    min-width: 340px;
+    z-index: 9999;
+    background: $cs-bg-result;
+    min-height: 2em;
+    left: 0;
+    overflow-y: scroll;
+    max-height: 300px;
+
+    > .result {
+      cursor: pointer;
+      vertical-align: top;
+      display: block;
+
+      &:not(:last-child) {
+        border-bottom: 1px solid $cs-bd-result-sep;
+      }
+
+      > a {
+        display: block;
+        padding: 0.4em;
+        font-family: monospace;
+
+        &:hover {
+          background-color: $cs-bg-result-hover;
+          text-decoration: none;
+        }
+
+        &:before {
+          content: '';
+          display: inline-block;
+          width: 52px;
+          font-family: sans-serif;
+          font-size: 0.8em;
+          color: $cs-fg-badge;
+          text-align: center;
+          margin-right: 1em;
+        }
+
+        > .content {
+          font-family: sans-serif;
+          font-size: 1em;
+        }
+      } // a
+
+      &.google-fallback {
+        > a:before {
+          content: '';
+          display: inline-block;
+          background: url($google-logo) left center no-repeat rgb(255, 255, 255);
+          overflow: hidden;
+          padding-top: 1em;
+          padding-right: 52px;
+        }
+      }
+
+      &.std-class {
+        > a:before {
+          content: 'class';
+          background: #44A;
+        }
+      }
+
+      &.std-header {
+        > a:before {
+          content: 'header';
+          background: #4A4;
+        }
+      }
+
+      &.std-spec {
+        > a > .content {
+          font-family: serif;
+          font-size: 0.8em;
+          text-decoration: underline;
+        }
+
+        > a:before {
+          content: 'spec';
+          background: #222;
+          font-family: sans-serif;
+        }
+      }
+    } // .result
+  } // .result-wrapper
+} // .crsearch
 

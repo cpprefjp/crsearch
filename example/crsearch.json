@@ -1,0 +1,124 @@
+{
+    "base_url": "http://localhost",
+    "database_name": "cpprefjp",
+    "namespaces": [
+        {
+            "indexes": [
+                {
+                    "id": {
+                        "cpp_namespace": [
+                            "std"
+                        ],
+                        "key": [
+                            "array"
+                        ],
+                        "type": "class"
+                    },
+                    "page_id": "array"
+                },
+                {
+                    "id": {
+                        "cpp_namespace": [
+                            "std"
+                        ],
+                        "key": [
+                            "vector"
+                        ],
+                        "type": "class"
+                    },
+                    "page_id": "vector"
+                }
+            ],
+            "namespace": [
+                "reference"
+            ],
+            "path_prefixes": [
+                "reference"
+            ]
+        },
+        {
+            "indexes": [
+                {
+                    "id": {
+                        "cpp_namespace": [
+                            "std"
+                        ],
+                        "key": [
+                            "all_of"
+                        ],
+                        "type": "function"
+                    },
+                    "page_id": "all_of"
+                }
+            ],
+            "namespace": [
+                "reference",
+                "algorithm"
+            ],
+            "path_prefixes": [
+                "reference",
+                "algorithm"
+            ]
+        },
+        {
+            "indexes": [
+                {
+                    "id": {
+                        "cpp_namespace": [
+                            "std"
+                        ],
+                        "key": [
+                            "operator<"
+                        ],
+                        "type": "function"
+                    },
+                    "page_id": "op_less"
+                }
+            ],
+            "namespace": [
+                "reference",
+                "array"
+            ],
+            "path_prefixes": [
+                "reference",
+                "array"
+            ]
+        },
+        {
+            "indexes": [
+                {
+                    "id": {
+                        "cpp_namespace": [
+                            "std"
+                        ],
+                        "key": [
+                            "push_back"
+                        ],
+                        "type": "mem_fun"
+                    },
+                    "page_id": "push_back"
+                },
+                {
+                    "id": {
+                        "cpp_namespace": [
+                            "std"
+                        ],
+                        "key": [
+                            "swap (\u975e\u30e1\u30f3\u30d0\u95a2\u6570)"
+                        ],
+                        "type": "function"
+                    },
+                    "page_id": "swap_free"
+                }
+            ],
+            "namespace": [
+                "reference",
+                "vector"
+            ],
+            "path_prefixes": [
+                "reference",
+                "vector"
+            ]
+        }
+    ]
+}

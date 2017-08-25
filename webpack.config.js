@@ -10,7 +10,8 @@ module.exports = [
     },
     output: {
       path: path.join(__dirname, 'dist/js'),
-      filename: '[name].js'
+      filename: '[name].js',
+      publicPath: '/js/',
     },
     module: {
       rules: [
@@ -26,7 +27,10 @@ module.exports = [
               options: {
                 presets: [
                   ['env', {'modules': false}],
-                ]
+                ],
+                plugins: [
+                  'transform-class-properties',
+                ],
               },
             },
           ],
@@ -46,7 +50,8 @@ module.exports = [
     },
     output: {
       path: path.join(__dirname, 'dist/css'),
-      filename: '[name].css'
+      filename: '[name].css',
+      publicPath: '/css/',
     },
     module: {
       rules: [

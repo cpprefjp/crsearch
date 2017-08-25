@@ -1,14 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>crsearch - easy-testing</title>
-    <link rel="stylesheet" type="text/css" href="../dist/css/crsearch.css">
-    <link rel="stylesheet" type="text/css" href="easy-testing.css">
-    <script src="../dist/js/crsearch.js"></script>
+    <title>CRSearch - easy-testing</title>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" type="text/css" href="/css/crsearch.css">
+
+    <script src="/js/crsearch.js"></script>
     <script type="text/javascript"><!--
       var cs = new CRSearch;
+      cs.database("localhost");
       cs.searchbox("crsearch");
     --></script>
+
+    <link rel="stylesheet" type="text/css" href="easy-testing.css">
   </head>
   <body>
     <div id="crsearch"></div>
