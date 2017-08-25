@@ -17,13 +17,17 @@ module.exports = [
           test: /\.js$/,
           use: [
             {
+              loader: 'expose-loader',
+              options: 'CRSearch',
+            },
+            {
               loader: 'babel-loader',
               options: {
                 presets: [
-                  ['env', {'modules': false}]
+                  ['env', {'modules': false}],
                 ]
-              }
-            }
+              },
+            },
           ],
           exclude: /node_modules/,
         }

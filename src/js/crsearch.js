@@ -1,4 +1,9 @@
-export default function crsearch(searchbox_id) {
+const $ = require('jquery');
 
+class CRSearch {
+  searchbox(id) {
+
+  }
 }
+module.exports = CRSearch;
 
