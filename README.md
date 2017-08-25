@@ -1,5 +1,6 @@
 # crsearch
-cpprefjp と boostjp をいい感じに検索するウィジェット
+
+[cpprefjp](https://cpprefjp.github.io/) と [boostjp](https://boostjp.github.io/) をいい感じに検索するウィジェット
 
 - [x] cpprefjp
 - [ ] boostjp （対応予定）
