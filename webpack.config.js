@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = [
@@ -33,7 +34,10 @@ module.exports = [
         }
       ],
     },
-    devtool: 'source-map'
+    devtool: 'source-map',
+    plugins: [
+      new webpack.optimize.UglifyJsPlugin(),
+    ],
   },
   {
     context: path.resolve(__dirname, 'src/css'),
