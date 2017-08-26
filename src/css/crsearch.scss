@@ -182,6 +182,30 @@ $search-input-height: 1.8em;
         }
       } // a
 
+      &.no-match {
+        font-family: serif;
+        font-style: oblique;
+        color: #888;
+        background: #EFEFEF;
+        padding: .5em 1em;
+        cursor: default;
+
+        .query {
+          padding-bottom: 1px;
+          border-bottom: 1px solid #888;
+        }
+
+        &:before {
+          content: '(No match for';
+          display: inline-block;
+          margin-right: .5em;
+        }
+        &:after {
+          content: ')';
+          display: inline-block;
+        }
+      }
+
       &.google-fallback {
         > a:before {
           content: 'Google';

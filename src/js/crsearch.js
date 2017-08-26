@@ -33,6 +33,7 @@ class CRSearch {
     ARTICLE: Symbol(),
     META: Symbol(),
     GOOGLE_FALLBACK: Symbol(),
+    NO_MATCH: Symbol(),
   }
 
   static HELP = `
@@ -91,13 +92,31 @@ class CRSearch {
     this.debug('text:', text)
 
     let res = this.clear_results_for(e.target)
+
+    // do the lookup
+    let found = []
+    if (found.length == 0) {
+      res.append(this.make_result(CRSearch.RESULT.NO_MATCH, text))
+    }
+
+    // always include fallback
     res.append(this.make_result(CRSearch.RESULT.GOOGLE_FALLBACK, text))
   }
 
   make_result(t, target) {
+    let elem = CRSearch.RESULT_PROTO.clone()
+
     switch (t) {
+    case CRSearch.RESULT.NO_MATCH:
+      elem.empty()
+      elem.addClass('no-match')
+      let q = $('<span class="query" />')
+      q.text(target)
+      q.appendTo(elem)
+      break
+
     case CRSearch.RESULT.GOOGLE_FALLBACK:
-      let elem = $.extend(true, {}, CRSearch.RESULT_PROTO).addClass('google-fallback')
+      elem.addClass('google-fallback')
       let a = elem.children('a')
 
       let url = this.opts.google_url
@@ -107,11 +126,13 @@ class CRSearch {
       a.attr('href', url)
       a.attr('target', '_blank')
       a.text(target)
-      return elem
+      break
 
     default:
         throw 'unhandled result type'
     }
+
+    return elem
   }
 
   searchbox(sel) {
@@ -207,8 +228,8 @@ class CRSearch {
 
   select_result(dir, e) {
     let results = this.find_results_for(e.target)
-    let all_results = results.children('.result')
-    let hovered = results.children('.result > a:hover')
+    let all_results = results.children('.result:not(.no-match)')
+    let hovered = results.find('.result:not(.no-match) > a:hover')
 
     if (!hovered || hovered.parent().index() + dir < 0) {
       $(all_results[0]).children('a').addClass('hover')
