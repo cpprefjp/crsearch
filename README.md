@@ -17,10 +17,12 @@
 
 <script src="/js/crsearch.js"></script>
 <script type="text/javascript"><!--
-  var cs = new CRSearch;
-  cs.database("https://cpprefjp.github.io");
-  cs.database("https://boostjp.github.io");
-  cs.searchbox("#crsearch");
+  $(document).ready(function() {
+    var cs = new CRSearch;
+    cs.database("https://cpprefjp.github.io");
+    cs.database("https://boostjp.github.io");
+    cs.searchbox("#crsearch");
+  });
 --></script>
 ```
 

@@ -13,9 +13,11 @@
 
     <script src="/js/crsearch.js"></script>
     <script type="text/javascript"><!--
-      var cs = new CRSearch;
-      cs.database("localhost");
-      cs.searchbox("crsearch");
+      $(document).ready(function() {
+        var cs = new CRSearch;
+        cs.database("http://localhost");
+        cs.searchbox("#crsearch");
+      });
     --></script>
 
     <link rel="stylesheet" type="text/css" href="easy-testing.css">
