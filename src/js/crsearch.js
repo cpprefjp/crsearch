@@ -41,6 +41,7 @@ class CRSearch {
     this.databases = new Set
     this.last_id = 0
     this.last_input = {}
+    this.search_timer = {}
 
     Mousetrap.bind('/', function() {
       return this.select_default()
@@ -58,6 +59,13 @@ class CRSearch {
   }
 
   do_search(e) {
+    clearTimeout(this.search_timer[e.data.id])
+    this.search_timer[e.data.id] = setTimeout(function(e) {
+      this.do_search_impl(e)
+    }.bind(this, e), 20)
+  }
+
+  do_search_impl(e) {
     const text = this.last_input[e.data.id]
 
     this.debug('input change', e.data)
