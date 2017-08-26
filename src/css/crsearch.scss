@@ -48,7 +48,6 @@ $search-input-height: 1.8em;
 
   > .result-wrapper {
     position: absolute;
-    display: block;
     padding: 0;
     margin: 0;
     border: 2px solid $cs-bd-result;
@@ -60,6 +59,12 @@ $search-input-height: 1.8em;
     left: 0;
     overflow-y: scroll;
     max-height: 300px;
+
+    display: none;
+
+    &.visible {
+      display: block;
+    }
 
     > .result {
       cursor: pointer;
