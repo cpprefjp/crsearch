@@ -12,12 +12,13 @@ $cs-fg-badge: #EEE;
 
 .crsearch {
   position: relative;
-  display: block;
-  margin: 0.8em 0 0 1.2em;
+  display: inline-block;
 
   > .control {
-    .input {
+    > .input {
       min-width: 300px;
+      padding: 0.1em 0.2em;
+
       font-size: 1.2em;
     }
 
