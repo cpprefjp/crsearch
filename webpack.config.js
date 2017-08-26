@@ -29,6 +29,7 @@ module.exports = [
                   ['env', {'modules': false}],
                 ],
                 plugins: [
+                  'transform-runtime',
                   'transform-class-properties',
                 ],
               },

@@ -1,7 +1,9 @@
-const $ = require('jquery')
-const Mousetrap = require('mousetrap')
+import * as $ from 'jquery'
+import * as Mousetrap from 'mousetrap'
+import {Result} from './crsearch/result'
+import {Index, Database} from './crsearch/database'
 
-class CRSearch {
+class Search {
   static VERSION = '1.0.0'
   static HOMEPAGE = 'https://github.com/cpprefjp/crsearch'
 
@@ -9,8 +11,8 @@ class CRSearch {
     klass: {
       search_button: 'glyphicon glyphicon-search',
     },
-    search_fallback_host: 'cpprefjp.github.io',
     google_url: new URL('https://www.google.co.jp/search'),
+    force_new_window: false,
   }
 
   static KLASS = 'crsearch'
@@ -21,20 +23,6 @@ class CRSearch {
   static MAX_RESULT = 5
 
   static RESULT_PROTO = $('<li class="result"><a href="#"></a></li>')
-  static RESULT = {
-    HEADER: Symbol(),
-    CLASS: Symbol(),
-    FUNCTION: Symbol(),
-    MEM_FUN: Symbol(),
-    ENUM: Symbol(),
-    VARIABLE: Symbol(),
-    TYPE_ALIAS: Symbol(),
-    MACRO: Symbol(),
-    ARTICLE: Symbol(),
-    META: Symbol(),
-    GOOGLE_FALLBACK: Symbol(),
-    NO_MATCH: Symbol(),
-  }
 
   static HELP = `
     <div class="help-content">
@@ -56,9 +44,10 @@ class CRSearch {
     </div>
   `
 
-  constructor(opts = CRSearch.OPTS_DEFAULT) {
+  constructor(opts = Search.OPTS_DEFAULT) {
     this.opts = opts
-    this.databases = new Set
+    this.loaded = false
+    this.db = new Map
     this.last_id = 0
     this.last_input = {}
     this.search_timer = {}
@@ -74,8 +63,48 @@ class CRSearch {
     this.debug('initialized.')
   }
 
+  load() {
+    let i = 1
+    for (const [url, db] of this.db) {
+      if (url.pathname == '/') {
+        url.pathname = '/crsearch.json'
+      }
+      this.debug(`fetching database (${i}/${this.db.size}):`, url)
+
+      $.ajax({
+        url: url,
+
+        success: function(data) {
+          this.debug('fetched.')
+          this.parse(url, data)
+        }.bind(this),
+
+        fail: function() {
+          this.debug('fetch failed.')
+        }.bind(this)
+      })
+      ++i
+    }
+  }
+
+  parse(url, json) {
+    this.debug('parsing...', json)
+    this.db.set(url, new Database(json))
+    this.debug('parsed.', this.db.get(url))
+  }
+
   database(base_url) {
-    this.databases.add(base_url)
+    try {
+      const url = new URL(base_url)
+      this.db.set(url.toString(), null)
+    } catch (e) {
+      const a = document.createElement('a')
+      a.href = base_url
+      if (a.pathname == '/') a.pathname = '/crsearch.json'
+
+      const url = new URL(a.toString())
+      this.db.set(url.toString(), null)
+    }
   }
 
   do_search(e) {
@@ -87,57 +116,115 @@ class CRSearch {
 
   do_search_impl(e) {
     const text = this.last_input[e.data.id]
+    this.debug('[query]', text)
 
-    this.debug('input change', e.data)
-    this.debug('text:', text)
+    let result_list = this.clear_results_for(e.target)
+    let extra_info_for = {}
 
-    let res = this.clear_results_for(e.target)
+    // do the lookup per database
+    let res = new Map
 
-    // do the lookup
-    let found = []
-    if (found.length == 0) {
-      res.append(this.make_result(CRSearch.RESULT.NO_MATCH, text))
+    for (const [url, db] of this.db) {
+      const ret = db.query(text, 0, Search.MAX_RESULT)
+      extra_info_for[db.name] = {url: db.base_url, text: ''}
+
+      res.set(db.name, ret.targets)
+      if (res.get(db.name).length == 0) {
+        extra_info_for[db.name].text = `No matches for '${text}'`
+        continue
+      }
+
+      const found_count = ret.found_count
+      if (found_count >= Search.MAX_RESULT) {
+        extra_info_for[db.name].text = `Showing first ${Search.MAX_RESULT} matches`
+      } else {
+        extra_info_for[db.name].text = 'Showing all matches'
+      }
     }
 
-    // always include fallback
-    res.append(this.make_result(CRSearch.RESULT.GOOGLE_FALLBACK, text))
+    for (const [db_name, targets] of res) {
+      result_list.append(this.make_result_header(db_name, extra_info_for[db_name]))
+
+      for (const target of targets) {
+        result_list.append(this.make_result(
+          target.index.type,
+          target.index,
+          target.path
+        ))
+      }
+    }
+
+    for (const [url, db] of this.db) {
+      // always include fallback
+      result_list.append(this.make_result(Result.GOOGLE_FALLBACK, text, {
+        name: db.name,
+        url: db.base_url.host,
+      }))
+    }
   }
 
-  make_result(t, target) {
-    let elem = CRSearch.RESULT_PROTO.clone()
+  make_result_header(db_name, extra_info) {
+    let elem = $('<li class="result" />')
+    elem.addClass('cr-result-header')
+
+    if (extra_info.text.length != 0) {
+      let extra = $(`<span class="extra" />`)
+
+      if (extra_info.klass) {
+        extra.addClass(extra_info.klass)
+      }
+      extra.text(extra_info.text)
+      extra.appendTo(elem)
+    }
+
+    let dbn = $(`<a class="db-name" />`)
+    dbn.attr('href', extra_info.url)
+    dbn.attr('target', '_blank')
+    dbn.text(db_name)
+    dbn.appendTo(elem)
+    return elem
+  }
+
+  make_result(t, target, extra = undefined) {
+    let elem = Search.RESULT_PROTO.clone()
+    elem.addClass(Symbol.keyFor(t))
+    let a = elem.children('a')
+    let url = undefined
 
     switch (t) {
-    case CRSearch.RESULT.NO_MATCH:
+    case Result.NO_MATCH:
       elem.empty()
-      elem.addClass('no-match')
-      let q = $('<span class="query" />')
-      q.text(target)
-      q.appendTo(elem)
+      $('<span class="query" />').text(target).appendTo(elem)
       break
 
-    case CRSearch.RESULT.GOOGLE_FALLBACK:
-      elem.addClass('google-fallback')
-      let a = elem.children('a')
-
-      let url = this.opts.google_url
-      let params = url.searchParams
-      params.set('q', `${target} site:${this.opts.search_fallback_host}`)
-      url.searchParams = params
+    case Result.GOOGLE_FALLBACK:
+      url = this.opts.google_url
+      url.searchParams.set('q', `${target} site:${extra.url}`)
       a.attr('href', url)
       a.attr('target', '_blank')
-      a.text(target)
+      a.text(`${extra.name}: ${target}`)
       break
 
     default:
-        throw 'unhandled result type'
+      a.attr('href', extra)
+      a.text(target.pretty_name())
+      if (this.opts.force_new_window) {
+        a.attr('target', '_blank')
+      }
+      break
     }
 
     return elem
   }
 
   searchbox(sel) {
+    if (!this.loaded) {
+      this.loaded = true
+      this.load()
+    }
+
     const id = this.last_id++;
-    this.debug('new searchbox', id)
+    this.debug('creating searchbox', id)
 
     let box = $(sel)
     $.data(box, 'crsearch-id', id)
@@ -148,19 +235,12 @@ class CRSearch {
 
     let input = $('<input type="text" class="input">')
     input.attr('autocomplete', false)
-    input.attr('placeholder', CRSearch.INPUT_PLACEHOLDER)
+    input.attr('placeholder', Search.INPUT_PLACEHOLDER)
     input.appendTo(control)
 
     input.on('click', function(e) {
       this.show_result_wrapper_for(e.target)
       return this.select_default_input()
-    }.bind(this))
-
-    Mousetrap(input.get(0)).bind('up', function(e) {
-      this.select_result(-1, e)
-    }.bind(this))
-    Mousetrap(input.get(0)).bind('down', function(e) {
-      this.select_result(+1, e)
     }.bind(this))
 
     input.on('keyup', {id: id}, function(e) {
@@ -182,6 +262,7 @@ class CRSearch {
           this.find_result_wrapper_for(e.target).addClass('help')
 
         } else {
+          this.clear_results_for(e.target)
           this.msg_for(e.target, text.length == 0 ? '' : 'input >= 2 characters...')
           this.find_result_wrapper_for(e.target).addClass('help')
         }
@@ -197,22 +278,22 @@ class CRSearch {
     }.bind(this))
 
     let result_wrapper = $('<div />')
-    result_wrapper.addClass(CRSearch.RESULT_WRAPPER_KLASS)
+    result_wrapper.addClass(Search.RESULT_WRAPPER_KLASS)
     result_wrapper.addClass('help')
     result_wrapper.appendTo(box)
 
     let results = $('<ul />')
-    results.addClass(CRSearch.RESULTS_KLASS)
+    results.addClass(Search.RESULTS_KLASS)
     results.appendTo(result_wrapper)
 
-    let help_content = $(CRSearch.HELP)
+    let help_content = $(Search.HELP)
     help_content.appendTo(result_wrapper)
 
     let cr_info = $('<div class="crsearch-info" />')
     let cr_info_link = $('<a />')
-    cr_info_link.attr('href', CRSearch.HOMEPAGE)
+    cr_info_link.attr('href', Search.HOMEPAGE)
     cr_info_link.attr('target', '_blank')
-    cr_info_link.text(`CRSearch v${CRSearch.VERSION}`)
+    cr_info_link.text(`CRSearch v${Search.VERSION}`)
     cr_info_link.appendTo(cr_info)
     cr_info.appendTo(result_wrapper)
 
@@ -226,33 +307,21 @@ class CRSearch {
     btn_search.appendTo(control)
   }
 
-  select_result(dir, e) {
-    let results = this.find_results_for(e.target)
-    let all_results = results.children('.result:not(.no-match)')
-    let hovered = results.find('.result:not(.no-match) > a:hover')
-
-    if (!hovered || hovered.parent().index() + dir < 0) {
-      $(all_results[0]).children('a').addClass('hover')
-    } else {
-      $(all_results[hovered.parent().index() + dir]).children('a').addClass('hover')
-    }
-  }
-
   select_default_input() {
     this.default_input.select()
     return false
   }
 
   find_cr_for(input) {
-    return $(input).closest(`.${CRSearch.KLASS}`)
+    return $(input).closest(`.${Search.KLASS}`)
   }
 
   find_result_wrapper_for(input) {
-    return this.find_cr_for(input).children(`.${CRSearch.RESULT_WRAPPER_KLASS}`)
+    return this.find_cr_for(input).children(`.${Search.RESULT_WRAPPER_KLASS}`)
   }
 
   find_results_for(input) {
-    return this.find_result_wrapper_for(input).children(`.${CRSearch.RESULTS_KLASS}`)
+    return this.find_result_wrapper_for(input).children(`.${Search.RESULTS_KLASS}`)
   }
 
   show_result_wrapper_for(input) {
@@ -277,7 +346,7 @@ class CRSearch {
   }
 
   hide_all_result() {
-    let res = $(`.${CRSearch.KLASS} .${CRSearch.RESULT_WRAPPER_KLASS}`)
+    let res = $(`.${Search.KLASS} .${Search.RESULT_WRAPPER_KLASS}`)
     res.removeClass('visible')
     return false
   }
@@ -285,6 +354,7 @@ class CRSearch {
   debug() {
     console.log('[CRSearch]', ...arguments)
   }
-}
-module.exports = CRSearch
+} // Search
+
+export {Search}
 

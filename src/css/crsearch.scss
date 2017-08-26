@@ -3,13 +3,20 @@
 $google-logo: 'https://www.google.com/cse/static/images/1x/googlelogo_lightgrey_46x16dp.png';
 
 $theme-color: #306E82;
+$badge-header: #4A4;
+$badge-cpp-class: #44A;
+$badge-cpp-function: lighten($badge-cpp-class, 15%);
+$badge-cpp-macro: #44DD22;
+$badge-cpp-variable: $badge-cpp-macro;
+$badge-article: #DDD;
+$badge-meta: $badge-article;
+$badge-cpp-spec: #222;
+$badge-google-fallback: #7799DD;
 
 $cs-bg-result: #FDFDFD;
 $cs-bd-result: $theme-color;
 $cs-bg-result-hover: rgb(240, 246, 255);
 $cs-bd-result-sep: #AAA;
-
-$cs-fg-badge: #EEE;
 
 $control-font-size: 1.2em;
 $control-border: 2px;
@@ -77,7 +84,7 @@ $search-input-height: 1.8em;
 
     > .help-content {
       display: none;
-      padding: 1em .5em 0 .5em;
+      padding: 1em .5em .5em .5em;
 
       > .message {
         color: darken($theme-color, 10%);
@@ -139,7 +146,9 @@ $search-input-height: 1.8em;
       font-size: 0.6em;
       text-align: right;
       color: #AAA;
-      margin: .2em .8em .25em 0;
+      background: #F0F0F0;
+      margin: 0;
+      padding: .2em .8em .25em 0;
     }
 
     > .results {
@@ -151,13 +160,36 @@ $search-input-height: 1.8em;
     }
 
     > .results > .result {
-      &:not(:last-child) {
-        border-bottom: 1px solid $cs-bd-result-sep;
+      border-bottom: 1px solid $cs-bd-result-sep;
+    }
+
+    > .results > .result.cr-result-header {
+      cursor: default;
+      @extend .clearfix;
+
+      .db-name, .extra {
+        display: inline-block;
       }
 
+      .db-name {
+        float: right;
+        padding: 0 .4em 0 .5em;
+        font-size: .9em;
+        font-weight: bold;
+      }
+      .extra {
+        float: left;
+        padding: .2em 0 0 .8em;
+        font-size: .8em;
+        color: #444;
+      }
+    }
+
+    > .results > .result:not(.cr-result-header) {
       > a {
         display: block;
         padding: .4em;
+        line-height: 1.2em;
         font-family: monospace;
 
         &:hover, &.hover {
@@ -166,14 +198,17 @@ $search-input-height: 1.8em;
         }
 
         &:before {
-          content: '';
+          content: 'unknown'; // fallback
+          color: #DDD;
+          background: #888;
+
           display: inline-block;
-          width: 52px;
-          font-family: sans-serif;
+          width: 5.5em;
+          line-height: 1.4em;
+          font-family: monospace;
           font-size: .8em;
-          color: $cs-fg-badge;
           text-align: center;
-          margin-right: 1em;
+          margin-right: .8em;
         }
 
         > .content {
@@ -182,65 +217,102 @@ $search-input-height: 1.8em;
         }
       } // a
 
-      &.no-match {
-        font-family: serif;
-        font-style: oblique;
-        color: #888;
-        background: #EFEFEF;
-        padding: .5em 1em;
-        cursor: default;
-
-        .query {
-          padding-bottom: 1px;
-          border-bottom: 1px solid #888;
-        }
-
-        &:before {
-          content: '(No match for';
-          display: inline-block;
-          margin-right: .5em;
-        }
-        &:after {
-          content: ')';
-          display: inline-block;
-        }
-      }
-
       &.google-fallback {
         > a:before {
           content: 'Google';
-          color: #99BBDD;
+          color: $badge-google-fallback;
+          background: none;
           font-weight: bold;
-          font-size: 1em;
           font-family: sans-serif;
         }
       }
 
-      &.std-class {
-        > a:before {
-          content: 'class';
-          background: #44A;
-        }
-      }
-
-      &.std-header {
+      &.cpp-header {
         > a:before {
           content: 'header';
-          background: #4A4;
+          background: $badge-header;
         }
       }
 
-      &.std-spec {
+      &.cpp-class, &.cpp-type-alias, &.cpp-enum {
+        > a:before {
+          background: $badge-cpp-class;
+        }
+      }
+      &.cpp-class {
+        > a:before {
+          content: 'class';
+        }
+      }
+      &.cpp-type-alias {
+        > a:before {
+          content: 'alias';
+        }
+      }
+      &.cpp-enum {
+        > a:before {
+          content: 'enum';
+        }
+      }
+
+      &.cpp-function, &.cpp-mem_fun {
+        > a:before {
+          background: $badge-cpp-function;
+        }
+      }
+      &.cpp-function {
+        > a:before {
+          content: 'function';
+        }
+      }
+      &.cpp-mem_fun {
+        > a:before {
+          content: 'mem_fun';
+        }
+      }
+
+      &.cpp-variable {
+        > a:before {
+          content: 'variable';
+          color: #333;
+          background: $badge-cpp-variable;
+        }
+      }
+
+      &.cpp-macro {
+        > a:before {
+          content: 'macro';
+          color: #333;
+          background: $badge-cpp-macro;
+        }
+      }
+
+      &.article {
+        > a:before {
+          content: 'article';
+          color: #333;
+          background: $badge-article;
+        }
+      }
+
+      &.meta {
+        > a:before {
+          content: 'meta';
+          color: #333;
+          background: $badge-meta;
+        }
+      }
+
+      &.cpp-spec {
+        > a:before {
+          content: 'spec';
+          background: $badge-cpp-spec;
+          font-family: sans-serif;
+        }
         > a > .content {
           font-family: serif;
           font-size: .8em;
           text-decoration: underline;
-        }
-
-        > a:before {
-          content: 'spec';
-          background: #222;
-          font-family: sans-serif;
         }
       }
     } // .result

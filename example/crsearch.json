@@ -1,5 +1,5 @@
 {
-    "base_url": "http://localhost",
+    "base_url": "https://cpprefjp.github.io",
     "database_name": "cpprefjp",
     "namespaces": [
         {
