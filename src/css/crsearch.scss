@@ -2,8 +2,10 @@
 
 $google-logo: 'https://www.google.com/cse/static/images/1x/googlelogo_lightgrey_46x16dp.png';
 
+$theme-color: #306E82;
+
 $cs-bg-result: #FDFDFD;
-$cs-bd-result: #888;
+$cs-bd-result: $theme-color;
 $cs-bg-result-hover: rgb(240, 246, 255);
 $cs-bd-result-sep: #AAA;
 
@@ -38,7 +40,7 @@ $search-input-height: 1.8em;
       border-left: 1px dotted #DDD;
       padding: 0 .5em;
       background: #FFF;
-      color: #306E82;
+      color: $theme-color;
       cursor: pointer;
 
       font-size: $control-font-size;
@@ -50,15 +52,15 @@ $search-input-height: 1.8em;
     position: absolute;
     padding: 0;
     margin: 0;
-    border: 2px solid $cs-bd-result;
-    border-radius: 4px;
+    border: 2px solid lighten($cs-bd-result, 20%);
+    border-radius: 3px;
     min-width: 340px;
     z-index: 9999;
     background: $cs-bg-result;
     min-height: 2em;
     left: 0;
-    overflow-y: scroll;
     max-height: 300px;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
 
     display: none;
 

@@ -14,9 +14,13 @@ class CRSearch {
   static RESULT_KLASS = 'result-wrapper'
   static INPUT_PLACEHOLDER = '"std::...", "<header>", etc.'
 
+  static MAX_RESULT = 5
+
   constructor(opts = CRSearch.OPTS_DEFAULT) {
     this.opts = opts
     this.databases = new Set
+    this.last_id = 0
+    this.last_input = {}
 
     Mousetrap.bind('/', function() {
       return this.select_default()
@@ -25,14 +29,29 @@ class CRSearch {
     Mousetrap.bind('esc', function() {
       return this.hide_all_result()
     }.bind(this))
+
+    this.debug('initialized.')
   }
 
   database(base_url) {
     this.databases.add(base_url)
   }
 
+  do_search(e) {
+    const text = this.last_input[e.data.id]
+
+    this.debug('input change', e.data)
+    this.debug('text:', text)
+  }
+
   searchbox(sel) {
+    const id = this.last_id++;
+    this.debug('new searchbox', id)
+
     let box = $(sel)
+    $.data(box, 'crsearch-id', id)
+    this.last_input[id] = ''
+
     let control = $('<div class="control" />')
     control.appendTo(box)
 
@@ -41,6 +60,16 @@ class CRSearch {
     input.appendTo(control)
     input.on('click', function() {
       return this.select_default()
+    }.bind(this))
+    input.on('keyup', {id: id}, function(e) {
+      const text = $(e.target).val().replace(/\s+/, ' ').trim()
+      if (this.last_input[e.data.id] != text && text.length >= 2) {
+        this.last_input[e.data.id] = text
+        this.do_search(e)
+      } else {
+        this.last_input[e.data.id] = text
+      }
+      return false
     }.bind(this))
     this.default_input = input
 
@@ -73,6 +102,10 @@ class CRSearch {
     let res = $(`.${CRSearch.KLASS} .${CRSearch.RESULT_KLASS}`)
     res.removeClass('visible')
     return false
+  }
+
+  debug() {
+    console.log('[CRSearch]', ...arguments)
   }
 }
 module.exports = CRSearch
