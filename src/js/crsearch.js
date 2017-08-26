@@ -58,16 +58,25 @@ class CRSearch {
     let input = $('<input type="text" class="input">')
     input.attr('placeholder', CRSearch.INPUT_PLACEHOLDER)
     input.appendTo(control)
-    input.on('click', function() {
+
+    input.on('click', function(e) {
+      this.show_result_for(e.target)
       return this.select_default()
     }.bind(this))
+
     input.on('keyup', {id: id}, function(e) {
+      this.show_result_for(e.target)
+
       const text = $(e.target).val().replace(/\s+/g, ' ').trim()
       if (this.last_input[e.data.id] != text && text.length >= 2) {
         this.last_input[e.data.id] = text
         this.do_search(e)
       } else {
         this.last_input[e.data.id] = text
+      }
+
+      if (text == '') {
+        this.hide_all_result()
       }
       return false
     }.bind(this))
@@ -83,9 +92,8 @@ class CRSearch {
     result.appendTo(box)
 
     input.on('focusin', function() {
-      let res = $(this).closest(`.${CRSearch.KLASS}`).children(`.${CRSearch.RESULT_KLASS}`)
-      res.addClass('visible')
-    })
+      return this.show_result_for(this)
+    }.bind(this))
 
     let btn_search = $('<span />')
     btn_search.addClass('search')
@@ -95,6 +103,12 @@ class CRSearch {
 
   select_default() {
     this.default_input.select()
+    return false
+  }
+
+  show_result_for(input) {
+    let res = $(input).closest(`.${CRSearch.KLASS}`).children(`.${CRSearch.RESULT_KLASS}`)
+    res.addClass('visible')
     return false
   }
 
