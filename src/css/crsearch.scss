@@ -9,20 +9,41 @@ $cs-bd-result-sep: #AAA;
 
 $cs-fg-badge: #EEE;
 
+$control-font-size: 1.2em;
+$control-border: 2px;
+$search-input-height: 1.8em;
+
 
 .crsearch {
   position: relative;
   display: inline-block;
 
   > .control {
+    position: relative;
+    @extend .clearfix;
+
     > .input {
       min-width: 300px;
-      padding: 0.1em 0.2em;
+      padding: 0 2.4em 0 .4em;
+      border: $control-border solid #DDD;
 
-      font-size: 1.2em;
+      font-size: $control-font-size;
+      line-height: $search-input-height;
     }
 
-    @extend .clearfix;
+    > .search {
+      position: absolute;
+      top: $control-border;
+      right: $control-border;
+      border-left: 1px dotted #DDD;
+      padding: 0 .5em;
+      background: #FFF;
+      color: #306E82;
+      cursor: pointer;
+
+      font-size: $control-font-size;
+      line-height: $search-input-height;
+    }
   } // .control
 
   > .result-wrapper {
@@ -51,7 +72,7 @@ $cs-fg-badge: #EEE;
 
       > a {
         display: block;
-        padding: 0.4em;
+        padding: .4em;
         font-family: monospace;
 
         &:hover {
@@ -64,7 +85,7 @@ $cs-fg-badge: #EEE;
           display: inline-block;
           width: 52px;
           font-family: sans-serif;
-          font-size: 0.8em;
+          font-size: .8em;
           color: $cs-fg-badge;
           text-align: center;
           margin-right: 1em;
@@ -104,7 +125,7 @@ $cs-fg-badge: #EEE;
       &.std-spec {
         > a > .content {
           font-family: serif;
-          font-size: 0.8em;
+          font-size: .8em;
           text-decoration: underline;
         }
 
