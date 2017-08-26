@@ -29,7 +29,7 @@ class CRSearch {
           <div class="query">&lt;<span class="input"></span>&gt;</div>
         </li>
         <li>
-          <h3>All</h3>
+          <h3>Other / All</h3>
           <div class="query"><span class="input"></span></div>
         </li>
       </ul>
@@ -119,6 +119,10 @@ class CRSearch {
 
     let help_content = $(CRSearch.HELP)
     help_content.appendTo(result)
+
+    let cr_info = $('<div class="crsearch-info" />')
+    cr_info.text(`CRSearch v${CRSearch.VERSION}`)
+    cr_info.appendTo(result)
 
     input.on('focusin', function() {
       return this.show_result_for(this)

@@ -70,14 +70,74 @@ $search-input-height: 1.8em;
 
     > .help-content {
       display: none;
+      padding: 1em .5em 0 .5em;
 
       > .message {
-        text-transform: capitalize;
+        color: darken($theme-color, 10%);
+        font-style: oblique;
+        font-family: serif;
+        line-height: 1.5em;
+
+        &:not(:empty) {
+          padding: .25em .5em;
+          margin-bottom: 1em;
+          border-left: 4px solid lighten($theme-color, 40%);
+        }
+      }
+
+      > ul {
+        list-style: none;
+        font-family: monospace;
+        margin: 0;
+        padding: 0;
+
+        > li {
+          margin: 0;
+          padding: 0;
+
+          &:not(:last-child) {
+            margin-bottom: 1em;
+          }
+
+          h3 {
+            padding: 0;
+            margin: 0;
+            font-size: 1em;
+            font-weight: bold;
+            font-style: oblique;
+            font-family: sans-serif;
+            color: #444;
+          }
+
+          .query {
+            margin: .3em 0 0 .75em;
+            font-size: 1em;
+            color: #6A6A6A;
+
+            .input:before {
+              content: "[input]";
+              font-style: oblique;
+              font-family: serif;
+              font-weight: bold;
+            }
+          }
+        }
       }
     }
 
     &.help > .help-content {
       display: block;
+    }
+
+    .crsearch-info {
+      font-family: monospace;
+      font-style: oblique;
+      font-weight: normal;
+      text-decoration: none;
+      font-size: 0.6em;
+      text-align: right;
+      color: #AAA;
+      margin: 1em .8em .25em 0;
     }
 
     > .result {
