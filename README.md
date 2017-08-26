@@ -18,7 +18,7 @@
 <script src="/js/crsearch.js"></script>
 <script type="text/javascript"><!--
   $(document).ready(function() {
-    var cs = new CRSearch;
+    var cs = new CRSearch.Search;
     cs.database("https://cpprefjp.github.io");
     cs.database("https://boostjp.github.io");
     cs.searchbox(".crsearch");
