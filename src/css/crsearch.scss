@@ -68,6 +68,13 @@ $search-input-height: 1.8em;
       display: block;
     }
 
+    ul {
+      list-style: none;
+      font-family: monospace;
+      margin: 0;
+      padding: 0;
+    }
+
     > .help-content {
       display: none;
       padding: 1em .5em 0 .5em;
@@ -86,11 +93,6 @@ $search-input-height: 1.8em;
       }
 
       > ul {
-        list-style: none;
-        font-family: monospace;
-        margin: 0;
-        padding: 0;
-
         > li {
           margin: 0;
           padding: 0;
@@ -137,14 +139,18 @@ $search-input-height: 1.8em;
       font-size: 0.6em;
       text-align: right;
       color: #AAA;
-      margin: 1em .8em .25em 0;
+      margin: .2em .8em .25em 0;
     }
 
-    > .result {
+    > .results {
       cursor: pointer;
       vertical-align: top;
       display: block;
+      list-style: none;
+      font-family: monospace;
+    }
 
+    > .results > .result {
       &:not(:last-child) {
         border-bottom: 1px solid $cs-bd-result-sep;
       }
@@ -178,12 +184,11 @@ $search-input-height: 1.8em;
 
       &.google-fallback {
         > a:before {
-          content: '';
-          display: inline-block;
-          background: url($google-logo) left center no-repeat rgb(255, 255, 255);
-          overflow: hidden;
-          padding-top: 1em;
-          padding-right: 52px;
+          content: 'Google';
+          color: #99BBDD;
+          font-weight: bold;
+          font-size: 1em;
+          font-family: sans-serif;
         }
       }
 

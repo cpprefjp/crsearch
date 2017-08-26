@@ -3,18 +3,37 @@ const Mousetrap = require('mousetrap')
 
 class CRSearch {
   static VERSION = '1.0.0'
+  static HOMEPAGE = 'https://github.com/cpprefjp/crsearch'
 
   static OPTS_DEFAULT = {
     klass: {
       search_button: 'glyphicon glyphicon-search',
     },
+    search_fallback_host: 'cpprefjp.github.io',
+    google_url: new URL('https://www.google.co.jp/search'),
   }
 
   static KLASS = 'crsearch'
-  static RESULT_KLASS = 'result-wrapper'
+  static RESULT_WRAPPER_KLASS = 'result-wrapper'
+  static RESULTS_KLASS = 'results'
   static INPUT_PLACEHOLDER = '"std::...", "<header>", etc.'
 
   static MAX_RESULT = 5
+
+  static RESULT_PROTO = $('<li class="result"><a href="#"></a></li>')
+  static RESULT = {
+    HEADER: Symbol(),
+    CLASS: Symbol(),
+    FUNCTION: Symbol(),
+    MEM_FUN: Symbol(),
+    ENUM: Symbol(),
+    VARIABLE: Symbol(),
+    TYPE_ALIAS: Symbol(),
+    MACRO: Symbol(),
+    ARTICLE: Symbol(),
+    META: Symbol(),
+    GOOGLE_FALLBACK: Symbol(),
+  }
 
   static HELP = `
     <div class="help-content">
@@ -70,6 +89,29 @@ class CRSearch {
 
     this.debug('input change', e.data)
     this.debug('text:', text)
+
+    let res = this.clear_results_for(e.target)
+    res.append(this.make_result(CRSearch.RESULT.GOOGLE_FALLBACK, text))
+  }
+
+  make_result(t, target) {
+    switch (t) {
+    case CRSearch.RESULT.GOOGLE_FALLBACK:
+      let elem = $.extend(true, {}, CRSearch.RESULT_PROTO).addClass('google-fallback')
+      let a = elem.children('a')
+
+      let url = this.opts.google_url
+      let params = url.searchParams
+      params.set('q', `${target} site:${this.opts.search_fallback_host}`)
+      url.searchParams = params
+      a.attr('href', url)
+      a.attr('target', '_blank')
+      a.text(target)
+      return elem
+
+    default:
+        throw 'unhandled result type'
+    }
   }
 
   searchbox(sel) {
@@ -84,16 +126,17 @@ class CRSearch {
     control.appendTo(box)
 
     let input = $('<input type="text" class="input">')
+    input.attr('autocomplete', false)
     input.attr('placeholder', CRSearch.INPUT_PLACEHOLDER)
     input.appendTo(control)
 
     input.on('click', function(e) {
-      this.show_result_for(e.target)
+      this.show_result_wrapper_for(e.target)
       return this.select_default()
     }.bind(this))
 
     input.on('keyup', {id: id}, function(e) {
-      this.show_result_for(e.target)
+      this.show_result_wrapper_for(e.target)
 
       const text = $(e.target).val().replace(/\s+/g, ' ').trim()
 
@@ -101,13 +144,18 @@ class CRSearch {
         this.last_input[e.data.id] = text
 
         if (text.length >= 2) {
-          this.find_result_for(e.target).removeClass('help')
+          this.find_result_wrapper_for(e.target).removeClass('help')
           this.msg_for(e.target)
           this.do_search(e)
 
+        } else if (text.length == 0) {
+          this.clear_results_for(e.target)
+          this.msg_for(e.target)
+          this.find_result_wrapper_for(e.target).addClass('help')
+
         } else {
           this.msg_for(e.target, text.length == 0 ? '' : 'input >= 2 characters...')
-          this.find_result_for(e.target).addClass('help')
+          this.find_result_wrapper_for(e.target).addClass('help')
         }
       }
       return false
@@ -120,23 +168,28 @@ class CRSearch {
       return this.hide_all_result()
     }.bind(this))
 
-    let result = $('<div />')
-    result.addClass(CRSearch.RESULT_KLASS)
-    result.addClass('help')
-    result.appendTo(box)
+    let result_wrapper = $('<div />')
+    result_wrapper.addClass(CRSearch.RESULT_WRAPPER_KLASS)
+    result_wrapper.addClass('help')
+    result_wrapper.appendTo(box)
+
+    let results = $('<ul />')
+    results.addClass(CRSearch.RESULTS_KLASS)
+    results.appendTo(result_wrapper)
 
     let help_content = $(CRSearch.HELP)
-    help_content.appendTo(result)
+    help_content.appendTo(result_wrapper)
 
     let cr_info = $('<div class="crsearch-info" />')
-    cr_info.text(`CRSearch v${CRSearch.VERSION}`)
-    cr_info.appendTo(result)
+    let cr_info_link = $('<a />')
+    cr_info_link.attr('href', CRSearch.HOMEPAGE)
+    cr_info_link.attr('target', '_blank')
+    cr_info_link.text(`CRSearch v${CRSearch.VERSION}`)
+    cr_info_link.appendTo(cr_info)
+    cr_info.appendTo(result_wrapper)
 
     input.on('focusin', function() {
-      return this.show_result_for(this)
-    }.bind(this))
-    input.on('focusout', function() {
-      return this.hide_all_result()
+      return this.show_result_wrapper_for(this)
     }.bind(this))
 
     let btn_search = $('<span />')
@@ -154,12 +207,16 @@ class CRSearch {
     return $(input).closest(`.${CRSearch.KLASS}`)
   }
 
-  find_result_for(input) {
-    return this.find_cr_for(input).children(`.${CRSearch.RESULT_KLASS}`)
+  find_result_wrapper_for(input) {
+    return this.find_cr_for(input).children(`.${CRSearch.RESULT_WRAPPER_KLASS}`)
   }
 
-  show_result_for(input) {
-    this.find_result_for(input).addClass('visible')
+  find_results_for(input) {
+    return this.find_result_wrapper_for(input).children(`.${CRSearch.RESULTS_KLASS}`)
+  }
+
+  show_result_wrapper_for(input) {
+    this.find_result_wrapper_for(input).addClass('visible')
     return false
   }
 
@@ -168,8 +225,19 @@ class CRSearch {
     return false
   }
 
+  hide_result_wrapper_for(input) {
+    this.find_result_wrapper_for(input).removeClass('visible')
+    return false
+  }
+
+  clear_results_for(input) {
+    let res = this.find_results_for(input)
+    res.empty()
+    return res
+  }
+
   hide_all_result() {
-    let res = $(`.${CRSearch.KLASS} .${CRSearch.RESULT_KLASS}`)
+    let res = $(`.${CRSearch.KLASS} .${CRSearch.RESULT_WRAPPER_KLASS}`)
     res.removeClass('visible')
     return false
   }
