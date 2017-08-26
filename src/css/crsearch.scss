@@ -68,6 +68,18 @@ $search-input-height: 1.8em;
       display: block;
     }
 
+    > .help-content {
+      display: none;
+
+      > .message {
+        text-transform: capitalize;
+      }
+    }
+
+    &.help > .help-content {
+      display: block;
+    }
+
     > .result {
       cursor: pointer;
       vertical-align: top;

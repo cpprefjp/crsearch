@@ -16,6 +16,26 @@ class CRSearch {
 
   static MAX_RESULT = 5
 
+  static HELP = `
+    <div class="help-content">
+      <div class="message"></div>
+      <ul class="examples">
+        <li>
+          <h3>Class / Function / Type</h3>
+          <div class="query">std::<span class="input"></span></div>
+        </li>
+        <li>
+          <h3>Header file</h3>
+          <div class="query">&lt;<span class="input"></span>&gt;</div>
+        </li>
+        <li>
+          <h3>All</h3>
+          <div class="query"><span class="input"></span></div>
+        </li>
+      </ul>
+    </div>
+  `
+
   constructor(opts = CRSearch.OPTS_DEFAULT) {
     this.opts = opts
     this.databases = new Set
@@ -68,17 +88,22 @@ class CRSearch {
       this.show_result_for(e.target)
 
       const text = $(e.target).val().replace(/\s+/g, ' ').trim()
-      if (this.last_input[e.data.id] != text && text.length >= 2) {
-        this.last_input[e.data.id] = text
-        this.do_search(e)
-      } else {
-        this.last_input[e.data.id] = text
-      }
 
-      if (text == '') {
-        this.hide_all_result()
+      if (this.last_input[e.data.id] != text) {
+        this.last_input[e.data.id] = text
+
+        if (text.length >= 2) {
+          this.find_result_for(e.target).removeClass('help')
+          this.msg_for(e.target)
+          this.do_search(e)
+
+        } else {
+          this.msg_for(e.target, text.length == 0 ? '' : 'input >= 2 characters...')
+          this.find_result_for(e.target).addClass('help')
+        }
       }
       return false
+
     }.bind(this))
     this.default_input = input
 
@@ -89,10 +114,17 @@ class CRSearch {
 
     let result = $('<div />')
     result.addClass(CRSearch.RESULT_KLASS)
+    result.addClass('help')
     result.appendTo(box)
+
+    let help_content = $(CRSearch.HELP)
+    help_content.appendTo(result)
 
     input.on('focusin', function() {
       return this.show_result_for(this)
+    }.bind(this))
+    input.on('focusout', function() {
+      return this.hide_all_result()
     }.bind(this))
 
     let btn_search = $('<span />')
@@ -106,9 +138,21 @@ class CRSearch {
     return false
   }
 
+  find_cr_for(input) {
+    return $(input).closest(`.${CRSearch.KLASS}`)
+  }
+
+  find_result_for(input) {
+    return this.find_cr_for(input).children(`.${CRSearch.RESULT_KLASS}`)
+  }
+
   show_result_for(input) {
-    let res = $(input).closest(`.${CRSearch.KLASS}`).children(`.${CRSearch.RESULT_KLASS}`)
-    res.addClass('visible')
+    this.find_result_for(input).addClass('visible')
+    return false
+  }
+
+  msg_for(input, msg = '') {
+    this.find_cr_for(input).find('.result-wrapper .help-content .message').text(msg)
     return false
   }
 
