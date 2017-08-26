@@ -62,7 +62,7 @@ class CRSearch {
       return this.select_default()
     }.bind(this))
     input.on('keyup', {id: id}, function(e) {
-      const text = $(e.target).val().replace(/\s+/, ' ').trim()
+      const text = $(e.target).val().replace(/\s+/g, ' ').trim()
       if (this.last_input[e.data.id] != text && text.length >= 2) {
         this.last_input[e.data.id] = text
         this.do_search(e)
