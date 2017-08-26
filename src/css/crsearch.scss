@@ -160,7 +160,7 @@ $search-input-height: 1.8em;
         padding: .4em;
         font-family: monospace;
 
-        &:hover {
+        &:hover, &.hover {
           background-color: $cs-bg-result-hover;
           text-decoration: none;
         }

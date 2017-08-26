@@ -63,7 +63,7 @@ class CRSearch {
     this.search_timer = {}
 
     Mousetrap.bind('/', function() {
-      return this.select_default()
+      return this.select_default_input()
     }.bind(this))
 
     Mousetrap.bind('esc', function() {
@@ -132,7 +132,14 @@ class CRSearch {
 
     input.on('click', function(e) {
       this.show_result_wrapper_for(e.target)
-      return this.select_default()
+      return this.select_default_input()
+    }.bind(this))
+
+    Mousetrap(input.get(0)).bind('up', function(e) {
+      this.select_result(-1, e)
+    }.bind(this))
+    Mousetrap(input.get(0)).bind('down', function(e) {
+      this.select_result(+1, e)
     }.bind(this))
 
     input.on('keyup', {id: id}, function(e) {
@@ -198,7 +205,19 @@ class CRSearch {
     btn_search.appendTo(control)
   }
 
-  select_default() {
+  select_result(dir, e) {
+    let results = this.find_results_for(e.target)
+    let all_results = results.children('.result')
+    let hovered = results.children('.result > a:hover')
+
+    if (!hovered || hovered.parent().index() + dir < 0) {
+      $(all_results[0]).children('a').addClass('hover')
+    } else {
+      $(all_results[hovered.parent().index() + dir]).children('a').addClass('hover')
+    }
+  }
+
+  select_default_input() {
     this.default_input.select()
     return false
   }
