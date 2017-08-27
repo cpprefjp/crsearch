@@ -10,6 +10,12 @@
 - `npm install`
 - `npm run build`
 
+Docker をインストール済みなら:
+
+- `./docker.sh build`
+- `./docker.sh install`
+- `./docker.sh run build`
+
 ## デプロイ
 
 ### ファイル類
@@ -49,6 +55,13 @@
 
 - `npm install`
 - `npm run dev`
+- http://localhost:8080/
+
+Docker をインストール済みなら:
+
+- `./docker.sh build`
+- `./docker.sh install`
+- `./docker.sh run dev`
 - http://localhost:8080/
 
 ## ドキュメント
