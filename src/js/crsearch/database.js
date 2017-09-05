@@ -3,12 +3,16 @@ import {Result} from './result'
 
 class Index {
   constructor(json) {
-    this.type = ['class', 'function', 'mem_fun', 'enum', 'variable', 'type-alias', 'macro'].includes(json.id.type) ? Symbol.for(`cpp-${json.id.type}`) : Symbol.for(json.id.type)
+    this.type = ['namespace', 'class', 'function', 'mem_fun', 'enum', 'variable', 'type-alias', 'macro'].includes(json.id.type) ? Symbol.for(`cpp-${json.id.type}`) : Symbol.for(json.id.type)
     this.page_id = json.page_id
 
     switch (json.id.type) {
     case 'header':
       this.id = `<${json.id.key.join('/')}>`
+      break
+
+    case 'namespace':
+      this.id = json.id.key.join('::')
       break
 
     case 'class':
@@ -80,7 +84,7 @@ class Namespace {
   }
 
   make_path(page_id) {
-    return `${this.path_prefixes}/${page_id}`
+    return `${this.path_prefixes}/${page_id.join('/')}`
   }
 }
 

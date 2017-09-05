@@ -4,6 +4,7 @@ $google-logo: 'https://www.google.com/cse/static/images/1x/googlelogo_lightgrey_
 
 $theme-color: #306E82;
 $badge-header: #4A4;
+$badge-cpp-namespace: #444;
 $badge-cpp-class: #44A;
 $badge-cpp-function: lighten($badge-cpp-class, 15%);
 $badge-cpp-macro: #44DD22;
@@ -203,12 +204,12 @@ $search-input-height: 1.8em;
           background: #888;
 
           display: inline-block;
-          width: 5.5em;
-          line-height: 1.4em;
+          width: 6rem;
+          line-height: 1.4;
           font-family: monospace;
-          font-size: .8em;
+          font-size: .8rem;
           text-align: center;
-          margin-right: .8em;
+          margin-right: .8rem;
         }
 
         > .content {
@@ -231,6 +232,15 @@ $search-input-height: 1.8em;
         > a:before {
           content: 'header';
           background: $badge-header;
+        }
+      }
+
+      &.cpp-namespace {
+        > a:before {
+          font-size: .7rem;
+          content: 'namespace';
+          background: $badge-cpp-namespace;
+          color: #EEE;
         }
       }
 

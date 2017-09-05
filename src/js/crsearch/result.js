@@ -1,5 +1,6 @@
 const Result = {
   HEADER: Symbol.for('cpp-header'),
+  NAMESPACE: Symbol.for('cpp-namespace'),
   CLASS: Symbol.for('cpp-class'),
   FUNCTION: Symbol.for('cpp-function'),
   MEM_FUN: Symbol.for('cpp-mem_fun'),

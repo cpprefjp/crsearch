@@ -14,7 +14,7 @@
                         ],
                         "type": "class"
                     },
-                    "page_id": "array"
+                    "page_id": ["array"]
                 },
                 {
                     "id": {
@@ -26,77 +26,19 @@
                         ],
                         "type": "class"
                     },
-                    "page_id": "vector"
-                }
-            ],
-            "namespace": [
-                "reference"
-            ],
-            "path_prefixes": [
-                "reference"
-            ]
-        },
-        {
-            "indexes": [
+                    "page_id": ["vector"]
+                },
                 {
                     "id": {
                         "cpp_namespace": [
-                            "std"
+                            "std", "algorithm"
                         ],
                         "key": [
                             "all_of"
                         ],
                         "type": "function"
                     },
-                    "page_id": "all_of"
-                }
-            ],
-            "namespace": [
-                "reference",
-                "algorithm"
-            ],
-            "path_prefixes": [
-                "reference",
-                "algorithm"
-            ]
-        },
-        {
-            "indexes": [
-                {
-                    "id": {
-                        "cpp_namespace": [
-                            "std"
-                        ],
-                        "key": [
-                            "operator<"
-                        ],
-                        "type": "function"
-                    },
-                    "page_id": "op_less"
-                }
-            ],
-            "namespace": [
-                "reference",
-                "array"
-            ],
-            "path_prefixes": [
-                "reference",
-                "array"
-            ]
-        },
-        {
-            "indexes": [
-                {
-                    "id": {
-                        "cpp_namespace": [
-                            "std"
-                        ],
-                        "key": [
-                            "push_back"
-                        ],
-                        "type": "mem_fun"
-                    },
-                    "page_id": "push_back"
+                    "page_id": ["algorithm", "all_of"]
                 },
                 {
                     "id": {
@@ -104,20 +46,39 @@
                             "std"
                         ],
                         "key": [
-                            "swap (\u975e\u30e1\u30f3\u30d0\u95a2\u6570)"
+                            "array", "operator<"
                         ],
-                        "type": "function"
+                        "type": "mem_fun"
                     },
-                    "page_id": "swap_free"
+                    "page_id": ["array", "op_less"]
+                },
+                {
+                    "id": {
+                        "cpp_namespace": [
+                            "std"
+                        ],
+                        "key": [
+                            "vector", "push_back"
+                        ],
+                        "type": "mem_fun"
+                    },
+                    "page_id": ["vector", "push_back"]
+                },
+                {
+                    "id": {
+                        "key": [
+                            "std", "chrono"
+                        ],
+                        "type": "namespace"
+                    },
+                    "page_id": ["chrono"]
                 }
             ],
             "namespace": [
-                "reference",
-                "vector"
+                "reference"
             ],
             "path_prefixes": [
-                "reference",
-                "vector"
+                "reference"
             ]
         }
     ]
