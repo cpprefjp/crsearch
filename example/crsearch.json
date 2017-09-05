@@ -67,11 +67,11 @@
                 {
                     "id": {
                         "key": [
-                            "std", "chrono"
+                            "std", "regex_constants"
                         ],
                         "type": "namespace"
                     },
-                    "page_id": ["chrono"]
+                    "page_id": ["regex", "regex_constants"]
                 }
             ],
             "namespace": [
