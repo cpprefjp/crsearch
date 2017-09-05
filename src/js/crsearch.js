@@ -135,7 +135,7 @@ class Search {
       }
 
       const found_count = ret.found_count
-      if (found_count >= Search.MAX_RESULT) {
+      if (found_count > Search.MAX_RESULT) {
         extra_info_for[db.name].text = `Showing first ${Search.MAX_RESULT} matches`
       } else {
         extra_info_for[db.name].text = 'Showing all matches'

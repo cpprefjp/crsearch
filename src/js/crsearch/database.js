@@ -74,7 +74,7 @@ class Namespace {
         ++found_count
 
         if (found_count > max_count) {
-          return {targets: targets, found_count: max_count}
+          return {targets: targets, found_count: found_count}
         }
         targets.push({path: path_composer(this.make_path(idx.page_id)), index: idx})
       }
@@ -110,8 +110,8 @@ class Database {
       found_count = res.found_count
       targets.push(...res.targets)
 
-      if (found_count >= max_count) {
-        return {targets: targets, found_count: max_count}
+      if (found_count > max_count) {
+        return {targets: targets, found_count: found_count}
       }
     }
     return {targets: targets, found_count: found_count}
