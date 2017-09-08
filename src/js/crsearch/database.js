@@ -79,6 +79,14 @@ class Index {
   pretty_name() {
     return this.pretty_id
   }
+
+  static ambgMatch(idx, q) {
+    if ([Result.ARTICLE, Result.META].includes(idx.type)) {
+      return idx.pretty_id.toLowerCase().includes(q.toLowerCase())
+    }
+
+    return idx.pretty_id.includes(q)
+  }
 }
 
 class Namespace {
@@ -108,18 +116,10 @@ class Namespace {
     queries.not.delete('')
     // console.log(queries)
 
-    const ambgMatch = (idx, q) => {
-      if ([Result.ARTICLE, Result.META].includes(idx.type)) {
-        return idx.pretty_id.toLowerCase().includes(q.toLowerCase())
-      }
-
-      return idx.pretty_id.includes(q)
-    }
-
     for (let [id, idx] of this.indexes) {
       if (
-        Array.from(queries.and).every(function(idx, q) { return ambgMatch(idx, q) }.bind(null, idx)) &&
-        !Array.from(queries.not).some(function(idx, q) { return ambgMatch(idx, q) }.bind(null, idx))
+        Array.from(queries.and).every(function(idx, q) { return Index.ambgMatch(idx, q) }.bind(null, idx)) &&
+        !Array.from(queries.not).some(function(idx, q) { return Index.ambgMatch(idx, q) }.bind(null, idx))
 
       ) {
         ++found_count
