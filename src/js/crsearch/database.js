@@ -187,7 +187,6 @@ class Namespace {
         !Array.from(queries.not).some(function(idx, q) { return Index.ambgMatch(idx, q) }.bind(null, idx))
 
       ) {
-        console.log('match', idx)
         ++found_count
 
         if (found_count > max_count) {
