@@ -189,25 +189,21 @@ class Search {
     let elem = Search.RESULT_PROTO.clone()
     elem.addClass(Symbol.keyFor(t))
     let a = elem.children('a')
+    let content = $('<div class="content" />').appendTo(a)
     let url = undefined
 
     switch (t) {
-    case Result.NO_MATCH:
-      elem.empty()
-      $('<span class="query" />').text(target).appendTo(elem)
-      break
-
     case Result.GOOGLE_FALLBACK:
       url = this.opts.google_url
       url.searchParams.set('q', `${target} site:${extra.url}`)
       a.attr('href', url)
       a.attr('target', '_blank')
-      a.text(`${extra.name}: ${target}`)
+      content.text(`${extra.name}: ${target}`)
       break
 
     default:
       a.attr('href', extra)
-      a.text(target.pretty_name())
+      content.text(target.pretty_name())
       if (this.opts.force_new_window) {
         a.attr('target', '_blank')
       }

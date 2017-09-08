@@ -65,8 +65,19 @@ module.exports = [
                 loader: 'css-loader',
                 options: {
                   minimize: true,
-                  sourceMap: true
+                  sourceMap: true,
                 }
+              },
+              {
+                loader: 'postcss-loader',
+                options: {
+                  plugins: function() {
+                    return [
+                      require('precss'),
+                      require('autoprefixer'),
+                    ];
+                  },
+                },
               },
               {
                 loader: 'sass-loader'

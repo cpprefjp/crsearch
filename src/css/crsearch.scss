@@ -67,7 +67,6 @@ $search-input-height: 1.8em;
     background: $cs-bg-result;
     min-height: 2em;
     left: 0;
-    max-height: 300px;
     box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
 
     display: none;
@@ -112,7 +111,7 @@ $search-input-height: 1.8em;
           h3 {
             padding: 0;
             margin: 0;
-            font-size: 1em;
+            font-size: 1.5rem;
             font-weight: bold;
             font-style: oblique;
             font-family: sans-serif;
@@ -121,7 +120,7 @@ $search-input-height: 1.8em;
 
           .query {
             margin: .3em 0 0 .75em;
-            font-size: 1em;
+            font-size: 1.5rem;
             color: #6A6A6A;
 
             .input:before {
@@ -188,9 +187,11 @@ $search-input-height: 1.8em;
 
     > .results > .result:not(.cr-result-header) {
       > a {
-        display: block;
+        display: flex;
+        align-items: flex-start;
+
         padding: .4em;
-        line-height: 1.2em;
+        line-height: 1.4;
         font-family: monospace;
 
         &:hover, &.hover {
@@ -205,16 +206,17 @@ $search-input-height: 1.8em;
 
           display: inline-block;
           width: 6rem;
-          line-height: 1.4;
           font-family: monospace;
           font-size: .8rem;
           text-align: center;
-          margin-right: .8rem;
+
+          margin: .2rem .8rem 0 0;
         }
 
         > .content {
-          font-family: sans-serif;
-          font-size: 1em;
+          display: inline-block;
+          flex: 1;
+          font-size: 1.4rem;
         }
       } // a
 
@@ -222,6 +224,8 @@ $search-input-height: 1.8em;
         > a:before {
           content: 'Google';
           color: $badge-google-fallback;
+          font-size: 1.2rem;
+          margin-top: 0;
           background: none;
           font-weight: bold;
           font-family: sans-serif;

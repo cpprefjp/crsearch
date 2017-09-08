@@ -2,49 +2,82 @@ import * as $ from 'jquery'
 import {Result} from './result'
 
 class Index {
+  static METHOD_TRS = new Map([
+    ['コンストラクタ', 'constructor'],
+    ['デストラクタ', 'destructor'],
+  ])
+
+  static VERBATIM_TRS = new Map([
+    ['推論補助', {to: 'deduction guide', type: Symbol.for('cpp-class')}],
+    ['単項', {to: 'unary'}],
+  ])
+
   constructor(json) {
-    this.type = ['namespace', 'class', 'function', 'mem_fun', 'enum', 'variable', 'type-alias', 'macro'].includes(json.id.type) ? Symbol.for(`cpp-${json.id.type}`) : Symbol.for(json.id.type)
+    this.type = ['header', 'namespace', 'class', 'function', 'mem_fun', 'enum', 'variable', 'type-alias', 'macro'].includes(json.id.type) ? Symbol.for(`cpp-${json.id.type}`) : Symbol.for(json.id.type)
     this.page_id = json.page_id
 
-    switch (json.id.type) {
-    case 'header':
-      this.id = `<${json.id.key.join('/')}>`
-      break
+    json.id.key = json.id.key.map((v) => {
+      return v.normalize('NFKC')
+    })
 
-    case 'namespace':
-      this.id = json.id.key.join('::')
-      break
+    Index.VERBATIM_TRS.forEach((v, k) => {
+      if (json.id.key[json.id.key.length - 1].includes(k)) {
+        json.id.key[json.id.key.length - 1] = `(${v.to})`
 
-    case 'class':
-    case 'function':
-    case 'mem_fun':
-    case 'enum':
-    case 'variable':
-    case 'type-alias':
-      let ns = 'std'
-      if (json.id.cpp_namespace) {
-        ns = json.id.cpp_namespace.join('::')
+        if (v.type) {
+          this.type = v.type
+        }
       }
-      ns += '::'
+    })
 
-      const entity = json.id.key.join('::')
-
-      this.id = `${ns}${entity}`
+    switch (this.type) {
+    case Result.HEADER:
+      this.id = json.id.key
+      this.pretty_id = `<${json.id.key.join('/')}>`
       break
 
-    case 'macro':
-    case 'article':
-    case 'meta':
-      this.id = json.id.key.join('')
+    case Result.NAMESPACE:
+      this.id = json.id.key
+      this.pretty_id = json.id.key.join('::')
+      break
+
+    case Result.CLASS:
+    case Result.FUNCTION:
+    case Result.MEM_FUN:
+    case Result.ENUM:
+    case Result.VARIABLE:
+    case Result.TYPE_ALIAS:
+      let ns = ['std']
+      if (json.id.cpp_namespace) {
+        ns = json.id.cpp_namespace
+      }
+
+      if (json.id.type === 'mem_fun') {
+        Index.METHOD_TRS.forEach((v, k) => {
+          if (json.id.key[json.id.key.length - 1] === k) {
+            json.id.key[json.id.key.length - 1] = `(${v})`
+          }
+        })
+      }
+
+      this.id = ns.concat(json.id.key)
+      this.pretty_id = `${ns.join('::')}::${json.id.key.join('::')}`
+      break
+
+    case Result.MACRO:
+    case Result.ARTICLE:
+    case Result.META:
+      this.id = json.id.key
+      this.pretty_id = json.id.key.join('')
       break
 
     default:
-      throw `unhandled type '${json.id.type}' in Index`
+      throw `unhandled type '${this.type}' in Index`
     }
   }
 
   pretty_name() {
-    return this.id
+    return this.pretty_id
   }
 }
 
@@ -62,15 +95,33 @@ class Namespace {
     for (const idx of json.indexes) {
       const idx_ = new Index(idx)
       console.log('got Index', idx_)
-      this.indexes.set(idx_.id, idx_)
+      this.indexes.set(idx_.pretty_id, idx_)
     }
   }
 
   query(q, found_count, max_count, path_composer) {
     let targets = []
+    let queries = q.normalize('NFKC').split(/\s+/).filter(Boolean).reduce(
+      (l, r) => { r[0] === '-' ? l.not.add(r.substring(1)) : l.and.add(r); return l },
+      {and: new Set, not: new Set}
+    )
+    queries.not.delete('')
+    // console.log(queries)
 
-    for (const [id, idx] of this.indexes) {
-      if (id.search(q) != -1) {
+    const ambgMatch = (idx, q) => {
+      if ([Result.ARTICLE, Result.META].includes(idx.type)) {
+        return idx.pretty_id.toLowerCase().includes(q.toLowerCase())
+      }
+
+      return idx.pretty_id.includes(q)
+    }
+
+    for (let [id, idx] of this.indexes) {
+      if (
+        Array.from(queries.and).every(function(idx, q) { return ambgMatch(idx, q) }.bind(null, idx)) &&
+        !Array.from(queries.not).some(function(idx, q) { return ambgMatch(idx, q) }.bind(null, idx))
+
+      ) {
         ++found_count
 
         if (found_count > max_count) {
