@@ -152,7 +152,7 @@ class Search {
 
       for (const target of targets) {
         result_list.append(this.make_result(
-          target.index.type,
+          target.index.type(),
           target.index,
           target.path
         ))
@@ -212,7 +212,7 @@ class Search {
 
     default:
       a.attr('href', extra)
-      content.text(target.pretty_name())
+      target.join_html().appendTo(content)
       if (this.opts.force_new_window) {
         a.attr('target', '_blank')
       }

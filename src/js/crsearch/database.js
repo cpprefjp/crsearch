@@ -1,46 +1,20 @@
 import * as $ from 'jquery'
 import {Result} from './result'
 
-class Index {
-  static METHOD_TRS = new Map([
-    ['コンストラクタ', 'constructor'],
-    ['デストラクタ', 'destructor'],
-  ])
-
+class IndexKey {
   static VERBATIM_TRS = new Map([
-    ['推論補助', {to: 'deduction guide', type: Symbol.for('cpp-class')}],
+    ['コンストラクタ', {to: '(constructor)', only: Result.MEM_FUN}],
+    ['デストラクタ', {to: '(destructor)', only: Result.MEM_FUN}],
+    ['推論補助', {to: '(deduction guide)', type: Result.CLASS}],
     ['単項', {to: 'unary'}],
   ])
 
   constructor(json) {
     this.type = ['header', 'namespace', 'class', 'function', 'mem_fun', 'enum', 'variable', 'type-alias', 'macro'].includes(json.id.type) ? Symbol.for(`cpp-${json.id.type}`) : Symbol.for(json.id.type)
-    this.page_id = json.page_id
 
-    json.id.key = json.id.key.map((v) => {
-      return v.normalize('NFKC')
-    })
-
-    Index.VERBATIM_TRS.forEach((v, k) => {
-      if (json.id.key[json.id.key.length - 1].includes(k)) {
-        json.id.key[json.id.key.length - 1] = `(${v.to})`
-
-        if (v.type) {
-          this.type = v.type
-        }
-      }
-    })
+    let keys = json.id.key
 
     switch (this.type) {
-    case Result.HEADER:
-      this.id = json.id.key
-      this.pretty_id = `<${json.id.key.join('/')}>`
-      break
-
-    case Result.NAMESPACE:
-      this.id = json.id.key
-      this.pretty_id = json.id.key.join('::')
-      break
-
     case Result.CLASS:
     case Result.FUNCTION:
     case Result.MEM_FUN:
@@ -52,40 +26,131 @@ class Index {
         ns = json.id.cpp_namespace
       }
 
-      if (json.id.type === 'mem_fun') {
-        Index.METHOD_TRS.forEach((v, k) => {
-          if (json.id.key[json.id.key.length - 1] === k) {
-            json.id.key[json.id.key.length - 1] = `(${v})`
-          }
-        })
+      keys = ns.concat(json.id.key)
+      break
+    }
+
+    this.keys = keys.map((k) => {
+      return {name: k.normalize('NFKC')}
+    })
+
+    IndexKey.VERBATIM_TRS.forEach((v, k) => {
+      if (v.only && v.only !== this.type) {
+        return
       }
 
-      this.id = ns.concat(json.id.key)
-      this.pretty_id = `${ns.join('::')}::${json.id.key.join('::')}`
-      break
+      if (this.keys[this.keys.length - 1].name.includes(k)) {
+        this.keys[this.keys.length - 1] = {
+          name: this.keys[keys.length - 1].name.replace(k, `${v.to}`),
+          classes: ['special'],
+        }
 
-    case Result.MACRO:
-    case Result.ARTICLE:
-    case Result.META:
-      this.id = json.id.key
-      this.pretty_id = json.id.key.join('')
-      break
+        if (v.type) {
+          this.type = v.type
 
-    default:
-      throw `unhandled type '${this.type}' in Index`
-    }
+          if (this.type === Result.CLASS && this.keys[0] !== 'std') {
+            this.keys.unshift({name: 'std'})
+          }
+        }
+      }
+    })
   }
 
-  pretty_name() {
-    return this.pretty_id
+  join(hint = this.join_hint()) {
+    return `${hint.wrap.left || ''}${this.keys.map((k) => k.name).join(hint.delim.text)}${hint.wrap.right || ''}`
+  }
+
+  join_html(hint = this.join_hint()) {
+    let container  = $(`<div class="key-container delim-${hint.delim.name}" />`)
+    if (hint.wrap.left) {
+      let e = $('<span class="wrap" />')
+      e.text(hint.wrap.left)
+      e.appendTo(container)
+    }
+
+    let keys = $('<div class="keys" />')
+    keys.appendTo(container)
+
+    this.keys.forEach((k) => {
+      let e = $('<span class="key" />')
+
+      if (k.classes) {
+        k.classes.forEach((c) =>
+          e.addClass(c)
+        )
+      }
+      e.text(k.name)
+      e.appendTo(keys)
+    })
+
+    if (hint.wrap.right) {
+      let e = $('<span class="wrap" />')
+      e.text(hint.wrap.right)
+      e.appendTo(container)
+    }
+
+    return container
+  }
+
+  join_hint() {
+    let hint = {delim: {name: 'none', text: ''}, wrap: {}}
+
+    switch (this.type) {
+    case Result.HEADER:
+      hint = {
+        wrap: {left: '<', right: '>'},
+        delim: {
+          name: 'slash',
+          text: '/'
+        }
+      }
+      break
+
+    case Result.NAMESPACE:
+    case Result.CLASS:
+    case Result.FUNCTION:
+    case Result.MEM_FUN:
+    case Result.ENUM:
+    case Result.VARIABLE:
+    case Result.TYPE_ALIAS:
+      hint.delim = {
+        name: 'ns',
+        text: '::'
+      }
+      break
+    }
+
+    return hint
+  }
+}
+
+class Index {
+  constructor(json) {
+    this.page_id = json.page_id
+    this.key = new IndexKey(json)
+
+    // cache
+    this.key_cache = this.join()
+  }
+
+  type() {
+    return this.key.type
+  }
+
+  join_html() {
+    return this.key.join_html()
+  }
+
+  join() {
+    return this.key.join()
   }
 
   static ambgMatch(idx, q) {
     if ([Result.ARTICLE, Result.META].includes(idx.type)) {
-      return idx.pretty_id.toLowerCase().includes(q.toLowerCase())
+      return idx.key_cache.toLowerCase().includes(q.toLowerCase())
     }
 
-    return idx.pretty_id.includes(q)
+    return idx.key_cache.includes(q)
   }
 }
 
@@ -103,7 +168,7 @@ class Namespace {
     for (const idx of json.indexes) {
       const idx_ = new Index(idx)
       console.log('got Index', idx_)
-      this.indexes.set(idx_.pretty_id, idx_)
+      this.indexes.set(idx_.key_cache, idx_)
     }
   }
 
@@ -122,6 +187,7 @@ class Namespace {
         !Array.from(queries.not).some(function(idx, q) { return Index.ambgMatch(idx, q) }.bind(null, idx))
 
       ) {
+        console.log('match', idx)
         ++found_count
 
         if (found_count > max_count) {

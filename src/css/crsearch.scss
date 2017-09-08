@@ -155,7 +155,7 @@ $search-input-height: 1.8em;
       padding: .2em .8em .25em 0;
     }
 
-    > .results {
+    .results {
       cursor: pointer;
       vertical-align: top;
       display: block;
@@ -163,11 +163,34 @@ $search-input-height: 1.8em;
       font-family: monospace;
     }
 
-    > .results > .result {
+    .results > .result {
       border-bottom: 1px solid $cs-bd-result-sep;
+
+      .key-container {
+        .wrap, .keys {
+          display: inline-block;
+        }
+
+        &:not(.delim-none) .key:not(:last-child):after {
+          display: inline-block;
+          margin: 0;
+          padding: 0;
+        }
+
+        &.delim-ns .key:not(:last-child):after {
+          content: '::';
+        }
+        &.delim-slash .key:not(:last-child):after {
+          content: '/';
+        }
+
+        .key.special {
+          font-weight: bold;
+        }
+      }
     }
 
-    > .results > .result.cr-result-header {
+    .results > .result.cr-result-header {
       cursor: default;
       @extend .clearfix;
 
@@ -189,7 +212,7 @@ $search-input-height: 1.8em;
       }
     }
 
-    > .results > .result:not(.cr-result-header) {
+    .results > .result:not(.cr-result-header) {
       > a {
         display: flex;
         align-items: flex-start;
