@@ -53,6 +53,10 @@ $search-input-height: 1.8em;
 
       font-size: $control-font-size;
       line-height: $search-input-height;
+
+      &, &:hover, &:focus, &:visited, &:active {
+        text-decoration: none;
+      }
     }
   } // .control
 

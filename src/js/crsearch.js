@@ -83,6 +83,7 @@ class Search {
           this.debug('fetch failed.')
         }.bind(this)
       })
+
       ++i
     }
   }
@@ -90,6 +91,10 @@ class Search {
   parse(url, json) {
     this.debug('parsing...', json)
     this.db.set(url, new Database(json))
+
+    if (!this.defaultUrl) this.defaultUrl = new URL(this.db.get(url).base_url).hostname
+    this.updateSearchButton('')
+
     this.debug('parsed.', this.db.get(url))
   }
 
@@ -185,6 +190,12 @@ class Search {
     return elem
   }
 
+  make_google_url(q, site) {
+    let url = this.opts.google_url
+    url.searchParams.set('q', `${q} site:${site}`)
+    return url
+  }
+
   make_result(t, target, extra = undefined) {
     let elem = Search.RESULT_PROTO.clone()
     elem.addClass(Symbol.keyFor(t))
@@ -194,9 +205,7 @@ class Search {
 
     switch (t) {
     case Result.GOOGLE_FALLBACK:
-      url = this.opts.google_url
-      url.searchParams.set('q', `${target} site:${extra.url}`)
-      a.attr('href', url)
+      a.attr('href', this.make_google_url(target, extra.url))
       a.attr('target', '_blank')
       content.text(`${extra.name}: ${target}`)
       break
@@ -213,7 +222,16 @@ class Search {
     return elem
   }
 
+  updateSearchButton(href) {
+    this.searchButton.attr('href', this.make_google_url(href, this.defaultUrl))
+  }
+
   searchbox(sel) {
+    this.searchButton = $('<a />')
+    this.searchButton.attr('target', '_blank')
+    this.searchButton.addClass('search')
+    this.searchButton.addClass(this.opts.klass.search_button)
+
     if (!this.loaded) {
       this.loaded = true
       this.load()
@@ -246,6 +264,7 @@ class Search {
 
       if (this.last_input[e.data.id] != text) {
         this.last_input[e.data.id] = text
+        this.updateSearchButton(text)
 
         if (text.length >= 2) {
           this.find_result_wrapper_for(e.target).removeClass('help')
@@ -297,10 +316,7 @@ class Search {
       return this.show_result_wrapper_for(this)
     }.bind(this))
 
-    let btn_search = $('<span />')
-    btn_search.addClass('search')
-    btn_search.addClass(this.opts.klass.search_button)
-    btn_search.appendTo(control)
+    this.searchButton.appendTo(control)
   }
 
   select_default_input() {
