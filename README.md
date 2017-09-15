@@ -27,10 +27,12 @@
     <script type="text/javascript" src="js/crsearch.js"></script>
 
     <script type="text/javascript"><!--
-      var crs = new CRSearch;
-      crs.database("https://cpprefjp.github.io");
-      // crs.database("https://boostjp.github.io");
-      crs.searchbox(document.getElementsByClassName('crsearch'));
+      document.addEventListener('DOMContentLoaded', function() {
+        var crs = new CRSearch;
+        crs.database("https://cpprefjp.github.io");
+        // crs.database("https://boostjp.github.io");
+        crs.searchbox(document.getElementsByClassName('crsearch'));
+      });
     --></script>
   </head>
 
