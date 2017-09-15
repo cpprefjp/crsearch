@@ -1,15 +1,14 @@
-import * as $ from 'jquery'
-import * as Mousetrap from 'mousetrap'
+import {default as Mousetrap} from 'mousetrap'
 import {Result} from './crsearch/result'
 import {Index, Database} from './crsearch/database'
 
-class Search {
+export default class CRSearch {
   static VERSION = '1.0.0'
   static HOMEPAGE = 'https://github.com/cpprefjp/crsearch'
 
   static OPTS_DEFAULT = {
     klass: {
-      search_button: 'glyphicon glyphicon-search',
+      search_button: ['fa', 'fa-fw', 'fa-search'],
     },
     google_url: new URL('https://www.google.co.jp/search'),
     force_new_window: false,
@@ -44,7 +43,7 @@ class Search {
     </div>
   `
 
-  constructor(opts = Search.OPTS_DEFAULT) {
+  constructor(opts = CRSearch.OPTS_DEFAULT) {
     this.opts = opts
     this.loaded = false
     this.db = new Map
@@ -60,7 +59,7 @@ class Search {
       return this.hide_all_result()
     }.bind(this))
 
-    this.debug('initialized.')
+    this.dp('initialized.')
   }
 
   load() {
@@ -69,18 +68,18 @@ class Search {
       if (url.pathname == '/') {
         url.pathname = '/crsearch.json'
       }
-      this.debug(`fetching database (${i}/${this.db.size}):`, url)
+      this.dp(`fetching database (${i}/${this.db.size}):`, url)
 
       $.ajax({
         url: url,
 
         success: function(data) {
-          this.debug('fetched.')
+          this.dp('fetched.')
           this.parse(url, data)
         }.bind(this),
 
         fail: function() {
-          this.debug('fetch failed.')
+          this.dp('fetch failed.')
         }.bind(this)
       })
 
@@ -89,13 +88,13 @@ class Search {
   }
 
   parse(url, json) {
-    this.debug('parsing...', json)
+    this.dp('parsing...', json)
     this.db.set(url, new Database(json))
 
     if (!this.defaultUrl) this.defaultUrl = new URL(this.db.get(url).base_url).hostname
     this.updateSearchButton('')
 
-    this.debug('parsed.', this.db.get(url))
+    this.dp('parsed.', this.db.get(url))
   }
 
   database(base_url) {
@@ -121,7 +120,7 @@ class Search {
 
   do_search_impl(e) {
     const text = this.last_input[e.data.id]
-    this.debug('[query]', text)
+    this.dp('[query]', text)
 
     let result_list = this.clear_results_for(e.target)
     let extra_info_for = {}
@@ -130,20 +129,20 @@ class Search {
     let res = new Map
 
     for (const [url, db] of this.db) {
-      const ret = db.query(text, 0, Search.MAX_RESULT)
-      extra_info_for[db.name] = {url: db.base_url, text: ''}
+      const ret = db.query(text, 0, CRSearch.MAX_RESULT)
+      extra_info_for[db.name] = {url: db.base_url}
 
       res.set(db.name, ret.targets)
       if (res.get(db.name).length == 0) {
-        extra_info_for[db.name].text = `No matches for '${text}'`
+        extra_info_for[db.name].html = $(`<div class="message">No matches for <span class="query">${text}</span></div>`)
         continue
       }
 
       const found_count = ret.found_count
-      if (found_count > Search.MAX_RESULT) {
-        extra_info_for[db.name].text = `Showing first ${Search.MAX_RESULT} matches`
+      if (found_count > CRSearch.MAX_RESULT) {
+        extra_info_for[db.name].html = $(`<div class="message">Showing first<span class="match-count">${CRSearch.MAX_RESULT}</span>matches</div>`)
       } else {
-        extra_info_for[db.name].text = 'Showing all matches'
+        extra_info_for[db.name].html = $(`<div class="message">Showing<span class="match-count">all</span>matches</div>`)
       }
     }
 
@@ -172,13 +171,13 @@ class Search {
     let elem = $('<li class="result" />')
     elem.addClass('cr-result-header')
 
-    if (extra_info.text.length != 0) {
-      let extra = $(`<span class="extra" />`)
+    if (extra_info.html) {
+      let extra = $(`<div class="extra" />`)
 
       if (extra_info.klass) {
         extra.addClass(extra_info.klass)
       }
-      extra.text(extra_info.text)
+      extra_info.html.appendTo(extra)
       extra.appendTo(elem)
     }
 
@@ -197,7 +196,7 @@ class Search {
   }
 
   make_result(t, target, extra = undefined) {
-    let elem = Search.RESULT_PROTO.clone()
+    let elem = CRSearch.RESULT_PROTO.clone()
     elem.addClass(Symbol.keyFor(t))
     let a = elem.children('a')
     let content = $('<div class="content" />').appendTo(a)
@@ -207,7 +206,8 @@ class Search {
     case Result.GOOGLE_FALLBACK:
       a.attr('href', this.make_google_url(target, extra.url))
       a.attr('target', '_blank')
-      content.text(`${extra.name}: ${target}`)
+      $(`<div class="query">${target}</div>`).appendTo(content)
+      $(`<div class="fallback-site">${extra.url}</div>`).appendTo(content)
       break
 
     default:
@@ -230,7 +230,10 @@ class Search {
     this.searchButton = $('<a />')
     this.searchButton.attr('target', '_blank')
     this.searchButton.addClass('search')
-    this.searchButton.addClass(this.opts.klass.search_button)
+
+    for (const klass of this.opts.klass.search_button) {
+      this.searchButton.addClass(klass)
+    }
 
     if (!this.loaded) {
       this.loaded = true
@@ -238,7 +241,7 @@ class Search {
     }
 
     const id = this.last_id++;
-    this.debug('creating searchbox', id)
+    this.dp('creating searchbox', id)
 
     let box = $(sel)
     $.data(box, 'crsearch-id', id)
@@ -249,7 +252,7 @@ class Search {
 
     let input = $('<input type="text" class="input">')
     input.attr('autocomplete', false)
-    input.attr('placeholder', Search.INPUT_PLACEHOLDER)
+    input.attr('placeholder', CRSearch.INPUT_PLACEHOLDER)
     input.appendTo(control)
 
     input.on('click', function(e) {
@@ -293,22 +296,22 @@ class Search {
     }.bind(this))
 
     let result_wrapper = $('<div />')
-    result_wrapper.addClass(Search.RESULT_WRAPPER_KLASS)
+    result_wrapper.addClass(CRSearch.RESULT_WRAPPER_KLASS)
     result_wrapper.addClass('help')
     result_wrapper.appendTo(box)
 
     let results = $('<ul />')
-    results.addClass(Search.RESULTS_KLASS)
+    results.addClass(CRSearch.RESULTS_KLASS)
     results.appendTo(result_wrapper)
 
-    let help_content = $(Search.HELP)
+    let help_content = $(CRSearch.HELP)
     help_content.appendTo(result_wrapper)
 
     let cr_info = $('<div class="crsearch-info" />')
     let cr_info_link = $('<a />')
-    cr_info_link.attr('href', Search.HOMEPAGE)
+    cr_info_link.attr('href', CRSearch.HOMEPAGE)
     cr_info_link.attr('target', '_blank')
-    cr_info_link.text(`CRSearch v${Search.VERSION}`)
+    cr_info_link.text(`CRSearch v${CRSearch.VERSION}`)
     cr_info_link.appendTo(cr_info)
     cr_info.appendTo(result_wrapper)
 
@@ -325,15 +328,15 @@ class Search {
   }
 
   find_cr_for(input) {
-    return $(input).closest(`.${Search.KLASS}`)
+    return $(input).closest(`.${CRSearch.KLASS}`)
   }
 
   find_result_wrapper_for(input) {
-    return this.find_cr_for(input).children(`.${Search.RESULT_WRAPPER_KLASS}`)
+    return this.find_cr_for(input).children(`.${CRSearch.RESULT_WRAPPER_KLASS}`)
   }
 
   find_results_for(input) {
-    return this.find_result_wrapper_for(input).children(`.${Search.RESULTS_KLASS}`)
+    return this.find_result_wrapper_for(input).children(`.${CRSearch.RESULTS_KLASS}`)
   }
 
   show_result_wrapper_for(input) {
@@ -358,15 +361,15 @@ class Search {
   }
 
   hide_all_result() {
-    let res = $(`.${Search.KLASS} .${Search.RESULT_WRAPPER_KLASS}`)
+    let res = $(`.${CRSearch.KLASS} .${CRSearch.RESULT_WRAPPER_KLASS}`)
     res.removeClass('visible')
     return false
   }
 
-  debug() {
+  dp() {
     console.log('[CRSearch]', ...arguments)
   }
-} // Search
+} // CRSearch
 
-export {Search}
+module.exports = CRSearch
 
