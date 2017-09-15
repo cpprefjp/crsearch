@@ -25,7 +25,7 @@ module.exports = Merge.multiple(common, {
     devtool: 'cheap-module-eval-source-map',
     devServer: {
       publicPath: '/',
-      contentBase: path.join(__dirname, 'public'),
+      contentBase: path.join(__dirname, 'example'),
       watchContentBase: true,
     },
     plugins: [
