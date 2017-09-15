@@ -40,13 +40,6 @@
 </html>
 ```
 
-### JavaScript
-
-```javascript
-import {default as CRSearch} from 'crsearch'
-let crs = new CRSearch
-```
-
 ## 開発
 
 - `npm install`
