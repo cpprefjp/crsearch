@@ -2,7 +2,9 @@
 
 function show_help() {
   echo "$0 build"
-  echo "$0 run <script>"
+  echo "$0 install"
+  echo "$0 run dev"
+  echo "$0 run build"
 }
 
 if [ $# -lt 1 ]; then
