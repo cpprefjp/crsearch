@@ -8,7 +8,7 @@ export default class CRSearch {
 
   static OPTS_DEFAULT = {
     klass: {
-      search_button: ['fa', 'fa-fw', 'fa-search'],
+      search_button: ['fa', 'fa-fw', 'fa-binoculars'],
     },
     google_url: new URL('https://www.google.co.jp/search'),
     force_new_window: false,
