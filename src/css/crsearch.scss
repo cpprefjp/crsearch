@@ -23,14 +23,21 @@ $search-input-height: 1.8rem;
 .crsearch {
   position: relative;
   display: inline-block;
+  border: $control-border solid #DDD;
+  box-sizing: border-box;
 
   > .control {
     position: relative;
 
     > .input {
-      min-width: 300px;
-      padding: 0 2.4rem 0 .4rem;
-      border: $control-border solid #DDD;
+      width: 100%;
+      box-sizing: border-box;
+      padding: $control-border 2.8em $control-border .4em;
+      border: none;
+
+      &:focus {
+        outline: none;
+      }
 
       font-size: $control-font-size;
       line-height: $search-input-height;
@@ -58,11 +65,11 @@ $search-input-height: 1.8rem;
   > .result-wrapper {
     position: absolute;
     padding: 0;
-    margin: 0;
+    margin: 4px -2px 0 0;
     border: 2px solid lighten($cs-bd-result, 20%);
     border-radius: 3px;
     min-width: 340px;
-    z-index: 9999;
+    z-index: 2;
     background: $cs-bg-result;
     min-height: 2em;
     right: 0;
