@@ -50,6 +50,8 @@ export default class CRSearch {
     this.last_id = 0
     this.last_input = {}
     this.search_timer = {}
+    this.selectIndex = 0
+    this.resultCount = 0
 
     Mousetrap.bind('/', function() {
       return this.select_default_input()
@@ -111,10 +113,35 @@ export default class CRSearch {
     }
   }
 
+  selectChange(isUp, box) {
+    console.log('selectChange', 'isUp?: ', isUp, 'selectIndex: ', this.selectIndex, box)
+
+    this.selectIndex += isUp ? -1 : 1
+    if (this.selectIndex < 0) {
+      this.selectIndex = this.resultCount
+    } else if (this.selectIndex > this.resultCount) {
+      this.selectIndex = 0
+    }
+
+    for (const e of box.find('.results .result')) {
+      let link = $(e).children('a')
+      if (parseInt($(e).attr('data-result-id')) === this.selectIndex) {
+        link.addClass('focus')
+        link.focus()
+      } else {
+        link.removeClass('focus')
+        link.blur()
+      }
+    }
+
+    console.log(this.selectIndex)
+  }
+
   do_search(e) {
     clearTimeout(this.search_timer[e.data.id])
     this.search_timer[e.data.id] = setTimeout(function(e) {
-      this.do_search_impl(e)
+      this.selectIndex = 0
+      this.resultCount = this.do_search_impl(e)
     }.bind(this, e), 20)
   }
 
@@ -146,25 +173,36 @@ export default class CRSearch {
       }
     }
 
+    let result_id = 0
     for (const [db_name, targets] of res) {
       result_list.append(this.make_result_header(db_name, extra_info_for[db_name]))
 
       for (const target of targets) {
-        result_list.append(this.make_result(
+        let e = this.make_result(
           target.index.type(),
           target.index,
           target.path
-        ))
+        )
+
+        e.attr('data-result-id', result_id++)
+        result_list.append(e)
       }
     }
 
     for (const [url, db] of this.db) {
       // always include fallback
-      result_list.append(this.make_result(Result.GOOGLE_FALLBACK, text, {
+      let e = this.make_result(Result.GOOGLE_FALLBACK, text, {
         name: db.name,
         url: db.base_url.host,
-      }))
+      })
+      e.attr('data-result-id', result_id++)
+      result_list.append(e)
     }
+
+    // always focus 1st result by default
+    // just add 'focused' class, don't actually focus
+    result_list.find('.result[data-result-id="0"] > a').addClass('focus')
+    return result_id - 1 // i.e. result count
   }
 
   make_result_header(db_name, extra_info) {
@@ -244,13 +282,18 @@ export default class CRSearch {
     this.dp('creating searchbox', id)
 
     let box = $(sel)
-    $.data(box, 'crsearch-id', id)
+    box.attr('data-crsearch-id', id)
+    Mousetrap.bind('up', this.selectChange.bind(this, true, box))
+    Mousetrap.bind('down', this.selectChange.bind(this, false, box))
+
     this.last_input[id] = ''
 
     let control = $('<div class="control" />')
     control.appendTo(box)
 
-    let input = $('<input type="text" class="input">')
+    let input = $('<input type="text" />')
+    input.addClass('input')
+    input.addClass('mousetrap')
     input.attr('autocomplete', false)
     input.attr('placeholder', CRSearch.INPUT_PLACEHOLDER)
     input.appendTo(control)

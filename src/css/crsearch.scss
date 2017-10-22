@@ -169,6 +169,10 @@ $search-input-height: 1.8rem;
     }
 
     .results > .result {
+      &:focus {
+        outline: none;
+      }
+
       border-bottom: 1px solid $cs-bd-result-sep;
 
       .key-container {
@@ -255,6 +259,12 @@ $search-input-height: 1.8rem;
         line-height: 1.4;
         font-family: monospace;
         text-decoration: none;
+
+        &.focus {
+          $color: rgba(80, 80, 240, 0.4);
+          background: lighten($color, 30%);
+          outline: 2px solid $color;
+        }
 
         &:hover, &.hover {
           background-color: $cs-bg-result-hover;
