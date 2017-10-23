@@ -15,9 +15,9 @@ $cs-bd-result: $theme-color;
 $cs-bg-result-hover: rgb(240, 246, 255);
 $cs-bd-result-sep: #AAA;
 
-$control-font-size: 1.1rem;
+$control-font-size: 1.1em;
 $control-border: 2px;
-$search-input-height: 1.8rem;
+$search-input-height: 1.8em;
 
 
 .crsearch {
@@ -48,7 +48,7 @@ $search-input-height: 1.8rem;
       top: $control-border;
       right: $control-border;
       border-left: 1px dotted #DDD;
-      padding: 0 .5rem;
+      padding: 0 .5em;
       background: #FFF;
       color: $theme-color;
       cursor: pointer;
@@ -90,7 +90,7 @@ $search-input-height: 1.8rem;
 
     > .help-content {
       display: none;
-      padding: 1rem .5rem .5rem .5rem;
+      padding: 1em .5em .5em .5em;
 
       > .message {
         color: darken($theme-color, 10%);
@@ -99,8 +99,8 @@ $search-input-height: 1.8rem;
         line-height: 1.5;
 
         &:not(:empty) {
-          padding: .25rem .5rem;
-          margin-bottom: 1rem;
+          padding: .25em .5em;
+          margin-bottom: 1em;
           border-left: 4px solid lighten($theme-color, 40%);
         }
       }
@@ -111,13 +111,13 @@ $search-input-height: 1.8rem;
           padding: 0;
 
           &:not(:last-child) {
-            margin-bottom: 1rem;
+            margin-bottom: 1em;
           }
 
           h3 {
             padding: 0;
             margin: 0;
-            font-size: 1.05rem;
+            font-size: 1.05em;
             font-weight: bold;
             font-style: oblique;
             font-family: sans-serif;
@@ -125,8 +125,8 @@ $search-input-height: 1.8rem;
           }
 
           .query {
-            margin: .3rem 0 0 .75rem;
-            font-size: 1.05rem;
+            margin: .3em 0 0 .75em;
+            font-size: 1.05em;
             color: #6A6A6A;
 
             .input:before {
@@ -148,11 +148,11 @@ $search-input-height: 1.8rem;
       font-family: monospace;
       font-style: oblique;
       font-weight: normal;
-      font-size: 0.6rem;
+      font-size: 0.6em;
       text-align: right;
       background: #F0F0F0;
       margin: 0;
-      padding: .2rem .4rem .25rem .4rem;
+      padding: .2em .4em .25em .4em;
 
       a {
         color: #888;
@@ -203,20 +203,20 @@ $search-input-height: 1.8rem;
       cursor: default;
       display: flex;
       justify-content: flex-end;
-      padding: .2rem .4rem;
+      padding: .2em .4em;
 
       .db-name, .extra {
         display: inline-block;
       }
 
       .db-name {
-        padding: 0 0 0 .5rem;
-        font-size: .9rem;
+        padding: 0 0 0 .5em;
+        font-size: .9em;
         font-weight: bold;
         text-decoration: none;
       }
       .extra {
-        font-size: .8rem;
+        font-size: .8em;
         color: #444;
         margin-right: auto;
 
@@ -255,7 +255,7 @@ $search-input-height: 1.8rem;
         display: flex;
         align-items: flex-start;
 
-        padding: .4rem;
+        padding: .4em;
         line-height: 1.4;
         font-family: monospace;
         text-decoration: none;
@@ -279,17 +279,17 @@ $search-input-height: 1.8rem;
           display: inline-block;
           width: 5em;
           font-family: monospace;
-          font-size: .8rem;
+          font-size: .8em;
           text-align: center;
 
-          padding: .05rem .2rem;
-          margin: 0 .25rem 0 0;
+          padding: .05em .2em;
+          margin: 0 .5em 0 0;
         }
 
         > .content {
           display: inline-block;
           flex: 1;
-          font-size: 1rem;
+          font-size: 1em;
         }
       } // a
 
@@ -297,7 +297,7 @@ $search-input-height: 1.8rem;
         > a:before {
           content: 'Google';
           color: $badge-google-fallback;
-          // font-size: .9rem;
+          // font-size: .9em;
           margin-top: 0;
           background: none;
           font-weight: bold;
@@ -320,8 +320,8 @@ $search-input-height: 1.8rem;
             }
 
             font-size: .9em;
-            margin: 0 0 0 .2rem;
-            padding: .05rem .25rem;
+            margin: 0 0 0 .2em;
+            padding: .05em .25em;
             color: #444;
             background: #DDD;
           }
@@ -337,7 +337,7 @@ $search-input-height: 1.8rem;
 
       &.cpp-namespace {
         > a:before {
-          font-size: .7rem;
+          font-size: .7em;
           content: 'namespace';
           background: $badge-cpp-namespace;
           color: #EEE;
@@ -421,7 +421,7 @@ $search-input-height: 1.8rem;
         }
         > a > .content {
           font-family: serif;
-          font-size: .8rem;
+          font-size: .8em;
           text-decoration: underline;
         }
       }
