@@ -52,6 +52,7 @@ $search-input-height: 1.8em;
       background: #FFF;
       color: $theme-color;
       cursor: pointer;
+      box-sizing: content-box;
 
       font-size: $control-font-size;
       line-height: $search-input-height;
@@ -216,6 +217,8 @@ $search-input-height: 1.8em;
         text-decoration: none;
       }
       .extra {
+        display: flex;
+        align-items: center;
         font-size: .8em;
         color: #444;
         margin-right: auto;
