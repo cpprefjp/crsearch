@@ -23,14 +23,21 @@ $search-input-height: 1.8em;
 .crsearch {
   position: relative;
   display: inline-block;
+  border: $control-border solid #DDD;
+  box-sizing: border-box;
 
   > .control {
     position: relative;
 
     > .input {
-      min-width: 300px;
-      padding: 0 2.4em 0 .4em;
-      border: $control-border solid #DDD;
+      width: 100%;
+      box-sizing: border-box;
+      padding: $control-border 2.8em $control-border .4em;
+      border: none;
+
+      &:focus {
+        outline: none;
+      }
 
       font-size: $control-font-size;
       line-height: $search-input-height;
@@ -58,14 +65,14 @@ $search-input-height: 1.8em;
   > .result-wrapper {
     position: absolute;
     padding: 0;
-    margin: 0;
+    margin: 4px -2px 0 0;
     border: 2px solid lighten($cs-bd-result, 20%);
     border-radius: 3px;
     min-width: 340px;
-    z-index: 9999;
+    z-index: 2;
     background: $cs-bg-result;
     min-height: 2em;
-    left: 0;
+    right: 0;
     box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
 
     display: none;
@@ -162,6 +169,10 @@ $search-input-height: 1.8em;
     }
 
     .results > .result {
+      &:focus {
+        outline: none;
+      }
+
       border-bottom: 1px solid $cs-bd-result-sep;
 
       .key-container {
@@ -248,6 +259,12 @@ $search-input-height: 1.8em;
         line-height: 1.4;
         font-family: monospace;
         text-decoration: none;
+
+        &.focus {
+          $color: rgba(80, 80, 240, 0.4);
+          background: lighten($color, 30%);
+          outline: 2px solid $color;
+        }
 
         &:hover, &.hover {
           background-color: $cs-bg-result-hover;
