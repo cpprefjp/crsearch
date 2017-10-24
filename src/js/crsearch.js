@@ -283,14 +283,6 @@ export default class CRSearch {
 
     let box = $(sel)
     box.attr('data-crsearch-id', id)
-    Mousetrap.bind('up', e => {
-      e.preventDefault()
-      this.selectChange(true, box)
-    })
-    Mousetrap.bind('down', e => {
-      e.preventDefault()
-      this.selectChange(false, box)
-    })
 
     this.last_input[id] = ''
 
@@ -303,6 +295,23 @@ export default class CRSearch {
     input.attr('autocomplete', false)
     input.attr('placeholder', CRSearch.INPUT_PLACEHOLDER)
     input.appendTo(control)
+
+    Mousetrap.bind('up', e => {
+      console.log(document.activeElement)
+      console.log(input)
+      console.log(input[0])
+      console.log($(document.activeElement).closest('*[data-crsearch-id="' + id + '"]').length != 0)
+      if ($(document.activeElement).closest('*[data-crsearch-id="' + id + '"]').length != 0) {
+        e.preventDefault()
+        this.selectChange(true, box)
+      }
+    })
+    Mousetrap.bind('down', e => {
+      if ($(document.activeElement).closest('*[data-crsearch-id="' + id + '"]').length != 0) {
+        e.preventDefault()
+        this.selectChange(false, box)
+      }
+    })
 
     input.on('click', function(e) {
       this.show_result_wrapper_for(e.target)
