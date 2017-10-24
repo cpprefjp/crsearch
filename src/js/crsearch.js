@@ -283,8 +283,14 @@ export default class CRSearch {
 
     let box = $(sel)
     box.attr('data-crsearch-id', id)
-    Mousetrap.bind('up', this.selectChange.bind(this, true, box))
-    Mousetrap.bind('down', this.selectChange.bind(this, false, box))
+    Mousetrap.bind('up', e => {
+      e.preventDefault()
+      this.selectChange(true, box)
+    })
+    Mousetrap.bind('down', e => {
+      e.preventDefault()
+      this.selectChange(false, box)
+    })
 
     this.last_input[id] = ''
 
