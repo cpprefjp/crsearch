@@ -297,10 +297,6 @@ export default class CRSearch {
     input.appendTo(control)
 
     Mousetrap.bind('up', e => {
-      console.log(document.activeElement)
-      console.log(input)
-      console.log(input[0])
-      console.log($(document.activeElement).closest('*[data-crsearch-id="' + id + '"]').length != 0)
       if ($(document.activeElement).closest('*[data-crsearch-id="' + id + '"]').length != 0) {
         e.preventDefault()
         this.selectChange(true, box)
