@@ -53,8 +53,10 @@ export default class CRSearch {
     this.search_timer = {}
     this.selectIndex = 0
     this.resultCount = 0
+    this.hasFocus = false
 
     Mousetrap.bind('/', function() {
+      if (this.hasFocus) return
       return this.select_default_input()
     }.bind(this))
 
@@ -371,8 +373,13 @@ export default class CRSearch {
     cr_info.appendTo(result_wrapper)
 
     input.on('focusin', function() {
+      this.hasFocus = true
       return this.show_result_wrapper_for(this)
     }.bind(this))
+
+    input.on('focusout', () => {
+      this.hasFocus = false
+    })
 
     this.searchButton.appendTo(control)
   }
