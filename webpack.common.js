@@ -15,7 +15,7 @@ function isExternal(module) {
 
 module.exports = {
   js: {
-    context: path.resolve(__dirname, 'src/js'),
+    context: path.resolve(__dirname, 'js'),
     entry: {
       crsearch: './crsearch.js',
     },
@@ -57,7 +57,7 @@ module.exports = {
     ],
   },
   css: {
-    context: path.resolve(__dirname, 'src/css'),
+    context: path.resolve(__dirname, 'css'),
     entry: {
       crsearch: './crsearch.scss',
       'font-awesome': './font-awesome.scss',
