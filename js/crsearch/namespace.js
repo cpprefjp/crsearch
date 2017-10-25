@@ -22,14 +22,8 @@ class Namespace {
     }
   }
 
-  query(q, found_count, max_count, path_composer) {
+  query(queries, found_count, max_count, path_composer) {
     let targets = []
-    let queries = q.normalize('NFKC').split(/\s+/).filter(Boolean).reduce(
-      (l, r) => { r[0] === '-' ? l.not.add(r.substring(1)) : l.and.add(r); return l },
-      {and: new Set, not: new Set}
-    )
-    queries.not.delete('')
-    // console.log(queries)
 
     for (let [id, idx] of this.indexes) {
       if (
