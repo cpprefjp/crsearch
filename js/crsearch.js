@@ -3,6 +3,7 @@ import {Result} from './crsearch/result'
 import {Index, Database} from './crsearch/database'
 
 export default class CRSearch {
+  static APPNAME = 'CRSearch'
   static VERSION = '1.0.0'
   static HOMEPAGE = 'https://github.com/cpprefjp/crsearch'
 
@@ -61,7 +62,7 @@ export default class CRSearch {
       return this.hide_all_result()
     }.bind(this))
 
-    this.dp('initialized.')
+    this.dpV('initialized.')
   }
 
   load() {
@@ -70,18 +71,18 @@ export default class CRSearch {
       if (url.pathname == '/') {
         url.pathname = '/crsearch.json'
       }
-      this.dp(`fetching database (${i}/${this.db.size}):`, url)
+      this.dpV(`fetching database (${i}/${this.db.size}):`, url)
 
       $.ajax({
         url: url,
 
         success: function(data) {
-          this.dp('fetched.')
+          this.dpV('fetched.')
           this.parse(url, data)
         }.bind(this),
 
         fail: function() {
-          this.dp('fetch failed.')
+          this.dpV('fetch failed.')
         }.bind(this)
       })
 
@@ -90,13 +91,13 @@ export default class CRSearch {
   }
 
   parse(url, json) {
-    this.dp('parsing...', json)
+    this.dpV('parsing...', json)
     this.db.set(url, new Database(json))
 
     if (!this.defaultUrl) this.defaultUrl = new URL(this.db.get(url).base_url).hostname
     this.updateSearchButton('')
 
-    this.dp('parsed.', this.db.get(url))
+    this.dpV('parsed.', this.db.get(url))
   }
 
   database(base_url) {
@@ -114,7 +115,7 @@ export default class CRSearch {
   }
 
   selectChange(isUp, box) {
-    console.log('selectChange', 'isUp?: ', isUp, 'selectIndex: ', this.selectIndex, box)
+    // this.dp('selectChange', 'isUp?: ', isUp, 'selectIndex: ', this.selectIndex, box)
 
     this.selectIndex += isUp ? -1 : 1
     if (this.selectIndex < 0) {
@@ -279,7 +280,7 @@ export default class CRSearch {
     }
 
     const id = this.last_id++;
-    this.dp('creating searchbox', id)
+    this.dpV('creating searchbox', id)
 
     let box = $(sel)
     box.attr('data-crsearch-id', id)
@@ -365,7 +366,7 @@ export default class CRSearch {
     let cr_info_link = $('<a />')
     cr_info_link.attr('href', CRSearch.HOMEPAGE)
     cr_info_link.attr('target', '_blank')
-    cr_info_link.text(`CRSearch v${CRSearch.VERSION}`)
+    cr_info_link.text(`${CRSearch.APPNAME} v${CRSearch.VERSION}`)
     cr_info_link.appendTo(cr_info)
     cr_info.appendTo(result_wrapper)
 
@@ -421,7 +422,12 @@ export default class CRSearch {
   }
 
   dp() {
-    console.log('[CRSearch]', ...arguments)
+    if (process.env.NODE_ENV !== 'development') return
+    console.log(`[${CRSearch.APPNAME}]`, ...arguments)
+  }
+
+  dpV() {
+    console.log(`[${CRSearch.APPNAME}]`, ...arguments)
   }
 } // CRSearch
 
