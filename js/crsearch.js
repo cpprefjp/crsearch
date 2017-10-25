@@ -164,7 +164,12 @@ export default class CRSearch {
 
       res.set(db.name, ret.targets)
       if (res.get(db.name).length == 0) {
-        extra_info_for[db.name].html = $(`<div class="message">No matches for <span class="query">${text}</span></div>`)
+        let msg = $(`<div class="message">No matches for </div>`)
+        let rec_q = $('<span class="query" />')
+        rec_q.text(text)
+        rec_q.appendTo(msg)
+
+        extra_info_for[db.name].html = msg
         continue
       }
 
