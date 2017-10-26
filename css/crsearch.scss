@@ -19,6 +19,8 @@ $control-font-size: 1.1em;
 $control-border: 2px;
 $search-input-height: 1.8em;
 
+$cr-meta-bg: #F0F0F0;
+
 
 .crsearch {
   position: relative;
@@ -151,7 +153,7 @@ $search-input-height: 1.8em;
       font-weight: normal;
       font-size: 0.6em;
       text-align: right;
-      background: #F0F0F0;
+      background: $cr-meta-bg;
       margin: 0;
       padding: .2em .4em .25em .4em;
 
@@ -256,6 +258,8 @@ $search-input-height: 1.8em;
       } // .cr-result-header
 
       &.in-header {
+        background: $cr-meta-bg;
+
         > div, > a {
           font-size: .75em;
         }
