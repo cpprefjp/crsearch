@@ -2,8 +2,11 @@ import {Result} from './result'
 import {IndexID} from './index-id'
 
 class Index {
-  constructor(log, id, json) {
+  constructor(log, id, json, make_url) {
     this.log = log.make_context(this.constructor.name)
+    this.in_header = null
+    this.url = () => { return make_url(this) }
+
     if (!id) {
       // this.log.debug('fake Index created')
       return

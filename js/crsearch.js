@@ -189,17 +189,30 @@ export default class CRSearch {
 
     let result_id = 0
     for (const [db_name, targets] of res) {
-      result_list.append(this.make_result_header(db_name, extra_info_for[db_name]))
+      result_list.append(this.make_site_header(db_name, extra_info_for[db_name]))
 
-      for (const target of targets) {
-        let e = this.make_result(
-          target.index.type(),
-          target.index,
-          target.path
-        )
+      const grouped_targets = targets.reduce((gr, e) => {
+        const key = e.index.in_header
+        gr.set(key, gr.get(key) || [])
+        gr.get(key).push(e)
+        return gr
+      }, new Map)
 
-        e.attr('data-result-id', result_id++)
-        result_list.append(e)
+      this.log.debug('gr', grouped_targets)
+
+      for (const [in_header, the_targets] of grouped_targets) {
+        this.make_result_header(in_header).appendTo(result_list)
+
+        for (const t of the_targets) {
+          let e = this.make_result(
+            t.index.type(),
+            t.index,
+            t.path
+          )
+
+          e.attr('data-result-id', result_id++)
+          result_list.append(e)
+        }
       }
     }
 
@@ -219,9 +232,8 @@ export default class CRSearch {
     return result_id - 1 // i.e. result count
   }
 
-  make_result_header(db_name, extra_info) {
-    let elem = $('<li class="result" />')
-    elem.addClass('cr-result-header')
+  make_site_header(db_name, extra_info) {
+    let elem = $('<li class="result cr-meta-result cr-result-header" />')
 
     if (extra_info.html) {
       let extra = $(`<div class="extra" />`)
@@ -247,6 +259,24 @@ export default class CRSearch {
     return url
   }
 
+  make_result_header(header) {
+    let elem = $('<li class="result cr-meta-result in-header" />')
+
+    let body = null
+    if (header) {
+      body = $(`<a />`)
+      if (this.opts.force_new_window) {
+        body.attr('target', '_blank')
+      }
+      body.attr('href', header.url())
+    } else {
+      body = $(`<div />`)
+    }
+    body.text(header ? header.join() : '(no header)')
+    body.appendTo(elem)
+    return elem
+  }
+
   make_result(t, target, extra = undefined) {
     let elem = CRSearch.RESULT_PROTO.clone()
     elem.addClass(Symbol.keyFor(t))
@@ -265,6 +295,7 @@ export default class CRSearch {
     default:
       a.attr('href', extra)
       target.join_html().appendTo(content)
+
       if (this.opts.force_new_window) {
         a.attr('target', '_blank')
       }

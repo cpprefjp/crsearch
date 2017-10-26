@@ -200,59 +200,73 @@ $search-input-height: 1.8em;
       }
     }
 
-    .results > .result.cr-result-header {
-      cursor: default;
-      display: flex;
-      justify-content: flex-end;
-      padding: .2em .4em;
-
-      .db-name, .extra {
-        display: inline-block;
-      }
-
-      .db-name {
-        padding: 0 0 0 .5em;
-        font-size: .9em;
-        font-weight: bold;
-        text-decoration: none;
-      }
-      .extra {
+    .results > .result.cr-meta-result {
+      &.cr-result-header, &.in-header {
+        cursor: default;
         display: flex;
-        align-items: center;
-        font-size: .8em;
-        color: #444;
-        margin-right: auto;
+        justify-content: flex-end;
+        padding: .2em .4em;
+      }
 
-        .message {
+      &.cr-result-header {
+        .db-name, .extra {
+          display: inline-block;
+        }
+
+        .db-name {
+          padding: 0 0 0 .5em;
+          font-size: .9em;
+          font-weight: bold;
+          text-decoration: none;
+        }
+        .extra {
           display: flex;
+          align-items: center;
+          font-size: .8em;
+          color: #444;
+          margin-right: auto;
 
-          .match-count, .query {
-            font-family: monospace;
-            font-weight: bold;
-          }
+          .message {
+            display: flex;
 
-          .match-count {
-            padding: 0 .5em;
-          }
+            .match-count, .query {
+              font-family: monospace;
+              font-weight: bold;
+            }
 
-          .query {
-            display: inline-block;
-            width: 7em;
-            margin: 0 0 0 .5em;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
+            .match-count {
+              padding: 0 .5em;
+            }
 
-            &:before, &:after {
-              content: "'";
+            .query {
               display: inline-block;
+              width: 7em;
+              margin: 0 0 0 .5em;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+
+              &:before, &:after {
+                content: "'";
+                display: inline-block;
+              }
             }
           }
+        }
+      } // .cr-result-header
+
+      &.in-header {
+        > div, > a {
+          font-size: .75em;
+        }
+
+        a, a:link, a:visited {
+          text-decoration: none;
         }
       }
     }
 
-    .results > .result:not(.cr-result-header) {
+    .results > .result:not(.cr-meta-result) {
       > a {
         display: flex;
         align-items: flex-start;

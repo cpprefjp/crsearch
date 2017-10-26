@@ -3,7 +3,7 @@ import {Result} from './result'
 
 
 class Namespace {
-  constructor(log, ns_id, json, ids) {
+  constructor(log, ns_id, json, ids, make_url) {
     this.log = log.make_context(this.constructor.name)
     this.ns_id = ns_id
     this.indexes = new Map
@@ -17,7 +17,7 @@ class Namespace {
     }
 
     for (const idx of json.indexes) {
-      const idx_ = new Index(this.log, ids[idx.id], idx)
+      const idx_ = new Index(this.log, ids[idx.id], idx, (idx) => { return make_url(this.make_path(idx)) })
       // this.log.debug('got Index', idx_)()
       this.indexes.set(idx_.id, idx_)
     }

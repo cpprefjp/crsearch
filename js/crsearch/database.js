@@ -20,7 +20,7 @@ class Database {
     }
 
     for (const [s_key, j_ns] of json.namespaces.entries()) {
-      const ns = new Namespace(this.log, s_key, j_ns, this.ids)
+      const ns = new Namespace(this.log, s_key, j_ns, this.ids, this.make_url.bind(this))
       this.log.info(`got Namespace: '${ns.pretty_name()}'`, ns)
       this.namespaces.push(ns)
 
@@ -42,40 +42,37 @@ class Database {
         for (const rsid of idx.related_to) {
           const rid = this.ids[rsid]
 
-          if (rid.type !== Result.HEADER) {
-            continue // skip unused related_to s
-          }
-
-          let found = ns.indexes.get(rid)
-          if (!found) {
-            for (const in_ns of this.namespaces) {
-              if (in_ns.indexes.has(rid)) {
-                found = in_ns.indexes.get(rid)
-                break
-              }
-            }
-
+          if (rid.type === Result.HEADER) {
+            let found = ns.indexes.get(rid)
             if (!found) {
-              let fake = new Index(this.log)
-              fake.id = rid
-              fake.id_cache = fake.id.key.map(kv => kv.name).join()
+              for (const in_ns of this.namespaces) {
+                if (in_ns.indexes.has(rid)) {
+                  found = in_ns.indexes.get(rid)
+                  break
+                }
+              }
 
-              let dns = this.default_ns.get(ns.namespace.join('/'))
-              this.log.warn(`no namespace has this index; fake indexing '${fake.id.join()}' --> '${id.join()}'`, 'default namespace:', dns.pretty_name(), '\nfake index:', fake, '\nself:', id.join())
+              if (!found) {
+                let dns = this.default_ns.get(ns.namespace.join('/'))
+                let fake = new Index(this.log, null, null, (idx) => { return this.make_url(dns.make_path(idx)) })
+                fake.id = rid
+                fake.id_cache = fake.id.key.map(kv => kv.name).join()
+                // this.log.debug('fake', fake, fake.url())
+                found = fake
 
-              deref_related_to.add(fake)
+                this.log.warn(`no namespace has this index; fake indexing '${fake.id.join()}' --> '${id.join()}'`, 'default namespace:', dns.pretty_name(), '\nfake index:', fake, '\nself:', id.join())
 
-              dns.indexes.set(rid, fake)
+                dns.indexes.set(rid, fake)
+              }
 
             } else {
-              deref_related_to.add(found)
+              // this.log.warn(`related_to entity ${rid.join()} not found in this namespace '${ns.pretty_name()}', falling back to default`, 'default:', rid.join())
             }
 
-          } else {
-            // this.log.warn(`related_to entity ${rid.join()} not found in this namespace '${ns.pretty_name()}', falling back to default`, 'default:', rid.join())
-            deref_related_to.add(ns.indexes.get(rid))
-          }
-        }
+            idx.in_header = found
+            deref_related_to.add(found)
+          } // header
+        } // deref related_to loop
 
         idx.related_to = deref_related_to
       }
