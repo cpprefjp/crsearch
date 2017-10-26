@@ -82,29 +82,11 @@ class Database {
     }
   }
 
-  query(raw_query, found_count, max_count) {
+  query(q, found_count, max_count) {
     let targets = []
-    let queries = raw_query.normalize('NFKC').split(/\s+/).filter(Boolean)
-    let filters = new Set
-
-    // filter <headers>
-    if (queries[0].match(/^</)) {
-      filters.add(Query.Filter.header)
-      queries = queries.map((q) => {
-        return q.replace(/[<>]/, '').split(/\//)
-      }).reduce((a, b) => a.concat(b)).filter(Boolean)
-    }
-
-    queries = queries.reduce(
-      (l, r) => { r[0] === '-' ? l.not.add(r.substring(1)) : l.and.add(r); return l },
-      {and: new Set, not: new Set}
-    )
-    queries.not.delete('')
-
-    // log.debug(queries, filters)
 
     for (const ns of this.namespaces) {
-      const res = ns.query(queries, filters, found_count, max_count, this.make_url.bind(this))
+      const res = ns.query(q, found_count, max_count, this.make_url.bind(this))
       if (res.targets.length == 0) {
         continue
       }

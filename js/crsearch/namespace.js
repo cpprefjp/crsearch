@@ -23,15 +23,15 @@ class Namespace {
     }
   }
 
-  query(queries, filters, found_count, max_count, path_composer) {
+  query(q, found_count, max_count, path_composer) {
     let targets = []
 
     for (let [id, idx] of this.indexes) {
-      if (!Array.from(filters).every((f) => { return idx.id.type === f })) continue
+      if (!Array.from(q.filters).every((f) => { return idx.id.type === f })) continue
 
       if (
-        Array.from(queries.and).every(function(idx, q) { return Index.ambgMatch(idx, q) }.bind(null, idx)) &&
-        !Array.from(queries.not).some(function(idx, q) { return Index.ambgMatch(idx, q) }.bind(null, idx))
+        Array.from(q.frags.and).every(function(idx, q) { return Index.ambgMatch(idx, q) }.bind(null, idx)) &&
+        !Array.from(q.frags.not).some(function(idx, q) { return Index.ambgMatch(idx, q) }.bind(null, idx))
 
       ) {
         ++found_count

@@ -1,4 +1,6 @@
 import {default as Mousetrap} from 'mousetrap'
+
+import {Query} from './crsearch/query'
 import {Result} from './crsearch/result'
 import {Index, Database} from './crsearch/database'
 import {Logger} from './crsearch/logger'
@@ -153,8 +155,8 @@ export default class CRSearch {
   }
 
   do_search_impl(e) {
-    const text = this.last_input[e.data.id]
-    this.log.debug(`query: '${text}'`)
+    const q = new Query(this.log, this.last_input[e.data.id])
+    this.log.debug(`query: '${q.original_text}'`, q)
 
     let result_list = this.clear_results_for(e.target)
     let extra_info_for = {}
@@ -163,14 +165,14 @@ export default class CRSearch {
     let res = new Map
 
     for (const [url, db] of this.db) {
-      const ret = db.query(text, 0, CRSearch.MAX_RESULT)
+      const ret = db.query(q, 0, CRSearch.MAX_RESULT)
       extra_info_for[db.name] = {url: db.base_url}
 
       res.set(db.name, ret.targets)
       if (res.get(db.name).length == 0) {
         let msg = $(`<div class="message">No matches for </div>`)
         let rec_q = $('<span class="query" />')
-        rec_q.text(text)
+        rec_q.text(q.original_text)
         rec_q.appendTo(msg)
 
         extra_info_for[db.name].html = msg
@@ -203,7 +205,7 @@ export default class CRSearch {
 
     for (const [url, db] of this.db) {
       // always include fallback
-      let e = this.make_result(Result.GOOGLE_FALLBACK, text, {
+      let e = this.make_result(Result.GOOGLE_FALLBACK, q.original_text, {
         name: db.name,
         url: db.base_url.host,
       })
