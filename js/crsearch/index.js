@@ -2,9 +2,16 @@ import {Result} from './result'
 import {IndexID} from './index-id'
 
 class Index {
-  constructor(id, json) {
+  constructor(log, id, json) {
+    this.log = log.make_context(this.constructor.name)
+    if (!id) {
+      // this.log.debug('fake Index created')
+      return
+    }
+
     this.id = id
     this.page_id = json.page_id
+    this.related_to = json.related_to
 
     // cache
     this.id_cache = this.join()

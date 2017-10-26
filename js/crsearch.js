@@ -1,6 +1,8 @@
 import {default as Mousetrap} from 'mousetrap'
 import {Result} from './crsearch/result'
 import {Index, Database} from './crsearch/database'
+import {Logger} from './crsearch/logger'
+
 
 export default class CRSearch {
   static APPNAME = 'CRSearch'
@@ -46,6 +48,8 @@ export default class CRSearch {
 
   constructor(opts = CRSearch.OPTS_DEFAULT) {
     this.opts = opts
+    this.log = new Logger(CRSearch.APPNAME, opts)
+
     this.loaded = false
     this.db = new Map
     this.last_id = 0
@@ -64,7 +68,7 @@ export default class CRSearch {
       return this.hide_all_result()
     }.bind(this))
 
-    this.dpV('initialized.')
+    this.log.info('initialized.')
   }
 
   load() {
@@ -73,19 +77,19 @@ export default class CRSearch {
       if (url.pathname == '/') {
         url.pathname = '/crsearch.json'
       }
-      this.dpV(`fetching database (${i}/${this.db.size}):`, url)
+      this.log.info(`fetching database (${i}/${this.db.size}): ${url}`)
 
       $.ajax({
         url: url,
 
-        success: function(data) {
-          this.dpV('fetched.')
+        success: (data) => {
+          this.log.info('fetched')
           this.parse(url, data)
-        }.bind(this),
+        },
 
-        fail: function() {
-          this.dpV('fetch failed.')
-        }.bind(this)
+        fail: (e) => {
+          this.log.error('fetch failed', e)
+        }
       })
 
       ++i
@@ -93,13 +97,13 @@ export default class CRSearch {
   }
 
   parse(url, json) {
-    this.dpV('parsing...', json)
-    this.db.set(url, new Database(json))
+    this.log.info('parsing...', json)
+    this.db.set(url, new Database(this.log, json))
 
     if (!this.defaultUrl) this.defaultUrl = new URL(this.db.get(url).base_url).hostname
     this.updateSearchButton('')
 
-    this.dpV('parsed.', this.db.get(url))
+    this.log.info('parsed.', this.db.get(url))
   }
 
   database(base_url) {
@@ -117,7 +121,7 @@ export default class CRSearch {
   }
 
   selectChange(isUp, box) {
-    // this.dp('selectChange', 'isUp?: ', isUp, 'selectIndex: ', this.selectIndex, box)
+    // this.log.debug('selectChange', 'isUp?: ', isUp, 'selectIndex: ', this.selectIndex, box)
 
     this.selectIndex += isUp ? -1 : 1
     if (this.selectIndex < 0) {
@@ -137,7 +141,7 @@ export default class CRSearch {
       }
     }
 
-    console.log(this.selectIndex)
+    // this.log.debug(this.selectIndex)
   }
 
   do_search(e) {
@@ -150,7 +154,7 @@ export default class CRSearch {
 
   do_search_impl(e) {
     const text = this.last_input[e.data.id]
-    this.dp('[query]', text)
+    this.log.debug(`query: '${text}'`)
 
     let result_list = this.clear_results_for(e.target)
     let extra_info_for = {}
@@ -287,7 +291,7 @@ export default class CRSearch {
     }
 
     const id = this.last_id++;
-    this.dpV('creating searchbox', id)
+    this.log.info(`creating searchbox ${id}`)
 
     let box = $(sel)
     box.attr('data-crsearch-id', id)
@@ -431,15 +435,6 @@ export default class CRSearch {
     let res = $(`.${CRSearch.KLASS} .${CRSearch.RESULT_WRAPPER_KLASS}`)
     res.removeClass('visible')
     return false
-  }
-
-  dp() {
-    if (process.env.NODE_ENV !== 'development') return
-    console.log(`[${CRSearch.APPNAME}]`, ...arguments)
-  }
-
-  dpV() {
-    console.log(`[${CRSearch.APPNAME}]`, ...arguments)
   }
 } // CRSearch
 

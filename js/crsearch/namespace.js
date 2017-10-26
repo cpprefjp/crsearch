@@ -1,10 +1,14 @@
 import {Index} from './index'
+import {Result} from './result'
+
 
 class Namespace {
-  constructor(ns_id, json, ids) {
+  constructor(log, ns_id, json, ids) {
+    this.log = log.make_context(this.constructor.name)
     this.ns_id = ns_id
     this.indexes = new Map
     this.namespace = json.namespace
+    this.cpp_version = json.cpp_version
 
     if (json.path_prefixes) {
       this.path_prefixes = json.path_prefixes.join('/')
@@ -13,12 +17,9 @@ class Namespace {
     }
 
     for (const idx of json.indexes) {
-      const idx_ = new Index(ids[idx.id], idx)
-
-      if (process.env.NODE_ENV === 'development') {
-        console.log('got Index', idx_)
-      }
-      this.indexes.set(idx_.id_cache, idx_)
+      const idx_ = new Index(this.log, ids[idx.id], idx)
+      // this.log.debug('got Index', idx_)()
+      this.indexes.set(idx_.id, idx_)
     }
   }
 
@@ -38,15 +39,31 @@ class Namespace {
         if (found_count > max_count) {
           return {targets: targets, found_count: found_count}
         }
-        targets.push({path: path_composer(this.make_path(idx.page_id)), index: idx})
+        targets.push({path: path_composer(this.make_path(idx)), index: idx})
       }
     }
 
     return {targets: targets, found_count: found_count}
   }
 
-  make_path(page_id) {
-    return `${this.path_prefixes}/${page_id.join('/')}`
+  make_path(idx) {
+    if (idx.page_id) {
+      return `${this.path_prefixes}/${idx.page_id.join('/')}`
+    } else {
+      return `${this.path_prefixes}/${idx.id.path_join()}`
+    }
+  }
+
+  pretty_version() {
+    if (this.cpp_version) {
+      return `C++${this.cpp_version}`
+    } else {
+      return '(no version)'
+    }
+  }
+
+  pretty_name(include_version = true) {
+    return `${this.namespace.join(' \u226B')}${include_version ? `[${this.pretty_version()}]` : ''}`
   }
 }
 

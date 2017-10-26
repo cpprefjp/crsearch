@@ -14,7 +14,9 @@ class IndexID {
     return this.s_key === rhs.s_key && this.ns_id === rhs.ns_id
   }
 
-  constructor(s_key, json) {
+  constructor(log, s_key, json) {
+    this.log = log.make_context(this.constructor.name)
+
     this.s_key = s_key
     let key = json.key
 
@@ -60,6 +62,10 @@ class IndexID {
         }
       }
     })
+  }
+
+  path_join() {
+    return this.key.map(k => k.name).join('/')
   }
 
   join(hint = this.join_hint()) {
