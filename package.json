@@ -2,7 +2,7 @@
   "name": "crsearch",
   "version": "1.1.2",
   "description": "cpprefjp / boostjp searcher",
-  "main": "src/js/crsearch.js",
+  "main": "js/crsearch.js",
   "scripts": {
     "build": "webpack --config webpack.prod.js",
     "dev": "webpack-dev-server --config webpack.dev.js --host 0.0.0.0",
