@@ -27,7 +27,7 @@ class Namespace {
     let targets = []
 
     for (let [id, idx] of this.indexes) {
-      if (!Array.from(q.filters).every((f) => { return idx.id.type === f })) continue
+      if (q.filters.size && !Array.from(q.filters).some((f) => { return idx.id.type === f })) continue
 
       if (
         Array.from(q.frags.and).every(function(idx, q) { return Index.ambgMatch(idx, q) }.bind(null, idx)) &&

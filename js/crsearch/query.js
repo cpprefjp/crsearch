@@ -21,7 +21,44 @@ class Query {
       }).reduce((a, b) => a.concat(b)).filter(Boolean)
     }
 
-    this.frags = this.frags.reduce(
+    let real_frags = []
+    for (const fr of this.frags) {
+      const kv = fr.split(/:/)
+      if (kv[0] === 'type') {
+        if (!kv[1]) continue
+
+        const types = kv[1].split(/,/)
+        for (const t of types) {
+          let kind = null
+          switch (t) {
+            case 'header':     kind = Result.HEADER; break
+            case 'namespace':  kind = Result.NAMESPACE; break
+            case 'class':      kind = Result.CLASS; break
+            case 'function':   kind = Result.FUNCTION; break
+            case 'mem_fun':    kind = Result.MEM_FUN; break
+            case 'enum':       kind = Result.ENUM; break
+            case 'variable':   kind = Result.VARIABLE; break
+            case 'type-alias': kind = Result.TYPE_ALIAS; break
+            case 'macro':      kind = Result.MACRO; break
+            case 'article':    kind = Result.ARTICLE; break
+            case 'meta':       kind = Result.META; break
+
+            default:
+              this.log.error('unhandled type in query', t)
+              break
+          }
+
+          if (kind) {
+            this.filters.add(kind)
+          }
+        }
+
+      } else {
+        real_frags.push(fr)
+      }
+    }
+
+    this.frags = real_frags.reduce(
       (l, r) => { r[0] === '-' ? l.not.add(r.substring(1)) : l.and.add(r); return l },
       {and: new Set, not: new Set}
     )
