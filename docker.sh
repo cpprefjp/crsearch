@@ -16,15 +16,24 @@ set -e
 
 cd "`dirname $0`"
 
+case "$-" in
+  *i*)
+    DOCKER_FLAG="-it"
+    echo This shell is interactive ;;
+  *)
+    DOCKER_FLAG=""
+    echo This shell is not interactive ;;
+esac
+
 case "$1" in
   "build" ) docker build -t crsearch:0.0.0-alpine docker ;;
-  "install" ) docker run -v `pwd`:/var/src -p 8080:8080 -it crsearch:0.0.0-alpine /bin/sh -c "cd /var/src && exec npm install" ;;
+  "install" ) docker run -v `pwd`:/var/src -p 8080:8080 $DOCKER_FLAG crsearch:0.0.0-alpine /bin/sh -c "cd /var/src && exec npm install" ;;
   "run" )
     if [ $# -lt 2 ]; then
       show_help
       exit 1
     fi
-    docker run -v `pwd`:/var/src -p 8080:8080 -it crsearch:0.0.0-alpine /bin/sh -c "cd /var/src && exec npm run $2" ;;
+    docker run -v `pwd`:/var/src -p 8080:8080 $DOCKER_FLAG crsearch:0.0.0-alpine /bin/sh -c "cd /var/src && exec npm run $2" ;;
   * )
     show_help
     exit 1 ;;
