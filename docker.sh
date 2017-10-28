@@ -17,7 +17,7 @@ set -e
 cd "`dirname $0`"
 
 case "$1" in
-  "build" ) docker build -t crsearch:0.0.0-alpine . ;;
+  "build" ) docker build -t crsearch:0.0.0-alpine docker ;;
   "install" ) docker run -v `pwd`:/var/src -p 8080:8080 -it crsearch:0.0.0-alpine /bin/sh -c "cd /var/src && exec npm install" ;;
   "run" )
     if [ $# -lt 2 ]; then
