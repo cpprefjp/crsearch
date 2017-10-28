@@ -37,7 +37,7 @@ module.exports = Merge.multiple(common, {
       new HtmlWebpackPlugin({
         title: 'CRSearch - sample setup',
         hash: true,
-        template: '../html/index.hbs',
+        template: '../html/crsearch-testing.hbs',
         chunks: [
           'crsearch-vendor',
           'crsearch',
