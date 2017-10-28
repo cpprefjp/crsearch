@@ -8,7 +8,7 @@ import {Logger} from './crsearch/logger'
 
 export default class CRSearch {
   static APPNAME = 'CRSearch'
-  static VERSION = '1.1.2'
+  static VERSION = '1.2.0'
   static HOMEPAGE = 'https://github.com/cpprefjp/crsearch'
 
   static OPTS_DEFAULT = {
