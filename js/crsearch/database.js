@@ -8,7 +8,7 @@ import * as Query from './query'
 
 class Database {
   constructor(log, json) {
-    this.log = log.make_context(this.constructor.name)
+    this.log = log.makeContext('Database')
     this.name = json.database_name
     this.base_url = new URL(json.base_url)
     this.namespaces = []

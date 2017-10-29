@@ -4,7 +4,7 @@ import {Result} from './result'
 
 class Namespace {
   constructor(log, ns_id, json, ids, make_url) {
-    this.log = log.make_context(this.constructor.name)
+    this.log = log.makeContext('Namespace')
     this.ns_id = ns_id
     this.indexes = new Map
     this.namespace = json.namespace

@@ -15,7 +15,7 @@ class IndexID {
   }
 
   constructor(log, s_key, json) {
-    this.log = log.make_context(this.constructor.name)
+    this.log = log.makeContext('IndexID')
 
     this.s_key = s_key
     let key = json.key

@@ -7,7 +7,7 @@ class Query {
   }
 
   constructor(log, text) {
-    this.log = log.make_context(this.constructor.name)
+    this.log = log.makeContext('Query')
     this.original_text = text
     this.frags = text.normalize('NFKC').split(/\s+/).filter(Boolean)
 

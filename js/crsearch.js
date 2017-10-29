@@ -1,9 +1,9 @@
 import {default as Mousetrap} from 'mousetrap'
+import * as Nagato from 'nagato'
 
 import {Query} from './crsearch/query'
 import {Result} from './crsearch/result'
 import {Index, Database} from './crsearch/database'
-import {Logger} from './crsearch/logger'
 
 
 export default class CRSearch {
@@ -50,7 +50,12 @@ export default class CRSearch {
 
   constructor(opts = CRSearch.OPTS_DEFAULT) {
     this.opts = opts
-    this.log = new Logger(CRSearch.APPNAME, opts)
+    this.log = new Nagato.Logger(CRSearch.APPNAME, new Nagato.Logger.Option(Object.assign({}, this.opts, {
+      icon: {
+        text: '\u{1F50E}',
+        color: '#3A6E83',
+      }
+    })))
 
     this.loaded = false
     this.db = new Map
