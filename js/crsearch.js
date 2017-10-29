@@ -8,7 +8,7 @@ import {Index, Database} from './crsearch/database'
 
 export default class CRSearch {
   static APPNAME = 'CRSearch'
-  static VERSION = '1.2.0'
+  static VERSION = '1.3.1'
   static HOMEPAGE = 'https://github.com/cpprefjp/crsearch'
 
   static OPTS_DEFAULT = {
