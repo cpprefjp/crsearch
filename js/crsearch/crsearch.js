@@ -162,7 +162,7 @@ class CRSearch {
 
   do_search_impl(e) {
     const q = new Query(this.log, this.last_input[e.data.id])
-    this.log.debug(`query: '${q.original_text}'`, q)
+    // this.log.debug(`query: '${q.original_text}'`, q)
 
     let result_list = this.clear_results_for(e.target)
     let extra_info_for = {}
