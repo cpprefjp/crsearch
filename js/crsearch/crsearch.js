@@ -9,7 +9,7 @@ import {Index} from './index'
 
 class CRSearch {
   static APPNAME = 'CRSearch'
-  static VERSION = '1.4.1'
+  static VERSION = '1.4.2'
   static HOMEPAGE = 'https://github.com/cpprefjp/crsearch'
 
   static OPTS_DEFAULT = {
