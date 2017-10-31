@@ -1,4 +1,4 @@
-import {default as CRSearch} from './crsearch'
+import {CRSearch} from './crsearch'
 
 document.addEventListener('DOMContentLoaded', function() {
   let crs = new CRSearch
