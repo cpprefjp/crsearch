@@ -37,17 +37,8 @@ module.exports = {
               loader: 'babel-loader',
             },
           ],
-          exclude: /node_modules/,
-        },
-        {
-          test: /\.js$/,
-          use: [
-            {
-              loader: 'babel-loader',
-              options: require('./node_modules/nagato/js/nagato/babel-options'),
-            },
-          ],
           include: [
+            path.resolve(__dirname, 'js'),
             path.resolve(__dirname, 'node_modules', 'nagato'),
           ],
         },
