@@ -64,7 +64,7 @@ class Query {
     )
     this.frags.not.delete('')
 
-    this.log.debug(`parsed query ${this.original_text}`, this.frags, this.filters)
+    // this.log.debug(`parsed query ${this.original_text}`, this.frags, this.filters)
   }
 } // Query
 

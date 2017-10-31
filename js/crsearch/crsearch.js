@@ -204,7 +204,7 @@ class CRSearch {
         return gr
       }, new Map)
 
-      this.log.debug('gr', grouped_targets)
+      // this.log.debug('gr', grouped_targets)
 
       for (const [in_header, the_targets] of grouped_targets) {
         this.make_result_header(in_header).appendTo(result_list)
