@@ -9,7 +9,6 @@ import {Index} from './index'
 
 class CRSearch {
   static APPNAME = 'CRSearch'
-  static VERSION = '1.4.2'
   static HOMEPAGE = 'https://github.com/cpprefjp/crsearch'
 
   static OPTS_DEFAULT = {
@@ -416,7 +415,7 @@ class CRSearch {
     let cr_info_link = $('<a />')
     cr_info_link.attr('href', CRSearch.HOMEPAGE)
     cr_info_link.attr('target', '_blank')
-    cr_info_link.text(`${CRSearch.APPNAME} v${CRSearch.VERSION}`)
+    cr_info_link.text(`${CRSearch.APPNAME} v${CRS_PACKAGE.version}`)
     cr_info_link.appendTo(cr_info)
     cr_info.appendTo(result_wrapper)
 

@@ -2,6 +2,8 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
+const PJ = require('./package.json');
+
 
 function isExternal(module) {
   var context = module.context;
@@ -47,6 +49,12 @@ module.exports = {
       new webpack.ProvidePlugin({
         $: 'jquery',
         jQuery: 'jquery',
+      }),
+      new webpack.DefinePlugin({
+        CRS_PACKAGE: JSON.stringify({
+          version: PJ.version,
+          bugs_url: PJ.bugs.url,
+        }),
       }),
       new webpack.optimize.CommonsChunkPlugin({
         name: 'crsearch-vendor',
