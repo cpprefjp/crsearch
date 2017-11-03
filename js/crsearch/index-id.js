@@ -1,11 +1,11 @@
-import {Result} from './result'
+import {IndexType as IType} from './index-type'
 
 class IndexID {
   static VERBATIM_TRS = new Map([
-    ['コンストラクタ', {to: '(constructor)', only: Result.MEM_FUN}],
-    ['デストラクタ', {to: '(destructor)', only: Result.MEM_FUN}],
-    ['推論補助', {to: '(deduction guide)', type: Result.CLASS}],
-    ['非メンバ関数', {to: 'non-member function', type: Result.FUNCTION}],
+    ['コンストラクタ', {to: '(constructor)', only: IType.mem_fun}],
+    ['デストラクタ', {to: '(destructor)', only: IType.mem_fun}],
+    ['推論補助', {to: '(deduction guide)', type: IType.class}],
+    ['非メンバ関数', {to: 'non-member function', type: IType.function}],
     ['単項', {to: 'unary'}],
   ])
 
@@ -23,12 +23,12 @@ class IndexID {
     this.type = ['header', 'namespace', 'class', 'function', 'mem_fun', 'enum', 'variable', 'type-alias', 'macro'].includes(json.type) ? Symbol.for(`cpp-${json.type}`) : Symbol.for(json.type)
 
     switch (this.type) {
-    case Result.CLASS:
-    case Result.FUNCTION:
-    case Result.MEM_FUN:
-    case Result.ENUM:
-    case Result.VARIABLE:
-    case Result.TYPE_ALIAS:
+    case IType.class:
+    case IType.function:
+    case IType.mem_fun:
+    case IType.enum:
+    case IType.variable:
+    case IType.type_alias:
       let ns = ['std']
       if (json.cpp_namespace) {
         ns = json.cpp_namespace
@@ -56,7 +56,7 @@ class IndexID {
         if (v.type) {
           this.type = v.type
 
-          if (this.type === Result.CLASS && this.key[0] !== 'std') {
+          if (this.type === IType.class && this.key[0] !== 'std') {
             this.key.unshift({name: 'std'})
           }
         }
@@ -66,6 +66,10 @@ class IndexID {
 
   path_join() {
     return this.key.map(k => k.name).join('/')
+  }
+
+  toString() {
+    return `IndexID(${this.join()})`
   }
 
   join(hint = this.join_hint()) {
@@ -108,7 +112,7 @@ class IndexID {
     let hint = {delim: {name: 'none', text: ''}, wrap: {}}
 
     switch (this.type) {
-    case Result.HEADER:
+    case IType.header:
       hint = {
         wrap: {left: '<', right: '>'},
         delim: {
@@ -118,13 +122,13 @@ class IndexID {
       }
       break
 
-    case Result.NAMESPACE:
-    case Result.CLASS:
-    case Result.FUNCTION:
-    case Result.MEM_FUN:
-    case Result.ENUM:
-    case Result.VARIABLE:
-    case Result.TYPE_ALIAS:
+    case IType.namespace:
+    case IType.class:
+    case IType.function:
+    case IType.mem_fun:
+    case IType.enum:
+    case IType.variable:
+    case IType.type_alias:
       hint.delim = {
         name: 'ns',
         text: '::'

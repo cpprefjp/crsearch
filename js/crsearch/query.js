@@ -1,9 +1,9 @@
-import {Result} from './result'
+import {IndexType as IType} from './index-type'
 
 
 class Query {
   static Filter = {
-    header: Result.HEADER,
+    header: IType.header,
   }
 
   constructor(log, text) {
@@ -31,17 +31,17 @@ class Query {
         for (const t of types) {
           let kind = null
           switch (t) {
-            case 'header':     kind = Result.HEADER; break
-            case 'namespace':  kind = Result.NAMESPACE; break
-            case 'class':      kind = Result.CLASS; break
-            case 'function':   kind = Result.FUNCTION; break
-            case 'mem_fun':    kind = Result.MEM_FUN; break
-            case 'enum':       kind = Result.ENUM; break
-            case 'variable':   kind = Result.VARIABLE; break
-            case 'type-alias': kind = Result.TYPE_ALIAS; break
-            case 'macro':      kind = Result.MACRO; break
-            case 'article':    kind = Result.ARTICLE; break
-            case 'meta':       kind = Result.META; break
+            case 'header':     kind = IType.header; break
+            case 'namespace':  kind = IType.namespace; break
+            case 'class':      kind = IType.class; break
+            case 'function':   kind = IType.function; break
+            case 'mem_fun':    kind = IType.mem_fun; break
+            case 'enum':       kind = IType.enum; break
+            case 'variable':   kind = IType.variable; break
+            case 'type-alias': kind = IType.type_alias; break
+            case 'macro':      kind = IType.macro; break
+            case 'article':    kind = IType.article; break
+            case 'meta':       kind = IType.meta; break
 
             default:
               this.log.error('unhandled type in query', t)

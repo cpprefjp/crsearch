@@ -1,0 +1,3 @@
+[submodule "kunai_configs/cpprefjp"]
+	path = kunai_configs/cpprefjp
+	url = https://github.com/cpprefjp/kunai_config.git

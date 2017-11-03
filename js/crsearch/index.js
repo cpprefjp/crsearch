@@ -1,4 +1,4 @@
-import {Result} from './result'
+import {IndexType as IType} from './index-type'
 import {IndexID} from './index-id'
 
 class Index {
@@ -33,8 +33,12 @@ class Index {
     return this.id.join()
   }
 
+  toString() {
+    return `Index(${this.join()})`
+  }
+
   static ambgMatch(idx, q) {
-    if ([Result.ARTICLE, Result.META].includes(idx.id.type)) {
+    if ([IType.article, IType.meta].includes(idx.id.type)) {
       return idx.id_cache.toLowerCase().includes(q.toLowerCase())
     }
 

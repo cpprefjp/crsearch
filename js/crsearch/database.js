@@ -1,4 +1,4 @@
-import {Result} from './result'
+import {IndexType as IType} from './index-type'
 import {IndexID} from './index-id'
 import {Index} from './index'
 import {Namespace} from './namespace'
@@ -12,6 +12,7 @@ class Database {
     this.name = json.database_name
     this.base_url = new URL(json.base_url)
     this.namespaces = []
+    this.exactNamespaces = new Map
     this.default_ns = new Map
     this.ids = []
 
@@ -22,6 +23,7 @@ class Database {
     for (const [s_key, j_ns] of json.namespaces.entries()) {
       const ns = new Namespace(this.log, s_key, j_ns, this.ids, this.make_url.bind(this))
       this.log.info(`got Namespace: '${ns.pretty_name()}'`, ns)
+      this.exactNamespaces.set(ns.canonicalKey(), ns)
       this.namespaces.push(ns)
 
       // set namespace w/ no cpp_version as default fallback
@@ -42,7 +44,7 @@ class Database {
         for (const rsid of idx.related_to) {
           const rid = this.ids[rsid]
 
-          if (rid.type === Result.HEADER) {
+          if (rid.type === IType.header) {
             let found = ns.indexes.get(rid)
             if (!found) {
               for (const in_ns of this.namespaces) {
@@ -79,6 +81,21 @@ class Database {
     }
   }
 
+  getTree() {
+    for (const ns of this.namespaces) {
+      const tns = this.getTreeNamespace(ns)
+      switch (ns.genericKey()) {
+        default: {
+          this.log.debug(ns.genericKey())
+        }
+      }
+    }
+  }
+
+  getTreeNamespace(ns) {
+    return ns.name
+  }
+
   query(q, found_count, max_count) {
     let targets = []
 
@@ -99,6 +116,16 @@ class Database {
 
   make_url(ns_path) {
     return new URL(`/${ns_path}.html`, this.base_url)
+  }
+
+  findNamespace(f) {
+    return this.namespaces.filter(f)
+  }
+
+  exactNamespace(narray, cppv) {
+    return this.exactNamespaces.get(
+      Namespace.makeCanonicalKey(narray, cppv)
+    )
   }
 }
 export {Database}

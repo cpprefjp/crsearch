@@ -1,5 +1,4 @@
 import {Index} from './index'
-import {Result} from './result'
 
 
 class Namespace {
@@ -22,6 +21,33 @@ class Namespace {
       // this.log.debug('got Index', idx_)()
       this.indexes.set(idx_.id, idx_)
     }
+  }
+
+  static makeGenericKey(narray) {
+    return `${[].concat(narray).join('/')}`
+  }
+
+  static makeCanonicalKey(gkey, cppv) {
+    return `${gkey}///${cppv || null}`
+  }
+
+  genericKey() {
+    return Namespace.makeGenericKey(this.namespace)
+  }
+
+  canonicalKey() {
+    return Namespace.makeCanonicalKey(
+      Namespace.makeGenericKey(this.namespace),
+      this.cpp_version
+    )
+  }
+
+  exactIndex(id) {
+    return this.indexes.get(id)
+  }
+
+  findIndex(f) {
+    return new Set(Array.from(this.indexes.values()).filter(f))
   }
 
   query(q, found_count, max_count, path_composer) {

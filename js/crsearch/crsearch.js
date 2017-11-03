@@ -2,7 +2,7 @@ import {default as Mousetrap} from 'mousetrap'
 import * as Nagato from 'nagato'
 
 import {Query} from './query'
-import {Result} from './result'
+import {IndexType as IType} from './index-type'
 import {Database} from './database'
 import {Index} from './index'
 
@@ -235,7 +235,7 @@ class CRSearch {
 
     for (const [name, db] of this.db) {
       // always include fallback
-      let e = this.make_result(Result.GOOGLE_FALLBACK, q.original_text, {
+      let e = this.make_result(IType.google_fallback, q.original_text, {
         name: db.name,
         url: db.base_url.host,
       })
@@ -302,7 +302,7 @@ class CRSearch {
     let url = null
 
     switch (t) {
-    case Result.GOOGLE_FALLBACK:
+    case IType.google_fallback:
       a.attr('href', this.make_google_url(target, extra.url))
       a.attr('target', '_blank')
       $(`<div class="query">${target}</div>`).appendTo(content)
