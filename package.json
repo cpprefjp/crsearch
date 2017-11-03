@@ -48,6 +48,7 @@
     "node-sass": "^4.5.3",
     "postcss-loader": "^2.0.8",
     "precss": "^2.0.0",
+    "raw-loader": "^0.5.1",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.18.2",
     "webpack": "^3.8.1",
@@ -58,6 +59,7 @@
     "babel-runtime": "^6.26.0",
     "font-awesome": "^4.7.0",
     "jquery": "^3.2.1",
+    "marked": "^0.3.6",
     "nagato": "^1.8.2"
   }
 }

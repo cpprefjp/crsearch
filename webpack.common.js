@@ -43,6 +43,14 @@ module.exports = {
             path.resolve(__dirname, 'node_modules', 'nagato'),
           ],
         },
+        {
+          test: /\.md$/,
+          use: [
+            {
+              loader: 'raw-loader',
+            },
+          ],
+        },
       ],
     },
     plugins: [

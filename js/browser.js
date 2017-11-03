@@ -1,7 +1,8 @@
 import {CRSearch} from './crsearch'
-
-import * as KC from './crsearch/kunai-config'
 import {IndexType as IType} from './crsearch/index-type'
+
+import KC_Article from '../kunai_configs/cpprefjp/article.md'
+import * as KC from './crsearch/kunai-config'
 
 import {Logger} from 'nagato'
 
@@ -11,7 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let crs = new CRSearch({
     onDatabase: (db) => {
-      const mc = new KC.Config({
+      const kc = new KC.Config({
+        'article.md': KC_Article,
         'cpp.json': require('../kunai_configs/cpprefjp/cpp.json'),
       })
 
@@ -24,16 +26,16 @@ document.addEventListener('DOMContentLoaded', () => {
           return idx.type() === IType.mem_fun
         })
 
-        log.info('sample Index', idxs)
+        // log.info('sample Index', idxs)
 
         for (const idx of idxs) {
-          const prio = mc.priorityFor(idx)
-          log.info(`priority for Index '${idx}': ${prio.i}`, prio)
+          const prio = kc.priorityForIndex(idx)
+          // log.info(`priority for Index '${idx}': ${prio.i}`, prio)
         }
       }
 
       {
-        db.getTree()
+        db.getTree(kc)
       }
     }
   })

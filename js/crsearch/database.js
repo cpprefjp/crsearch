@@ -81,12 +81,17 @@ class Database {
     }
   }
 
-  getTree() {
+  getTree(kc) {
     for (const ns of this.namespaces) {
       const tns = this.getTreeNamespace(ns)
-      switch (ns.genericKey()) {
+      const gkey = ns.genericKey()
+      const cat = kc.getCategory(gkey)
+
+      this.log.debug(`got '${ns.genericKey()}', ordered: ${cat.index}`, ns, cat)
+
+      switch (gkey) {
         default: {
-          this.log.debug(ns.genericKey())
+          break
         }
       }
     }
