@@ -1,7 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 
 function isExternal(module) {
@@ -45,9 +44,6 @@ module.exports = {
       ],
     },
     plugins: [
-      new CleanWebpackPlugin(
-        ['dist'], { verbose: true, }
-      ),
       new webpack.ProvidePlugin({
         $: 'jquery',
         jQuery: 'jquery',
