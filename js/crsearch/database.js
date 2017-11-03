@@ -82,19 +82,36 @@ class Database {
   }
 
   getTree(kc) {
+    let res = new Map
+    const cats = kc.categories()
+
     for (const ns of this.namespaces) {
       const tns = this.getTreeNamespace(ns)
       const gkey = ns.genericKey()
-      const cat = kc.getCategory(gkey)
+      const cat = cats.get(gkey)
 
       this.log.debug(`got '${ns.genericKey()}', ordered: ${cat.index}`, ns, cat)
 
-      switch (gkey) {
-        default: {
-          break
+      if (!res.has(cat)) {
+        res.set(cat.index, new Map)
+      }
+      let m = res.get(cat.index)
+      for (const [id, idx] of ns.indexes) {
+        const prio = kc.priorityForIndex(idx)
+        if (!m.has(prio)) {
+          m.set(prio, [])
         }
+        m.get(prio).push(idx)
       }
     }
+
+    this.log.debug('res', res)
+    return Array.from(res.entries()).sort((a, b) => {
+      return a[0].index < b[0].index ? -1 : 1
+
+    }).map((e) => {
+      return {category: e[0], indexes: e[1]}
+    })
   }
 
   getTreeNamespace(ns) {

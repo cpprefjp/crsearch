@@ -32,6 +32,13 @@ class UnhandledHeading {
   }
 }
 
+class ArticleCategory {
+  constructor(index, name) {
+    this.index = index
+    this.name = name
+  }
+}
+
 class ArticleProcessor {
   constructor() {
     this.categories = new Map
@@ -54,10 +61,12 @@ class ArticleProcessor {
               throw new Error(`[BUG] unhandled format ${buf}`)
             }
 
-            this.categories.set(m[2], {
-              name: m[1],
-              index: this.currentIndex++,
-            })
+            this.categories.set(
+              m[2],
+              new ArticleCategory(
+                this.currentIndex++, m[1]
+              )
+            )
           },
           'text': (token) => {
             // console.log(token)
@@ -160,13 +169,16 @@ class Config {
     return this.cpp_json.get(prop)
   }
 
-  getCategory(cat) {
-    return this.article.get(Prop.toplevel_category).get(cat)
+  categories() {
+    return this.article.get(Prop.toplevel_category)
   }
 
   priorityForIndex(idx) {
+    if (!idx.page_id || !idx.page_id.length) {
+      return new Priority(-42)
+    }
     if (idx.type() === IType.header) {
-      throw new Error(`[BUG] sorting a <header> page is not implemented; got ${idx}`)
+      return new Priority(-10)
     }
 
     const key = idx.page_id[idx.page_id.length - 1]
