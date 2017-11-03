@@ -178,26 +178,38 @@ $cr-meta-bg: #F0F0F0;
 
       border-bottom: 1px solid $cs-bd-result-sep;
 
-      .key-container {
-        .wrap, .keys {
-          display: inline-block;
+      .index {
+        .key-container {
+          .wrap, .keys {
+            display: inline-block;
+          }
+
+          &:not(.delim-none) .key:not(:last-child):after {
+            display: inline-block;
+            margin: 0;
+            padding: 0;
+          }
+
+          &.delim-ns .key:not(:last-child):after {
+            content: '::';
+          }
+          &.delim-slash .key:not(:last-child):after {
+            content: '/';
+          }
+
+          .key.special {
+            font-weight: bold;
+          }
         }
 
-        &:not(.delim-none) .key:not(:last-child):after {
-          display: inline-block;
-          margin: 0;
-          padding: 0;
-        }
+        .badges {
+          .badge {
+            margin: 0 2em;
 
-        &.delim-ns .key:not(:last-child):after {
-          content: '::';
-        }
-        &.delim-slash .key:not(:last-child):after {
-          content: '/';
-        }
-
-        .key.special {
-          font-weight: bold;
+            &:last-child {
+              margin-right: 0;
+            }
+          }
         }
       }
     }

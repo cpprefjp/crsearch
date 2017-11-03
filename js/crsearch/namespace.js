@@ -17,7 +17,7 @@ class Namespace {
     }
 
     for (const idx of json.indexes) {
-      const idx_ = new Index(this.log, ids[idx.id], idx, (idx) => { return make_url(this.make_path(idx)) })
+      const idx_ = new Index(this.log, this.cpp_version, ids[idx.id], idx, (idx) => { return make_url(this.make_path(idx)) })
       // this.log.debug('got Index', idx_)()
       this.indexes.set(idx_.id, idx_)
     }

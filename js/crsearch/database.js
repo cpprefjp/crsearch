@@ -56,7 +56,7 @@ class Database {
 
               if (!found) {
                 let dns = this.default_ns.get(ns.namespace.join('/'))
-                let fake = new Index(this.log, null, null, (idx) => { return this.make_url(dns.make_path(idx)) })
+                let fake = new Index(this.log, dns.cpp_version, null, null, (idx) => { return this.make_url(dns.make_path(idx)) })
                 fake.id = rid
                 fake.id_cache = fake.id.key.map(kv => kv.name).join()
                 // this.log.debug('fake', fake, fake.url())

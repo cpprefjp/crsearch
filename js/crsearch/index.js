@@ -2,7 +2,7 @@ import {IndexType as IType} from './index-type'
 import {IndexID} from './index-id'
 
 class Index {
-  constructor(log, id, json, make_url) {
+  constructor(log, cpp_version, id, json, make_url) {
     this.log = log.makeContext('Index')
     this.in_header = null
     this.url = () => { return make_url(this) }
@@ -16,6 +16,8 @@ class Index {
     this.page_id = json.page_id
     this.related_to = json.related_to
     this.nojump = !!json.nojump
+    this.attributes = json.attributes
+    this.cpp_version = cpp_version
 
     // cache
     this.id_cache = this.join()
@@ -26,7 +28,23 @@ class Index {
   }
 
   join_html() {
-    return this.id.join_html()
+    let container = $('<div>').addClass('index').append(this.id.join_html())
+
+    let attrs = this.attributes || []
+
+    if (this.cpp_version) {
+      attrs.push(`cpp${this.cpp_version}`)
+    }
+
+    if (attrs.length) {
+      let e = $('<ul>').addClass('badges')
+      for (const attr of attrs) {
+        $('<li>').addClass('badge').addClass(attr).appendTo(e)
+      }
+      container.append(e)
+    }
+
+    return container
   }
 
   join() {
