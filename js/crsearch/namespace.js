@@ -7,8 +7,9 @@ class Namespace {
     this.log = log.makeContext('Namespace')
     this.ns_id = ns_id
     this.indexes = new Map
+    this.name = json.name || null
     this.namespace = json.namespace
-    this.cpp_version = json.cpp_version
+    this.cpp_version = json.cpp_version || null
 
     if (json.path_prefixes) {
       this.path_prefixes = json.path_prefixes.join('/')

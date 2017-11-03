@@ -15,6 +15,7 @@ class Index {
     this.id = id
     this.page_id = json.page_id
     this.related_to = json.related_to
+    this.nojump = !!json.nojump
 
     // cache
     this.id_cache = this.join()

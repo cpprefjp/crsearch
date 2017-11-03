@@ -48,8 +48,8 @@ class CRSearch {
     </div>
   `
 
-  constructor(opts = CRSearch.OPTS_DEFAULT) {
-    this.opts = opts
+  constructor(opts = {}) {
+    this.opts = Object.assign({}, CRSearch.OPTS_DEFAULT, opts)
     this.log = new Nagato.Logger(CRSearch.APPNAME, new Nagato.Logger.Option(Object.assign({}, this.opts, {
       icon: {
         text: '\u{1F50E}',
@@ -59,6 +59,7 @@ class CRSearch {
 
     this.loaded = false
     this.db = new Map
+    this.pendingDB = new Set
     this.last_id = 0
     this.last_input = {}
     this.search_timer = {}
@@ -79,51 +80,62 @@ class CRSearch {
   }
 
   load() {
-    let i = 1
-    for (const [url, db] of this.db) {
-      if (url.pathname == '/') {
-        url.pathname = '/crsearch.json'
-      }
-      this.log.info(`fetching database (${i}/${this.db.size}): ${url}`)
-
-      $.ajax({
-        url: url,
-
-        success: (data) => {
-          this.log.info('fetched')
-          this.parse(url, data)
-        },
-
-        fail: (e) => {
-          this.log.error('fetch failed', e)
+    try {
+      let i = 1
+      for (const url of this.pendingDB) {
+        if (url.pathname == '/') {
+          url.pathname = '/crsearch.json'
         }
-      })
+        this.log.info(`fetching database (${i}/${this.pendingDB.size}): ${url}`)
 
-      ++i
+        $.ajax({
+          url: url,
+
+          success: (data) => {
+            this.log.info('fetched')
+            this.parse(url, data)
+          },
+
+          fail: (e) => {
+            this.log.error('fetch failed', e)
+          }
+        })
+
+        ++i
+      }
+    } finally {
+      this.pendingDB.clear()
     }
   }
 
-  parse(url, json) {
+  async parse(url, json) {
     this.log.info('parsing...', json)
-    this.db.set(url, new Database(this.log, json))
 
-    if (!this.defaultUrl) this.defaultUrl = new URL(this.db.get(url).base_url).hostname
+    const db = new Database(this.log, json)
+    this.db.set(db.name, db)
+    if (!this.defaultUrl) {
+      this.defaultUrl = new URL(db.base_url).hostname
+    }
+
     this.updateSearchButton('')
-
-    this.log.info('parsed.', this.db.get(url))
+    this.log.info(`parsed '${db.name}'`, db)
+    if (this.opts.onDatabase) {
+      this.opts.onDatabase(db)
+    }
   }
 
   database(base_url) {
     try {
       const url = new URL(base_url)
-      this.db.set(url.toString(), null)
+      this.pendingDB.add(url.toString())
+
     } catch (e) {
       const a = document.createElement('a')
       a.href = base_url
       if (a.pathname == '/') a.pathname = '/crsearch.json'
 
       const url = new URL(a.toString())
-      this.db.set(url.toString(), null)
+      this.pendingDB.add(url)
     }
   }
 
@@ -169,7 +181,7 @@ class CRSearch {
     // do the lookup per database
     let res = new Map
 
-    for (const [url, db] of this.db) {
+    for (const [name, db] of this.db) {
       const ret = db.query(q, 0, CRSearch.MAX_RESULT)
       extra_info_for[db.name] = {url: db.base_url}
 
@@ -221,7 +233,7 @@ class CRSearch {
       }
     }
 
-    for (const [url, db] of this.db) {
+    for (const [name, db] of this.db) {
       // always include fallback
       let e = this.make_result(Result.GOOGLE_FALLBACK, q.original_text, {
         name: db.name,
@@ -287,7 +299,7 @@ class CRSearch {
     elem.addClass(Symbol.keyFor(t))
     let a = elem.children('a')
     let content = $('<div class="content" />').appendTo(a)
-    let url = undefined
+    let url = null
 
     switch (t) {
     case Result.GOOGLE_FALLBACK:
