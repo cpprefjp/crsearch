@@ -71,7 +71,7 @@ $cr-meta-bg: #F0F0F0;
     margin: 4px -2px 0 0;
     border: 2px solid lighten($cs-bd-result, 20%);
     border-radius: 3px;
-    min-width: 340px;
+    min-width: 380px;
     z-index: 2;
     background: $cs-bg-result;
     min-height: 2em;
@@ -297,7 +297,7 @@ $cr-meta-bg: #F0F0F0;
           background: #888;
 
           display: inline-block;
-          width: 5em;
+          width: 5.5em;
           font-family: monospace;
           font-size: .8em;
           text-align: center;
@@ -321,7 +321,7 @@ $cr-meta-bg: #F0F0F0;
           margin-top: 0;
           background: none;
           font-weight: bold;
-          // font-family: sans-serif;
+          font-family: sans-serif;
         }
 
         .content {
