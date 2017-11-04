@@ -380,7 +380,7 @@ $cr-meta-bg: #F0F0F0;
           background: #888;
 
           display: inline-block;
-          width: 5.5em;
+          width: 5.8em;
           font-family: monospace;
           font-size: .8em;
           text-align: center;
@@ -440,7 +440,6 @@ $cr-meta-bg: #F0F0F0;
 
       &.cpp-namespace {
         > a:before {
-          font-size: .7em;
           content: 'namespace';
           background: $badge-cpp-namespace;
           color: #EEE;
