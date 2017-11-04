@@ -356,7 +356,7 @@ $cr-meta-bg: #F0F0F0;
     .results > .result:not(.cr-meta-result) {
       > a {
         display: flex;
-        align-items: baseline;
+        align-items: center;
 
         padding: .4em;
         line-height: 1.4;
