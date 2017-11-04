@@ -1,6 +1,6 @@
 {
   "name": "crsearch",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "cpprefjp / boostjp searcher",
   "main": "dist/js/crsearch.js",
   "module": "js/crsearch.js",
@@ -45,7 +45,7 @@
     "html-webpack-include-assets-plugin": "0.0.7",
     "html-webpack-plugin": "^2.30.1",
     "mousetrap": "^1.6.1",
-    "node-sass": "^4.5.3",
+    "node-sass": "^4.6.0",
     "postcss-loader": "^2.0.8",
     "precss": "^2.0.0",
     "raw-loader": "^0.5.1",
