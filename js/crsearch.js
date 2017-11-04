@@ -1,3 +1,3 @@
 export {CRSearch} from './crsearch/crsearch'
-export {KunaiConfig} from './crsearch/kunai-config'
+export * as KC from './crsearch/kunai-config'
 

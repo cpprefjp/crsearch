@@ -190,7 +190,7 @@ class Database {
       let others = new Set
       let no_class = new Set
 
-      this.log.debug('fasfsadsa', h, dict)
+      // this.log.debug('fasfsadsa', h, dict)
       for (const idx of dict.children) {
         if (idx.id.type === IType.mem_fun) {
           const c = idx.in_class
@@ -215,7 +215,7 @@ class Database {
           others.add(idx)
         }
       }
-      this.log.debug('AAAAAA', classes, others)
+      // this.log.debug('AAAAAA', classes, others)
 
       classes = Array.from(classes).map((kv) => {
         return [kv[0], kv[1]]
