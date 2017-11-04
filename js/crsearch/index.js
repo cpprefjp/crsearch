@@ -32,14 +32,23 @@ class Index {
 
     let attrs = this.attributes || []
 
-    if (this.cpp_version) {
-      attrs.push(`cpp${this.cpp_version}`)
-    }
+    // if (this.cpp_version) {
+      // attrs.push(`cpp${this.cpp_version}`)
+    // }
 
     if (attrs.length) {
       let e = $('<ul>').addClass('badges')
       for (const attr of attrs) {
-        $('<li>').addClass('badge').addClass(attr).appendTo(e)
+        let b = $('<li>').addClass('badge').addClass(attr)
+        if (attr.match('deprecated')) {
+          b.addClass('deprecated_spec')
+        } else if (attr.match('removed')) {
+          b.addClass('removed_spec')
+        }
+        if (['deprecated_in_latest', 'removed_in_latest'].includes(attr)) {
+          b.addClass('latest_spec')
+        }
+        b.appendTo(e)
       }
       container.append(e)
     }

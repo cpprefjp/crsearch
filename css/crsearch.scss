@@ -1,3 +1,5 @@
+@import './font-awesome';
+
 $theme-color: #306E82;
 $badge-header: #4A4;
 $badge-cpp-namespace: #444;
@@ -179,6 +181,9 @@ $cr-meta-bg: #F0F0F0;
       border-bottom: 1px solid $cs-bd-result-sep;
 
       .index {
+        display: flex;
+        flex-wrap: wrap;
+
         .key-container {
           .wrap, .keys {
             display: inline-block;
@@ -203,11 +208,75 @@ $cr-meta-bg: #F0F0F0;
         }
 
         .badges {
+          display: flex;
+          align-items: center;
+          margin-left: .5em;
+          font-family: sans-serif;
+          font-size: .9em;
+          line-height: 1.15;
+
           .badge {
-            margin: 0 2em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+
+            font-weight: bold;
+            border: 1px solid #222; // stub
+            border-radius: 2px;
+
+            box-shadow: inset 0 0 2px 0 rgba(0, 0, 0, .2);
+            padding: 0 .15em 0 0;
 
             &:last-child {
               margin-right: 0;
+            }
+
+            &:before {
+              @extend .fa;
+              @extend .fa-fw;
+            }
+
+            &.deprecated_spec, &.removed_spec {
+              display: none;
+            }
+
+            &.removed_spec {
+              $c: #8a6d3b;
+              color: $c;
+              border-color: $c;
+              @extend .fa-ban;
+            }
+
+            &.deprecated_spec {
+              $c: #f90;
+              color: $c;
+              border-color: $c;
+              @extend .fa-warning;
+            }
+
+            &.latest_spec {
+              display: flex;
+            }
+          }
+
+          .badge.cpp11deprecated, .badge.cpp11removed {
+            ~ .badge.latest_spec:after {
+              content: "C++11";
+            }
+          }
+          .badge.cpp14deprecated, .badge.cpp14removed {
+            ~ .badge.latest_spec:after {
+              content: "C++14";
+            }
+          }
+          .badge.cpp17deprecated, .badge.cpp17removed {
+            ~ .badge.latest_spec:after {
+              content: "C++17";
+            }
+          }
+          .badge.cpp20deprecated, .badge.cpp20removed {
+            ~ .badge.latest_spec:after {
+              content: "C++20";
             }
           }
         }
@@ -285,7 +354,7 @@ $cr-meta-bg: #F0F0F0;
     .results > .result:not(.cr-meta-result) {
       > a {
         display: flex;
-        align-items: flex-start;
+        align-items: baseline;
 
         padding: .4em;
         line-height: 1.4;

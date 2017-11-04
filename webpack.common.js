@@ -76,7 +76,6 @@ module.exports = {
     context: path.resolve(__dirname, 'css'),
     entry: {
       crsearch: './crsearch.scss',
-      'font-awesome': './font-awesome.scss',
     },
     output: {
       path: path.resolve(__dirname, 'dist'),

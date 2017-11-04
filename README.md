@@ -29,7 +29,6 @@ Docker をインストール済みなら:
 <html>
   <head>
     <title>CRSearch - sample setup</title>
-    <link href="css/font-awesome.css" rel="stylesheet">
     <link href="css/crsearch.css" rel="stylesheet">
 
     <script type="text/javascript" src="js/crsearch-vendor.js"></script>

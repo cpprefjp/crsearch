@@ -44,11 +44,11 @@ module.exports = Merge.multiple(common, {
           'browser',
         ],
       }),
-      new HtmlWebpackIncludeAssetsPlugin({
-        assets: ['css/font-awesome.css'],
-        append: false,
-        hash: true,
-      }),
+      // new HtmlWebpackIncludeAssetsPlugin({
+        // assets: ['css/font-awesome.css'],
+        // append: false,
+        // hash: true,
+      // }),
       new HtmlWebpackIncludeAssetsPlugin({
         assets: ['css/browser.css', 'css/crsearch.css'],
         append: true,
