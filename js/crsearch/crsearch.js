@@ -358,14 +358,34 @@ class CRSearch {
     input.attr('placeholder', CRSearch.INPUT_PLACEHOLDER)
     input.appendTo(control)
 
+    const get_root = () => $(document.activeElement).closest('*[data-crsearch-id="' + id + '"]')
+    const is_self = () => !!get_root().length
+
+    const forceFocus = () => {
+      const results = get_root().find('.results')
+      if (!results.children('.result a:focus').length) {
+        results.find('.result a.focus').focus()[0].click()
+      }
+    }
+
+    Mousetrap.bind('enter', e => {
+      if (is_self()) {
+        // don't!
+        // e.preventDefault()
+
+        forceFocus()
+      }
+      return true
+    })
+
     Mousetrap.bind('up', e => {
-      if ($(document.activeElement).closest('*[data-crsearch-id="' + id + '"]').length != 0) {
+      if (is_self()) {
         e.preventDefault()
         this.selectChange(true, box)
       }
     })
     Mousetrap.bind('down', e => {
-      if ($(document.activeElement).closest('*[data-crsearch-id="' + id + '"]').length != 0) {
+      if (is_self()) {
         e.preventDefault()
         this.selectChange(false, box)
       }
