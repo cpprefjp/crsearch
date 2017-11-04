@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       {
-        const tree = db.getTree(kc)
+        const tree = db.sortTree(kc, db.getTree())
         log.info('tree', tree)
       }
     }

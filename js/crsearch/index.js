@@ -5,6 +5,7 @@ class Index {
   constructor(log, cpp_version, id, json, make_url) {
     this.log = log.makeContext('Index')
     this.in_header = null
+    this.in_class = null
     this.url = () => { return make_url(this) }
 
     if (!id) {
@@ -21,6 +22,14 @@ class Index {
 
     // cache
     this.id_cache = this.join()
+  }
+
+  isParent() {
+    return this.id.type === IType.header
+  }
+
+  getParent() {
+    return this.in_header
   }
 
   type() {

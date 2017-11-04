@@ -2,9 +2,16 @@ import {IndexType as IType} from './index-type'
 import {IndexID} from './index-id'
 import {Index} from './index'
 import {Namespace} from './namespace'
+import {Dictionary} from './dictionary'
 
 import * as Query from './query'
 
+class RootIndexError {
+  constructor(idx) {
+    this.idx = idx
+    this.args = arguments
+  }
+}
 
 class Database {
   constructor(log, json) {
@@ -35,8 +42,29 @@ class Database {
     }
 
     // map fake header page to related_to, if needed
+    this.all_classes = new Map
+    for (const ns of this.namespaces) {
+      for (const idx of ns.findIndex((idx) => idx.id.type === IType.class)) {
+        this.all_classes.set(idx.id.join(), idx)
+      }
+    }
+
     for (const ns of this.namespaces) {
       for (let [id, idx] of ns.indexes) {
+        if (idx.id.type === IType.mem_fun) {
+          let class_keys = [].concat(idx.id.key)
+          class_keys.pop()
+          const cand = class_keys.map((k) => k.name).join('::')
+
+          const c = this.all_classes.get(cand)
+          if (!c) {
+            this.log.warn(`parent class '${cand}' for index '${idx}' not found in database`, idx)
+          } else {
+            idx.in_class = c
+          }
+        }
+
+
         if (!idx.related_to) continue
 
         let deref_related_to = new Set
@@ -59,6 +87,12 @@ class Database {
                 let fake = new Index(this.log, dns.cpp_version, null, null, (idx) => { return this.make_url(dns.make_path(idx)) })
                 fake.id = rid
                 fake.id_cache = fake.id.key.map(kv => kv.name).join()
+
+                if (fake.id_cache === 'header_name') {
+                  // shit
+                  continue
+                }
+
                 // this.log.debug('fake', fake, fake.url())
                 found = fake
 
@@ -81,41 +115,142 @@ class Database {
     }
   }
 
-  getTree(kc) {
-    let res = new Map
-    const cats = kc.categories()
+  getTree() {
+    let articles = new Map
+    let headers = new Map
 
     for (const ns of this.namespaces) {
-      const tns = this.getTreeNamespace(ns)
       const gkey = ns.genericKey()
-      const cat = cats.get(gkey)
+      // this.log.debug(`tree for '${ns.genericKey()}' --------------------------------------`, ns)
 
-      this.log.debug(`got '${ns.genericKey()}', ordered: ${cat.index}`, ns, cat)
+      const [parentIndexes, childIndexes] = ns.partitionIndex((idx) => idx.isParent())
+      // this.log.debug(`${parentIndexes.size} parents, ${childIndexes.size} children`, parentIndexes, childIndexes)
 
-      if (!res.has(cat)) {
-        res.set(cat.index, new Map)
-      }
-      let m = res.get(cat.index)
-      for (const [id, idx] of ns.indexes) {
-        const prio = kc.priorityForIndex(idx)
-        if (!m.has(prio)) {
-          m.set(prio, [])
+      const getIndexDict = (idx) => {
+        const p = idx.getParent()
+
+        if (p) {
+          const key = p.id.join()
+
+          if (!headers.has(key)) {
+            // this.log.debug(`new header dict for '${key}'`)
+            let d = new Dictionary(this.log, p, [])
+            headers.set(key, d)
+          }
+          return headers.get(key)
+
+        } else {
+          if (![IType.meta, IType.article].includes(idx.type())) {
+            throw new Error(`[BUG] wild index type must be an article; got: ${idx}`)
+          }
+
+
+          if (!idx.page_id || !idx.page_id.length || !idx.page_id[0].length || !idx.page_id[idx.page_id.length - 1].length) {
+            this.log.warn(`empty index '${idx}' (maybe root?)`, idx)
+            throw new RootIndexError(idx)
+          }
+
+          const key = idx.page_id[0]
+          if (!articles.has(key)) {
+            // this.log.debug(`new article dict for '${key}'`)
+            let d = new Dictionary(this.log, key, [])
+            articles.set(key, d)
+          }
+          return articles.get(key)
         }
-        m.get(prio).push(idx)
+      }
+
+      for (const idx of childIndexes) {
+        try {
+          const d = getIndexDict(idx)
+          // this.log.debug(`pushing index '${idx}' to dictionary '${d.self}'...`)
+          d.children.push(idx)
+        } catch (e) {
+          if (e instanceof RootIndexError) {
+            continue
+          } else {
+            throw e
+          }
+        }
       }
     }
 
-    this.log.debug('res', res)
-    return Array.from(res.entries()).sort((a, b) => {
-      return a[0].index < b[0].index ? -1 : 1
+    this.log.info(`${headers.size} headers, ${articles.size} article categories`, headers, articles)
 
-    }).map((e) => {
-      return {category: e[0], indexes: e[1]}
-    })
+    return {
+      headers: headers,
+      articles: articles,
+    }
   }
 
-  getTreeNamespace(ns) {
-    return ns.name
+  sortTree(kc, tree) {
+    let headers = []
+    for (const [h, dict] of tree.headers) {
+      let classes = new Map
+      let others = new Set
+      let no_class = new Set
+
+      this.log.debug('fasfsadsa', h, dict)
+      for (const idx of dict.children) {
+        if (idx.id.type === IType.mem_fun) {
+          const c = idx.in_class
+
+          if (!c) {
+            no_class.add(idx)
+            continue
+          }
+
+          const key = c.id.join()
+          if (!classes.has(key)) {
+            classes.set(key, {self: c, children: new Set})
+          }
+          classes.get(key).children.add(idx)
+        } else {
+          if (idx.id.type === IType.class) {
+            const key = idx.id.join()
+            if (!classes.has(key)) {
+              classes.set(key, {self: idx, children: new Set})
+            }
+          }
+          others.add(idx)
+        }
+      }
+      this.log.debug('AAAAAA', classes, others)
+
+      classes = Array.from(classes).map((kv) => {
+        return [kv[0], kv[1]]
+      }).sort((a, b) => {
+        return a[0] < b[0] ? -1 : 1
+      })
+
+      for (let [key, c] of classes) {
+        if (!c.children) {
+          c.children = []
+          continue
+        }
+        c.children = Array.from(c.children).sort((a, b) => {
+          return kc.priorityForIndex(a).i < kc.priorityForIndex(b).i ? -1 : 1
+        })
+      }
+
+      headers.push([h, {
+        self: dict.self,
+        classes: classes,
+        others: Array.from(others).sort((a, b) => {
+          return a.join() < b.join() ? -1 : 1
+        })
+      }])
+    }
+
+    return {
+      headers: headers.sort((a, b) => {
+        // this.log.debug('sort', a[0], b[0])
+        return a[0] < b[0] ? -1 : 1
+      }),
+      articles: Array.from(tree.articles).sort((a, b) => {
+        return a[0] < b[0] ? -1 : 1
+      }),
+    }
   }
 
   query(q, found_count, max_count) {

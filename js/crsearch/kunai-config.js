@@ -103,7 +103,7 @@ class ArticleProcessor {
 
         } catch (e) {
           if (e instanceof UnhandledHeading) {
-            console.log('skipping!', e)
+            // console.log('skipping!', e)
             this.currentZoneProc = null
 
           } else {
@@ -141,7 +141,7 @@ class Config {
     this.article = new Map
     {
       const e = Config.parseMD(data['article.md'], new ArticleProcessor)
-      console.log(e)
+      // console.log(e)
       this.article.set(
         Prop.toplevel_category,
         e

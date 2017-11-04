@@ -1,4 +1,5 @@
 import {Index} from './index'
+import {IndexType as IType} from './index-type'
 
 
 class Namespace {
@@ -10,6 +11,9 @@ class Namespace {
     this.namespace = json.namespace
     this.cpp_version = json.cpp_version || null
 
+    this.fixPageID = this.namespace[0] === 'editors_doc' ? (id) => { return ['editors_doc'].concat(id) } : (id) => { return id }
+
+
     if (json.path_prefixes) {
       this.path_prefixes = json.path_prefixes.join('/')
     } else {
@@ -18,6 +22,12 @@ class Namespace {
 
     for (const idx of json.indexes) {
       const idx_ = new Index(this.log, this.cpp_version, ids[idx.id], idx, (idx) => { return make_url(this.make_path(idx)) })
+      idx_.page_id = this.fixPageID(idx_.page_id)
+
+      if (this.namespace[0] === 'reference' && [IType.article, IType.meta].includes(idx_.type())) {
+        this.log.warn(`found article/meta index '${idx_}' inside 'reference'`, idx_)
+        idx_.page_id = [this.namespace[0]].concat(idx_.page_id)
+      }
       // this.log.debug('got Index', idx_)()
       this.indexes.set(idx_.id, idx_)
     }
@@ -48,6 +58,18 @@ class Namespace {
 
   findIndex(f) {
     return new Set(Array.from(this.indexes.values()).filter(f))
+  }
+
+  partitionIndex(f) {
+    let ret = [new Set, new Set]
+    for (const [id, idx] of this.indexes) {
+      if (f(idx)) {
+        ret[0].add(idx)
+      } else {
+        ret[1].add(idx)
+      }
+    }
+    return ret
   }
 
   query(q, found_count, max_count, path_composer) {
