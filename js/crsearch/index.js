@@ -7,6 +7,8 @@ class Index {
     this.in_header = null
     this.in_class = null
     this.url = () => { return make_url(this) }
+    this.ns = null
+    this.is_fake = false
 
     if (!id) {
       // this.log.debug('fake Index created')
@@ -22,6 +24,10 @@ class Index {
 
     // cache
     this.id_cache = this.join()
+  }
+
+  isRootArticle() {
+    return this.page_id[0].length === 0 /* && [IType.meta, IType.article].includes(this.id.type) */
   }
 
   isParent() {

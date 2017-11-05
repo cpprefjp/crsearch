@@ -3,254 +3,276 @@ import {IndexID} from './index-id'
 import {Index} from './index'
 import {Namespace} from './namespace'
 import {Dictionary} from './dictionary'
+import {Priority, SiteCategory} from './kunai-config'
 
 import * as Query from './query'
 
-class RootIndexError {
-  constructor(idx) {
-    this.idx = idx
-    this.args = arguments
-  }
-}
 
 class Database {
   constructor(log, json) {
+    const runID = JSON.stringify({name: 'Database::constructor', timestamp: Date.now()})
+    console.time(runID)
+
     this.log = log.makeContext('Database')
     this.name = json.database_name
     this.base_url = new URL(json.base_url)
     this.namespaces = []
-    this.exactNamespaces = new Map
     this.default_ns = new Map
+    this.topNamespaces = new Map
     this.ids = []
+    this.reverseID = new Map
 
+    // global map
+    this.all_headers = new Map
+    this.all_classes = new WeakMap
+    this.all_articles = new Set
+    this.root_articles = new WeakMap
+
+
+    this.log.debug('[P1] initializing all IndexID...')
+    let fallback_001_used = false
     for (const [s_key, id] of json.ids.entries()) {
-      this.ids.push(new IndexID(this.log, s_key, id))
+      const iid = new IndexID(this.log, s_key, id)
+
+      // legacy fallback
+      if (iid.cpp_namespace && iid.cpp_namespace.length >= 2) {
+        if (iid.cpp_namespace[1] === 'string_literals') {
+          fallback_001_used = true
+          this.log.warn('using fallback for string_literals namespace issue: https://github.com/cpprefjp/site/commit/6325b516f91f7434abbcef1ecaa04950d80ec9a9')
+          iid.key.shift()
+          iid.type = IType.function
+        }
+      }
+
+      const rvid = iid.toReverseID()
+      // this.log.debug(`rvid for '${iid}': '${rvid}'`, iid)
+      // if (rvid.match(/ios_base/)) {
+        // this.log.debug(`rvid '${rvid}'`, rvid, iid)
+      // }
+
+      this.ids.push(iid)
+      this.reverseID.set(rvid, iid)
     }
 
+    if (!fallback_001_used) {
+      this.log.warn('fallback_001 is not used; maybe time to remove this workaround?')
+    }
+
+    this.log.debug('[P1] initializing all Namespace...')
     for (const [s_key, j_ns] of json.namespaces.entries()) {
       const ns = new Namespace(this.log, s_key, j_ns, this.ids, this.make_url.bind(this))
-      this.log.info(`got Namespace: '${ns.pretty_name()}'`, ns)
-      this.exactNamespaces.set(ns.canonicalKey(), ns)
+      this.log.debug(`got Namespace: '${ns.pretty_name()}'`, ns)
       this.namespaces.push(ns)
 
       // set namespace w/ no cpp_version as default fallback
 
       if (!ns.cpp_version) {
-        this.log.info(`setting default namespace version for '${ns.namespace.join('/')}'`, ns.pretty_name())
+        this.log.debug(`setting default namespace version for '${ns.namespace.join('/')}'`, ns.pretty_name())
         this.default_ns.set(ns.namespace.join('/'), ns)
       }
     }
 
-    // map fake header page to related_to, if needed
-    this.all_classes = new Map
-    for (const ns of this.namespaces) {
-      for (const idx of ns.findIndex((idx) => idx.id.type === IType.class)) {
-        this.all_classes.set(idx.id.join(), idx)
-      }
-    }
 
+    this.log.info('[P2] generating reverse maps...')
     for (const ns of this.namespaces) {
+      if (ns.namespace.length <= 1) {
+        this.topNamespaces.set(ns.namespace[0], ns)
+      }
+
       for (let [id, idx] of ns.indexes) {
-        if (idx.id.type === IType.mem_fun) {
+        this.resolveRelatedTo(ns, idx)
+
+        if (idx.id.type === IType.header) {
+          this.autoInit(idx, null)
+
+        } else if (idx.id.type === IType.class) {
+          this.autoInit(idx.in_header, idx)
+
+        } else if (idx.id.type === IType.mem_fun) {
           let class_keys = [].concat(idx.id.key)
+          class_keys.shift()
           class_keys.pop()
-          const cand = class_keys.map((k) => k.name).join('::')
+          const rvid = IndexID.composeReverseID(IType.class, class_keys.map((k) => k.name))
+          const cand = this.reverseID.get(rvid)
 
-          const c = this.all_classes.get(cand)
-          if (!c) {
-            this.log.warn(`parent class '${cand}' for index '${idx}' not found in database`, idx)
-          } else {
-            idx.in_class = c
+          if (!cand) {
+            console.log(idx, class_keys, rvid)
+            throw [idx, rvid]
           }
+
+          // this.log.debug(`rvid candidate for mem_fun '${idx}': '${rvid}' (candidate '${cand}')`, idx, rvid, cand)
+
+          if (!this.all_classes.has(cand)) {
+            this.all_classes.set(cand, {self: null, members: new WeakSet})
+          }
+
+          this.all_classes.get(cand).members.add(idx)
+
+        } else if ([IType.article, IType.meta].includes(idx.id.type)) {
+          if (idx.isRootArticle()) {
+            this.root_articles.set(
+              idx.ns,
+              idx
+            )
+          } else {
+            this.all_articles.add(idx)
+          }
+
+        } else {
+          if (!idx.in_header) {
+            throw idx
+          }
+          this.autoInit(idx.in_header, null)
+          this.all_headers.get(idx.in_header.id.join()).others.add(idx)
+        }
+      } // for ns.indexes
+    }
+
+    console.timeEnd(runID)
+    this.log.info('initialized.')
+  }
+
+  resolveRelatedTo(ns, idx) {
+    if (!idx.related_to) return null
+
+    let deref_related_to = new Set
+
+    for (const rsid of idx.related_to) {
+      const rid = this.ids[rsid]
+
+      if (rid.type === IType.header) {
+        let found = ns.indexes.get(rid)
+        if (!found) {
+          for (const in_ns of this.namespaces) {
+            if (in_ns.indexes.has(rid)) {
+              found = in_ns.indexes.get(rid)
+              break
+            }
+          }
+
+          if (!found) {
+            let dns = this.default_ns.get(ns.namespace.join('/'))
+            let fake = new Index(this.log, dns.cpp_version, null, null, (idx) => { return this.make_url(dns.make_path(idx)) })
+            fake.is_fake = true
+            fake.id = rid
+            fake.id_cache = fake.id.key.map(kv => kv.name).join()
+
+            if (fake.id_cache === 'header_name') {
+              // shit
+              continue
+            }
+
+            // this.log.debug('fake', fake, fake.url())
+            found = fake
+
+            this.log.warn(`no namespace has this index; fake indexing '${fake.id.join()}' --> '${idx.id.join()}'`, 'default namespace:', dns.pretty_name(), '\nfake index:', fake, '\nself:', idx.id.join())
+
+            dns.indexes.set(rid, fake)
+            this.reverseID.set(rid.toReverseID(), rid)
+            this.autoInit(fake, null)
+          }
+
+        } else {
+          // this.log.warn(`related_to entity ${rid.join()} not found in this namespace '${ns.pretty_name()}', falling back to default`, 'default:', rid.join())
         }
 
+        idx.in_header = found
+        deref_related_to.add(found)
+      } // header
+    } // deref related_to loop
 
-        if (!idx.related_to) continue
+    idx.related_to = deref_related_to
+    return idx.related_to
+  }
 
-        let deref_related_to = new Set
+  autoInit(hparam, cparam) {
+    if (!hparam) {
+      throw new Error(`hparam is not supplied ('${hparam}', '${cparam}')`)
+    }
 
-        for (const rsid of idx.related_to) {
-          const rid = this.ids[rsid]
+    const hkey = hparam.id
+    if (!this.all_headers.has(hkey.join())) {
+      // this.log.debug(`new: '${hkey}'`, hparam, cparam)
+      this.all_headers.set(hkey.join(), {self: hparam, classes: new Map, others: new Set})
+    }
+    let h = this.all_headers.get(hkey.join())
 
-          if (rid.type === IType.header) {
-            let found = ns.indexes.get(rid)
-            if (!found) {
-              for (const in_ns of this.namespaces) {
-                if (in_ns.indexes.has(rid)) {
-                  found = in_ns.indexes.get(rid)
-                  break
-                }
-              }
+    if (!cparam) return [h, null]
 
-              if (!found) {
-                let dns = this.default_ns.get(ns.namespace.join('/'))
-                let fake = new Index(this.log, dns.cpp_version, null, null, (idx) => { return this.make_url(dns.make_path(idx)) })
-                fake.id = rid
-                fake.id_cache = fake.id.key.map(kv => kv.name).join()
+    const ckey = cparam.id
+    if (!this.all_classes.has(ckey)) {
+      // this.log.debug(`new: '${ckey}'`, hparam, cparam)
+      this.all_classes.set(ckey, {self: cparam, members: new Set})
+    } else {
+      if (!this.all_classes.get(ckey).self) {
+        this.all_classes.get(ckey).self = cparam
+      }
+    }
+    let c = this.all_classes.get(ckey)
 
-                if (fake.id_cache === 'header_name') {
-                  // shit
-                  continue
-                }
+    if (!h.classes.has(ckey)) {
+      // this.log.debug(`'${ckey}' --> '${hkey}'`, hparam, cparam)
+      h.classes.set(ckey, c)
+    }
+    return [h, c]
+  }
 
-                // this.log.debug('fake', fake, fake.url())
-                found = fake
 
-                this.log.warn(`no namespace has this index; fake indexing '${fake.id.join()}' --> '${id.join()}'`, 'default namespace:', dns.pretty_name(), '\nfake index:', fake, '\nself:', id.join())
+  getTree(kc) {
+    const runID = JSON.stringify({name: 'Database::getTree', timestamp: Date.now()})
+    console.time(runID)
 
-                dns.indexes.set(rid, fake)
-              }
+    let toplevels = Array.from(this.topNamespaces).map(([name, ns]) => {
+      return {
+        category: kc.categories().get(ns.namespace[0]),
+        namespace: ns,
+        root: this.root_articles.get(ns),
+        articles: [],
+        headers: [],
+      }
+    }).sort((a, b) => {
+      return a.category.index < b.category.index ? -1 : 1
+    })
 
+    toplevels[kc.categories().get('reference').index].headers =
+      Array.from(this.all_headers).map(([name, h]) => {
+      return {
+        self: h.self,
+        classes: Array.from(h.classes).map((([id, c]) => {
+          const mem = Array.from(c.members).sort((a, b) => {
+            return a.id.key[a.id.key.length - 1].name < b.id.key[b.id.key.length - 1].name ? -1 : 1
+          }).sort((a, b) => {
+            const pa = kc.getPriorityForIndex(a).index
+            const pb = kc.getPriorityForIndex(b).index
+
+            if (pa < pb) {
+              return -1
+            } else if (pa > pb) {
+              return 1
             } else {
-              // this.log.warn(`related_to entity ${rid.join()} not found in this namespace '${ns.pretty_name()}', falling back to default`, 'default:', rid.join())
+              return 0
             }
+          })
 
-            idx.in_header = found
-            deref_related_to.add(found)
-          } // header
-        } // deref related_to loop
-
-        idx.related_to = deref_related_to
+          return {
+            self: c.self,
+            members: mem,
+          }
+        })),
       }
+    })
+
+    for (const ar of this.all_articles) {
+      toplevels[kc.categories().get(ar.ns.namespace[0]).index].articles.push(ar)
     }
-  }
-
-  getTree() {
-    let articles = new Map
-    let headers = new Map
-
-    for (const ns of this.namespaces) {
-      const gkey = ns.genericKey()
-      // this.log.debug(`tree for '${ns.genericKey()}' --------------------------------------`, ns)
-
-      const [parentIndexes, childIndexes] = ns.partitionIndex((idx) => idx.isParent())
-      // this.log.debug(`${parentIndexes.size} parents, ${childIndexes.size} children`, parentIndexes, childIndexes)
-
-      const getIndexDict = (idx) => {
-        const p = idx.getParent()
-
-        if (p) {
-          const key = p.id.join()
-
-          if (!headers.has(key)) {
-            // this.log.debug(`new header dict for '${key}'`)
-            let d = new Dictionary(this.log, p, [])
-            headers.set(key, d)
-          }
-          return headers.get(key)
-
-        } else {
-          if (![IType.meta, IType.article].includes(idx.type())) {
-            throw new Error(`[BUG] wild index type must be an article; got: ${idx}`)
-          }
-
-
-          if (!idx.page_id || !idx.page_id.length || !idx.page_id[0].length || !idx.page_id[idx.page_id.length - 1].length) {
-            this.log.warn(`empty index '${idx}' (maybe root?)`, idx)
-            throw new RootIndexError(idx)
-          }
-
-          const key = idx.page_id[0]
-          if (!articles.has(key)) {
-            // this.log.debug(`new article dict for '${key}'`)
-            let d = new Dictionary(this.log, key, [])
-            articles.set(key, d)
-          }
-          return articles.get(key)
-        }
-      }
-
-      for (const idx of childIndexes) {
-        try {
-          const d = getIndexDict(idx)
-          // this.log.debug(`pushing index '${idx}' to dictionary '${d.self}'...`)
-          d.children.push(idx)
-        } catch (e) {
-          if (e instanceof RootIndexError) {
-            continue
-          } else {
-            throw e
-          }
-        }
-      }
-    }
-
-    this.log.info(`${headers.size} headers, ${articles.size} article categories`, headers, articles)
-
-    return {
-      headers: headers,
-      articles: articles,
-    }
-  }
-
-  sortTree(kc, tree) {
-    let headers = []
-    for (const [h, dict] of tree.headers) {
-      let classes = new Map
-      let others = new Set
-      let no_class = new Set
-
-      // this.log.debug('fasfsadsa', h, dict)
-      for (const idx of dict.children) {
-        if (idx.id.type === IType.mem_fun) {
-          const c = idx.in_class
-
-          if (!c) {
-            no_class.add(idx)
-            continue
-          }
-
-          const key = c.id.join()
-          if (!classes.has(key)) {
-            classes.set(key, {self: c, children: new Set})
-          }
-          classes.get(key).children.add(idx)
-        } else {
-          if (idx.id.type === IType.class) {
-            const key = idx.id.join()
-            if (!classes.has(key)) {
-              classes.set(key, {self: idx, children: new Set})
-            }
-          }
-          others.add(idx)
-        }
-      }
-      // this.log.debug('AAAAAA', classes, others)
-
-      classes = Array.from(classes).map((kv) => {
-        return [kv[0], kv[1]]
-      }).sort((a, b) => {
-        return a[0] < b[0] ? -1 : 1
+    for (let t of toplevels) {
+      t.articles.sort((a, b) => {
+        return a.id.join() < b.id.join() ? -1 : 1
       })
-
-      for (let [key, c] of classes) {
-        if (!c.children) {
-          c.children = []
-          continue
-        }
-        c.children = Array.from(c.children).sort((a, b) => {
-          return kc.priorityForIndex(a).i < kc.priorityForIndex(b).i ? -1 : 1
-        })
-      }
-
-      headers.push([h, {
-        self: dict.self,
-        classes: classes,
-        others: Array.from(others).sort((a, b) => {
-          return a.join() < b.join() ? -1 : 1
-        })
-      }])
     }
 
-    return {
-      headers: headers.sort((a, b) => {
-        // this.log.debug('sort', a[0], b[0])
-        return a[0] < b[0] ? -1 : 1
-      }),
-      articles: Array.from(tree.articles).sort((a, b) => {
-        return a[0] < b[0] ? -1 : 1
-      }),
-    }
+    console.timeEnd(runID)
+    return toplevels
   }
 
   query(q, found_count, max_count) {
@@ -277,12 +299,6 @@ class Database {
 
   findNamespace(f) {
     return this.namespaces.filter(f)
-  }
-
-  exactNamespace(narray, cppv) {
-    return this.exactNamespaces.get(
-      Namespace.makeCanonicalKey(narray, cppv)
-    )
   }
 }
 export {Database}

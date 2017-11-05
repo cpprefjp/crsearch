@@ -16,12 +16,13 @@ const Prop = {
 }
 
 class Priority {
-  constructor(i) {
-    this.i = i
+  constructor(index, name) {
+    this.index = index
+    this.name = name
   }
 
   toString() {
-    return `Priority(${this.i})`
+    return `Priority(#${this.index}, '${this.name}')`
   }
 }
 
@@ -29,13 +30,6 @@ class UnhandledHeading {
   constructor(token) {
     this.reason = `unhandled heading '${token.get('text')}'`
     this.args = arguments
-  }
-}
-
-class ArticleCategory {
-  constructor(index, name) {
-    this.index = index
-    this.name = name
   }
 }
 
@@ -63,7 +57,7 @@ class ArticleProcessor {
 
             this.categories.set(
               m[2],
-              new ArticleCategory(
+              new Priority(
                 this.currentIndex++, m[1]
               )
             )
@@ -148,19 +142,20 @@ class Config {
       )
     }
 
+    let i = 0
     this.cpp_json = new Map
-    this.cpp_json.set(Prop.order_priority, data['cpp.json']['order_priority'].map((e) => {
+    this.cpp_json.set(Prop.order_priority, new Map(data['cpp.json']['order_priority'].map((e) => {
       // e[0]: id
       // e[1]: description
       // console.log(e)
 
-      return e[0]
-    }))
+      return [e[0], [i++, e]]
+    })))
 
     this.prioSpecials = new Map
-    for (const [i, cfg] of this.getData(Prop.order_priority).entries()) {
-      if (cfg.match(/^__/)) {
-        this.prioSpecials.set(cfg, new Priority(i))
+    for (const [k, [i, [key, desc]]] of this.getData(Prop.order_priority)) {
+      if (key.match(/^__/)) {
+        this.prioSpecials.set(key, new Priority(i, key))
       }
     }
   }
@@ -173,32 +168,30 @@ class Config {
     return this.article.get(Prop.toplevel_category)
   }
 
-  priorityForIndex(idx) {
+  getPriorityForIndex(idx) {
     if (!idx.page_id || !idx.page_id.length) {
-      return new Priority(-42)
+      throw [1]
     }
     if (idx.type() === IType.header) {
-      return new Priority(-10)
+      throw [2]
     }
 
     const key = idx.page_id[idx.page_id.length - 1]
 
-    for (const [i, cfg] of this.cpp_json.get(Prop.order_priority).entries()) {
-      if (cfg === key) {
-        // exact match
-        return new Priority(i)
-      }
-
-      if (key.match(/^op_/)) {
-        return this.prioSpecials.get('__converter__')
-      }
-
-      if (key.match(/^type-/)) {
-        return this.prioSpecials.get('__types__')
-      }
-
-      return this.prioSpecials.get('__functions__')
+    if (this.cpp_json.get(Prop.order_priority).has(key)) {
+      // exact match
+      return new Priority(this.cpp_json.get(Prop.order_priority).get(key)[0], key)
     }
+
+    if (key.match(/^op_/)) {
+      return this.prioSpecials.get('__converter__')
+    }
+
+    if (key.match(/^type-/)) {
+      return this.prioSpecials.get('__types__')
+    }
+
+    return this.prioSpecials.get('__functions__')
   }
 }
 

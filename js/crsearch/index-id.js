@@ -9,33 +9,60 @@ class IndexID {
     ['単項', {to: 'unary'}],
   ])
 
+  static composeReverseID(type, keys) {
+    return `<:RVID:>/${Symbol.keyFor(type)}/${keys.join('<::>')}`
+  }
+
+  toReverseID() {
+    let k = this.key.map((k) => k.name)
+    if (IndexID.isClassy(this.type)) {
+      k.shift()
+      return IndexID.composeReverseID(this.type, k)
+
+    } else {
+      return IndexID.composeReverseID(this.type, k)
+    }
+  }
+
   equals(rhs) {
     // return this.id === rhs.id
     return this.s_key === rhs.s_key && this.ns_id === rhs.ns_id
   }
 
+  static isClassy(type) {
+    return [IType.class, IType.function, IType.mem_fun, IType.enum, IType.variable, IType.type_alias].includes(type)
+  }
+
   constructor(log, s_key, json) {
     this.log = log.makeContext('IndexID')
+    this.cpp_namespace = json.cpp_namespace
 
     this.s_key = s_key
     let key = json.key
 
     this.type = ['header', 'namespace', 'class', 'function', 'mem_fun', 'enum', 'variable', 'type-alias', 'macro'].includes(json.type) ? Symbol.for(`cpp-${json.type}`) : Symbol.for(json.type)
 
-    switch (this.type) {
-    case IType.class:
-    case IType.function:
-    case IType.mem_fun:
-    case IType.enum:
-    case IType.variable:
-    case IType.type_alias:
+    if (IndexID.isClassy(this.type)) {
       let ns = ['std']
       if (json.cpp_namespace) {
         ns = json.cpp_namespace
       }
 
+      // legacy workarounds
+      if (key.some((k) => k.match(/::/))) {
+        this.log.warn(`Invalid fragment '::' detected. Using legacy fallback until corresponding PR is deployed: https://github.com/cpprefjp/site_generator/pull/39`, key, json)
+        let newKey = []
+        for (const k of key) {
+          if (k.match(/::/)) {
+            newKey = newKey.concat(k.split(/::/))
+          } else {
+            newKey = newKey.concat(k)
+          }
+        }
+        key = newKey
+      }
+
       key = ns.concat(key)
-      break
     }
 
     this.key = key.map((k) => {

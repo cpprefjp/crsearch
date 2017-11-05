@@ -7,7 +7,6 @@ class Namespace {
     this.log = log.makeContext('Namespace')
     this.ns_id = ns_id
     this.indexes = new Map
-    this.name = json.name || null
     this.namespace = json.namespace
     this.cpp_version = json.cpp_version || null
 
@@ -23,6 +22,7 @@ class Namespace {
     for (const idx of json.indexes) {
       const idx_ = new Index(this.log, this.cpp_version, ids[idx.id], idx, (idx) => { return make_url(this.make_path(idx)) })
       idx_.page_id = this.fixPageID(idx_.page_id)
+      idx_.ns = this
 
       if (this.namespace[0] === 'reference' && [IType.article, IType.meta].includes(idx_.type())) {
         this.log.warn(`found article/meta index '${idx_}' inside 'reference'`, idx_)
@@ -97,7 +97,11 @@ class Namespace {
 
   make_path(idx) {
     if (idx.page_id) {
-      return `${this.path_prefixes}/${idx.page_id.join('/')}`
+      if (idx.page_id[0].length) {
+        return `${this.path_prefixes}/${idx.page_id.join('/')}`
+      } else {
+        return `${this.path_prefixes}`
+      }
     } else {
       return `${this.path_prefixes}/${idx.id.path_join()}`
     }

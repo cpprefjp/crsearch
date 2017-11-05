@@ -20,22 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
       log.info('onDatabase', db)
 
       {
-        // sample indexes
-        const ns = db.exactNamespace(['reference'], null)
-        const idxs = ns.findIndex((idx) => {
-          return idx.type() === IType.mem_fun
-        })
-
-        // log.info('sample Index', idxs)
-
-        for (const idx of idxs) {
-          const prio = kc.priorityForIndex(idx)
-          // log.info(`priority for Index '${idx}': ${prio.i}`, prio)
-        }
-      }
-
-      {
-        const tree = db.sortTree(kc, db.getTree())
+        const tree = db.getTree(kc)
         log.info('tree', tree)
       }
     }
