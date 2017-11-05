@@ -64,6 +64,7 @@ class IndexID {
 
       key = ns.concat(key)
     }
+    this.cpp_namespace = key
 
     this.key = key.map((k) => {
       return {name: k.normalize('NFKC')}

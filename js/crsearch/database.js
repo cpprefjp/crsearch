@@ -103,6 +103,11 @@ class Database {
           // this.log.debug(`rvid candidate for mem_fun '${idx}': '${rvid}' (candidate '${cand}')`, idx, rvid, cand)
 
           if (!this.all_classes.has(cand)) {
+            this.log.debug(`new class '${cand.join()}'`, cand, idx)
+
+            if (cand.join().match(/vector/)) {
+              throw [cand, idx]
+            }
             this.all_classes.set(cand, {self: null, members: new Set})
           }
 
@@ -199,7 +204,15 @@ class Database {
 
     if (!cparam) return [h, null]
 
-    const ckey = cparam.id
+
+    // -------------------------------------------------------------
+    // LEGACY WORKAROUND
+    // https://github.com/cpprefjp/site_generator/issues/42
+
+    // const ckey = cparam.id
+    const ckey = this.reverseID.get(cparam.id.toReverseID())
+    // -------------------------------------------------------------
+
     if (!this.all_classes.has(ckey)) {
       // this.log.debug(`new: '${ckey}'`, hparam, cparam)
       this.all_classes.set(ckey, {self: cparam, members: new Set})
