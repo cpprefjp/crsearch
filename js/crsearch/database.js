@@ -103,11 +103,6 @@ class Database {
           // this.log.debug(`rvid candidate for mem_fun '${idx}': '${rvid}' (candidate '${cand}')`, idx, rvid, cand)
 
           if (!this.all_classes.has(cand)) {
-            this.log.debug(`new class '${cand.join()}'`, cand, idx)
-
-            if (cand.join().match(/vector/)) {
-              throw [cand, idx]
-            }
             this.all_classes.set(cand, {self: null, members: new Set})
           }
 
