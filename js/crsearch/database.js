@@ -103,7 +103,7 @@ class Database {
           // this.log.debug(`rvid candidate for mem_fun '${idx}': '${rvid}' (candidate '${cand}')`, idx, rvid, cand)
 
           if (!this.all_classes.has(cand)) {
-            this.all_classes.set(cand, {self: null, members: new WeakSet})
+            this.all_classes.set(cand, {self: null, members: new Set})
           }
 
           this.all_classes.get(cand).members.add(idx)
