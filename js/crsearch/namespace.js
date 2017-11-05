@@ -22,10 +22,6 @@ class Namespace {
 
       idx_.ns = this
 
-      if (this.namespace[0] === 'reference' && [IType.article, IType.meta].includes(idx_.type())) {
-        this.log.warn(`found article/meta index '${idx_}' inside 'reference'`, idx_)
-        idx_.page_id = [this.namespace[0]].concat(idx_.page_id)
-      }
       // this.log.debug('got Index', idx_)()
       this.indexes.set(idx_.id, idx_)
     }
@@ -95,6 +91,9 @@ class Namespace {
 
   make_path(idx) {
     if (idx.page_id) {
+      if (this.path_prefixes.match(/reference/)) {
+        this.log.debug('fasfs', [this, idx])
+      }
       if (idx.page_id[0].length) {
         return `${this.path_prefixes}/${idx.page_id.join('/')}`
       } else {
