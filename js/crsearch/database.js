@@ -96,8 +96,8 @@ class Database {
           const cand = this.reverseID.get(rvid)
 
           if (!cand) {
-            console.log(idx, class_keys, rvid)
-            throw [idx, rvid]
+            this.log.error(`[BUG] class candidate for member '${idx.id.join()}' not found (rvid: ${rvid})`, idx)
+            continue
           }
 
           // this.log.debug(`rvid candidate for mem_fun '${idx}': '${rvid}' (candidate '${cand}')`, idx, rvid, cand)
