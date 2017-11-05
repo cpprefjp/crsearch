@@ -226,7 +226,9 @@ class Database {
       return {
         category: kc.categories().get(ns.namespace[0]),
         namespace: ns,
-        root: this.root_articles.get(ns),
+        root: this.root_articles.get(
+          this.default_ns.get(ns.namespace.join('/'))
+        ),
         articles: [],
         headers: [],
       }
