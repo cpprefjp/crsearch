@@ -10,8 +10,6 @@ class Namespace {
     this.namespace = json.namespace
     this.cpp_version = json.cpp_version || null
 
-    this.fixPageID = this.namespace[0] === 'editors_doc' ? (id) => { return ['editors_doc'].concat(id) } : (id) => { return id }
-
 
     if (json.path_prefixes) {
       this.path_prefixes = json.path_prefixes.join('/')
@@ -21,7 +19,7 @@ class Namespace {
 
     for (const idx of json.indexes) {
       const idx_ = new Index(this.log, this.cpp_version, ids[idx.id], idx, (idx) => { return make_url(this.make_path(idx)) })
-      idx_.page_id = this.fixPageID(idx_.page_id)
+
       idx_.ns = this
 
       if (this.namespace[0] === 'reference' && [IType.article, IType.meta].includes(idx_.type())) {
