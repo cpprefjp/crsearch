@@ -91,9 +91,6 @@ class Namespace {
 
   make_path(idx) {
     if (idx.page_id) {
-      if (this.path_prefixes.match(/reference/)) {
-        this.log.debug('fasfs', [this, idx])
-      }
       if (idx.page_id[0].length) {
         return `${this.path_prefixes}/${idx.page_id.join('/')}`
       } else {
