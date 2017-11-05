@@ -260,6 +260,8 @@ class Database {
           }
         })),
       }
+    }).sort((a, b) => {
+      return a.self.id.join() < b.self.id.join() ? -1 : 1
     })
 
     for (const ar of this.all_articles) {
