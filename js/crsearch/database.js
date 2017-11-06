@@ -248,6 +248,7 @@ class Database {
     toplevels[kc.categories().get('reference').index].headers =
       Array.from(this.all_headers).map(([name, h]) => ({
         self: h.self,
+
         classes: Array.from(h.classes).map((([id, c]) => ({
           self: c.self,
           members: Array.from(c.members).sort((a_, b_) => {
@@ -261,14 +262,23 @@ class Database {
             } else if (a.i > b.i) {
               return 1
             } else {
-              if (a.name < b.name) {
-                return -1
-              } else {
-                return 1
-              }
+              return a.name < b.name ? -1 : 1
             }
           })
         }))).sort((a, b) => a.self.id.join() < b.self.id.join() ? -1 : 1),
+
+        others: Array.from(h.others).sort((a, b) => {
+          const at = Symbol.keyFor(a.id.type)
+          const bt = Symbol.keyFor(b.id.type)
+          if (at < bt) {
+            return -1
+          } else if (at > bt) {
+            return 1
+          } else {
+            return a.id.join() < b.id.join() ? -1 : 1
+          }
+        }),
+
       })).sort((a, b) => a.self.id.join() < b.self.id.join() ? -1 : 1)
 
     for (const ar of this.all_articles) {
