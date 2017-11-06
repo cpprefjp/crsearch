@@ -68,6 +68,8 @@
   font-size: .9em;
   line-height: 1.15;
 
+  list-style: none;
+
   &.only-latest {
     > #{$sel} {
       &.deprecated-spec, &.removed-spec {

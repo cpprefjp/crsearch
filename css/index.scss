@@ -37,6 +37,8 @@ $type-spec: #222;
     display: inline-flex;
     flex-wrap: wrap;
 
+    list-style: none;
+
     > .key {
       color: $cl-key;
     }
