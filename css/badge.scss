@@ -25,7 +25,7 @@
     @extend .fa-fw;
   }
 
-  &.added-in-spec {
+  &.added-in-spec a {
     $c: #7473CA;
     color: $c;
     border-color: $c;
@@ -35,7 +35,7 @@
     }
   }
 
-  &.removed-spec {
+  &.removed-spec a {
     $c: #8a6d3b;
     color: $c;
     border-color: $c;
@@ -45,7 +45,7 @@
     }
   }
 
-  &.deprecated-spec {
+  &.deprecated-spec a {
     $c: #f90;
     color: $c;
     border-color: $c;
@@ -55,7 +55,7 @@
     }
   }
 
-  &.latest-spec {
+  &.latest-spec a {
     display: flex;
   }
 }

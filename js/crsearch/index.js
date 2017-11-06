@@ -46,7 +46,7 @@ class Index {
   }
 
   async join_html(opts = DOM.defaultOptions) {
-    let container = $('<div>', {'data-index-type': Symbol.keyFor(this.id.type)}).addClass('index')
+    let container = $('<div>', {'data-index-type': Symbol.keyFor(this.id.type)}).addClass('cr-index')
     if (IndexID.isClassy(this.id.type)) {
       container.addClass('classy')
     }

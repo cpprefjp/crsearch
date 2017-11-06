@@ -180,7 +180,7 @@ $cr-meta-bg: #F0F0F0;
         display: flex;
       }
 
-      .content > .index {
+      .content > .cr-index {
         @include cr-index {
           > .title > .badges {
             @include cr-badge-auto(".badge");
