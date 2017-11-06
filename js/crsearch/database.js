@@ -244,35 +244,32 @@ class Database {
       return a.category.index < b.category.index ? -1 : 1
     })
 
-    toplevels[kc.categories().get('reference').index].headers =
-      Array.from(this.all_headers).map(([name, h]) => {
-      return {
-        self: h.self,
-        classes: Array.from(h.classes).map((([id, c]) => {
-          const mem = Array.from(c.members).sort((a, b) => {
-            return a.id.key[a.id.key.length - 1].name < b.id.key[b.id.key.length - 1].name ? -1 : 1
-          }).sort((a, b) => {
-            const pa = kc.getPriorityForIndex(a).index
-            const pb = kc.getPriorityForIndex(b).index
 
-            if (pa < pb) {
+    toplevels[kc.categories().get('reference').index].headers =
+      Array.from(this.all_headers).map(([name, h]) => ({
+        self: h.self,
+        classes: Array.from(h.classes).map((([id, c]) => ({
+          self: c.self,
+          members: Array.from(c.members).sort((a_, b_) => {
+            const a = kc.makeMemberData(a_)
+            const b = kc.makeMemberData(b_)
+
+            // this.log.debug('a, b', a, b)
+
+            if (a.i < b.i) {
               return -1
-            } else if (pa > pb) {
+            } else if (a.i > b.i) {
               return 1
             } else {
-              return 0
+              if (a.name < b.name) {
+                return -1
+              } else {
+                return 1
+              }
             }
           })
-
-          return {
-            self: c.self,
-            members: mem,
-          }
-        })),
-      }
-    }).sort((a, b) => {
-      return a.self.id.join() < b.self.id.join() ? -1 : 1
-    })
+        }))),
+      })).sort((a, b) => a.self.id.join() < b.self.id.join() ? -1 : 1)
 
     for (const ar of this.all_articles) {
       toplevels[kc.categories().get(ar.ns.namespace[0]).index].articles.push(ar)

@@ -177,6 +177,7 @@ class Config {
     }
 
     const key = idx.page_id[idx.page_id.length - 1]
+    // console.log(`key: ${key}`)
 
     if (this.cpp_json.get(Prop.order_priority).has(key)) {
       // exact match
@@ -192,6 +193,13 @@ class Config {
     }
 
     return this.prioSpecials.get('__functions__')
+  }
+
+  makeMemberData(t) {
+    return {
+      i: this.getPriorityForIndex(t).index,
+      name: t.id.key[t.id.key.length - 1].name,
+    }
   }
 }
 
