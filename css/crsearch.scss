@@ -8,51 +8,90 @@ $theme-color: #306E82;
 $cs-bg-result: #FDFDFD;
 $cs-bd-result: $theme-color;
 $cs-bg-result-hover: rgb(240, 246, 255);
-$cs-bd-result-sep: #AAA;
 
-$control-font-size: 1.1em;
-$control-border: 2px;
-$search-input-height: 1.8em;
+$control-border: 1px;
 
 $cr-meta-bg: #F0F0F0;
+$cr-input-height: 2.2em;
 
+$cl-link: #428bca;
+$cl-link-hover: #2a6496;
 
 .crsearch {
   position: relative;
-  display: inline-block;
-  border: $control-border solid #DDD;
-  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: $cr-input-height;
+
+  a {
+    outline: none;
+
+    &:link, &:active, &:visited {
+      color: $cl-link;
+    }
+
+    &:hover {
+      color: $cl-link-hover;
+      text-decoration: none;
+    }
+
+    &:not([href]) {
+      color: lighten(desaturate($cl-link, 40%), 15%);
+    }
+  }
+
+  &.loading {
+    > .loading-icon {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+
+      @extend .fa;
+      @extend .fa-fw;
+      @extend .fa-refresh;
+      @extend .fa-spin;
+    }
+  }
+
+  &:not(.loaded) {
+    > .control, > .result-wrapper {
+      opacity: 0;
+    }
+  }
 
   > .control {
     position: relative;
+    border: $control-border solid #DDD;
+    border-radius: 4px;
+    overflow: hidden;
 
-    > .input {
+    > input.input {
       width: 100%;
       box-sizing: border-box;
       padding: $control-border 2.8em $control-border .4em;
       border: none;
+      height: $cr-input-height;
+
+      line-height: $cr-input-height;
 
       &:focus {
         outline: none;
       }
-
-      font-size: $control-font-size;
-      line-height: $search-input-height;
     }
 
     > .search {
       position: absolute;
-      top: $control-border;
-      right: $control-border;
+      top: 0;
+      right: 0;
       border-left: 1px dotted #DDD;
-      padding: 0 .5em;
+      padding: 0 .7em;
       background: #FFF;
       color: $theme-color;
       cursor: pointer;
       box-sizing: content-box;
 
-      font-size: $control-font-size;
-      line-height: $search-input-height;
+      line-height: $cr-input-height;
 
       &, &:hover, &:focus, &:visited, &:active {
         text-decoration: none;
@@ -63,18 +102,25 @@ $cr-meta-bg: #F0F0F0;
   > .result-wrapper {
     position: absolute;
     padding: 0;
-    margin: 4px -2px 0 0;
+    margin: 2px 0 0 0;
     border: 2px solid lighten($cs-bd-result, 20%);
     border-radius: 3px;
 
     min-width: 100%;
-    max-width: 80vw;
+    max-width: 120%;
+    overflow: hidden;
+
+    @media (max-width: 768px) {
+      max-width: 80vw;
+    }
 
     z-index: 2;
     background: $cs-bg-result;
     min-height: 2em;
+    top: 100%;
     right: 0;
     box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
 
     display: none;
 
@@ -161,20 +207,23 @@ $cr-meta-bg: #F0F0F0;
       }
     }
 
-    .results {
+    ul.results {
+      display: flex;
+      flex-direction: column;
+
       cursor: pointer;
-      vertical-align: top;
-      display: block;
       list-style: none;
       font-family: monospace;
     }
 
-    .results > .result {
+    ul.results > li.result {
       &:focus {
         outline: none;
       }
 
-      border-bottom: 1px solid $cs-bd-result-sep;
+      border-bottom: 1px solid rgba(80, 80, 80, 0.2);
+
+      box-sizing: border-box;
 
       > a {
         display: flex;
@@ -182,41 +231,53 @@ $cr-meta-bg: #F0F0F0;
 
       .content > .cr-index {
         @include cr-index {
-          > .title > .badges {
+          > .title > ul.badges {
             @include cr-badge-auto(".badge");
           }
         }
       }
     }
 
-    .results > .result.cr-meta-result {
+    ul.results > li.result.cr-meta-result {
       &.cr-result-header, &.in-header {
         cursor: default;
         display: flex;
-        justify-content: flex-end;
         padding: .2em .4em;
+
+        width: 100%;
+        box-sizing: border-box;
       }
 
       &.cr-result-header {
+        align-content: center;
+        align-items: center;
+
         .db-name, .extra {
           display: inline-block;
         }
 
         .db-name {
-          padding: 0 0 0 .5em;
+          margin: 0;
+          padding: 0;
           font-size: .9em;
           font-weight: bold;
           text-decoration: none;
         }
         .extra {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           font-size: .8em;
           color: #444;
           margin-right: auto;
+          width: 80%;
 
           .message {
-            display: flex;
+            display: inline-flex;
+            width: 100%;
+
+            .pre {
+              white-space: nowrap;
+            }
 
             .match-count, .query {
               font-family: monospace;
@@ -228,8 +289,6 @@ $cr-meta-bg: #F0F0F0;
             }
 
             .query {
-              display: inline-block;
-              width: 7em;
               margin: 0 0 0 .5em;
               overflow: hidden;
               white-space: nowrap;
@@ -246,6 +305,8 @@ $cr-meta-bg: #F0F0F0;
 
       &.in-header {
         background: $cr-meta-bg;
+        justify-content: flex-end;
+        border-bottom: 1px dashed #DEDEDE;
 
         > div, > a {
           font-size: .75em;
@@ -253,11 +314,12 @@ $cr-meta-bg: #F0F0F0;
 
         a, a:link, a:visited {
           text-decoration: none;
+          font-family: monospace;
         }
       }
     }
 
-    .results > .result:not(.cr-meta-result) {
+    ul.results > li.result:not(.cr-meta-result) {
       > a {
         display: flex;
         align-items: center;
@@ -270,7 +332,8 @@ $cr-meta-bg: #F0F0F0;
         &.focus {
           $color: rgba(80, 80, 240, 0.4);
           background: lighten($color, 30%);
-          outline: 2px solid $color;
+          // outline: 2px solid $color;
+          outline: none;
         }
 
         &:hover, &.hover {
@@ -286,6 +349,8 @@ $cr-meta-bg: #F0F0F0;
       } // a
 
       &.fallback {
+        border-top: 1px solid rgba(40, 120, 40, 0.2);
+
         > a:before {
           flex-basis: 5em;
           text-align: center;
@@ -303,12 +368,15 @@ $cr-meta-bg: #F0F0F0;
           display: inline-flex;
           flex-wrap: wrap;
           align-items: baseline;
+          overflow: hidden;
 
           .query {
             font-size: .9em;
             font-style: oblique;
 
-            flex-basis: 100%;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
           }
 
           .fallback-site {

@@ -60,7 +60,7 @@
   }
 }
 
-@mixin cr-badge-root($sel: ".badge") {
+@mixin cr-badge-root($sel: "li.badge") {
   display: inline-flex;
   // align-items: center;
   margin-left: .5em;
@@ -93,7 +93,7 @@
   }
 }
 
-@mixin cr-badge-decoration($sel: ".badge") {
+@mixin cr-badge-decoration($sel: "li.badge") {
   #{$sel} {
     a {
       display: inline-flex;
@@ -150,7 +150,7 @@
   }
 }
 
-@mixin cr-badge-auto($sel: ".badge") {
+@mixin cr-badge-auto($sel: "li.badge") {
   @include cr-badge-root;
 
   > #{$sel} {

@@ -33,19 +33,20 @@ $type-spec: #222;
     }
   }
 
-  .keys {
+  ul.keys {
     display: inline-flex;
     flex-wrap: wrap;
 
     list-style: none;
+    color: $cl-key;
 
-    > .key {
+    > li.key {
       color: $cl-key;
     }
   }
 
   &[data-index-type="header"] {
-    .keys {
+    ul.keys {
       &:before {
         content: '<';
       }
@@ -53,7 +54,7 @@ $type-spec: #222;
         content: '>';
       }
 
-      > .key {
+      > li.key {
         &:not(:last-child) {
           &:after {
             content: '/';
@@ -128,8 +129,8 @@ $type-spec: #222;
   }
 
   &.classy {
-    .keys {
-      > .key {
+    ul.keys {
+      > li.key {
         &:not(:last-child) {
           color: lighten($cl-key, 20%);
 

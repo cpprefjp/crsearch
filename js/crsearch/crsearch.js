@@ -8,7 +8,7 @@ import {Index} from './index'
 
 
 class CRSearch {
-  static APPNAME = 'CRSearch'
+  static APPNAME = 'crsearch'
   static HOMEPAGE = 'https://github.com/cpprefjp/crsearch'
 
   static OPTS_DEFAULT = {
@@ -79,7 +79,7 @@ class CRSearch {
     this.log.info('initialized.')
   }
 
-  load() {
+  async load() {
     try {
       let i = 1
       for (const url of this.pendingDB) {
@@ -91,12 +91,12 @@ class CRSearch {
         $.ajax({
           url: url,
 
-          success: (data) => {
+          success: async (data) => {
             this.log.info('fetched')
             this.parse(url, data)
           },
 
-          fail: (e) => {
+          fail: async (e) => {
             this.log.error('fetch failed', e)
           }
         })
@@ -106,6 +106,8 @@ class CRSearch {
     } finally {
       this.pendingDB.clear()
     }
+
+    this.loaded = true
   }
 
   async parse(url, json) {
@@ -187,7 +189,7 @@ class CRSearch {
 
       res.set(db.name, ret.targets)
       if (res.get(db.name).length == 0) {
-        let msg = $(`<div class="message">No matches for </div>`)
+        let msg = $(`<div class="message"><span class="pre">No matches for</span></div>`)
         let rec_q = $('<span class="query" />')
         rec_q.text(q.original_text)
         rec_q.appendTo(msg)
@@ -279,15 +281,12 @@ class CRSearch {
   async make_result_header(header) {
     let elem = $('<li class="result cr-meta-result in-header" />')
 
-    let body = null
+    let body = $('<a>')
     if (header) {
-      body = $(`<a />`)
       if (this.opts.force_new_window) {
         body.attr('target', '_blank')
       }
       body.attr('href', header.url())
-    } else {
-      body = $(`<div />`)
     }
     body.text(header ? header.join() : '(no header)')
     body.appendTo(elem)
@@ -324,11 +323,17 @@ class CRSearch {
     return elem
   }
 
-  updateSearchButton(href) {
+  async updateSearchButton(href) {
     this.searchButton.attr('href', this.make_google_url(href, this.defaultUrl))
   }
 
-  searchbox(sel) {
+  async searchbox(sel) {
+    let box = $(sel).addClass('loading').append($('<div>', {class: 'loading-icon'}))
+    if (!this.loaded) {
+      await this.load()
+    }
+    box.removeClass('loading').addClass('loaded')
+
     this.searchButton = $('<a />')
     this.searchButton.attr('target', '_blank')
     this.searchButton.addClass('search')
@@ -337,16 +342,10 @@ class CRSearch {
       this.searchButton.addClass(klass)
     }
 
-    if (!this.loaded) {
-      this.loaded = true
-      this.load()
-    }
-
     const id = this.last_id++;
+    box.attr('data-crsearch-id', id)
     this.log.info(`creating searchbox ${id}`)
 
-    let box = $(sel)
-    box.attr('data-crsearch-id', id)
 
     this.last_input[id] = ''
 
