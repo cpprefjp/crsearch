@@ -14,7 +14,7 @@ class IndexID {
   }
 
   toReverseID() {
-    let k = this.key.map((k) => k.name)
+    let k = [].concat(this.keys)
     if (IndexID.isClassy(this.type)) {
       k.shift()
       return IndexID.composeReverseID(this.type, k)
@@ -36,11 +36,11 @@ class IndexID {
   constructor(log, s_key, json) {
     this.log = log.makeContext('IndexID')
     this.cpp_namespace = json.cpp_namespace
+    this.type = Symbol.for(json.type)
 
     this.s_key = s_key
-    let key = json.key
+    let keys = json.key
 
-    this.type = ['header', 'namespace', 'class', 'function', 'mem_fun', 'enum', 'variable', 'type-alias', 'macro'].includes(json.type) ? Symbol.for(`cpp-${json.type}`) : Symbol.for(json.type)
 
     if (IndexID.isClassy(this.type)) {
       let ns = ['std']
@@ -49,122 +49,68 @@ class IndexID {
       }
 
       // legacy workarounds
-      if (key.some((k) => k.match(/::/))) {
-        this.log.warn(`Invalid fragment '::' detected. Using legacy fallback until corresponding PR is deployed: https://github.com/cpprefjp/site_generator/pull/39`, key, json)
+      if (keys.some((k) => k.match(/::/))) {
+        this.log.warn(`Invalid fragment '::' detected. Using legacy fallback until corresponding PR is deployed: https://github.com/cpprefjp/site_generator/pull/39`, keys, json)
         let newKey = []
-        for (const k of key) {
+        for (const k of keys) {
           if (k.match(/::/)) {
             newKey = newKey.concat(k.split(/::/))
           } else {
             newKey = newKey.concat(k)
           }
         }
-        key = newKey
+        keys = newKey
       }
 
-      key = ns.concat(key)
+      keys = ns.concat(keys)
     }
-    this.cpp_namespace = key
+    this.cpp_namespace = keys
 
-    this.key = key.map((k) => {
-      return {name: k.normalize('NFKC')}
-    })
+    this.keys = keys.map((k) => k.normalize('NFKC'))
 
-    IndexID.VERBATIM_TRS.forEach((v, k) => {
+    for (const [k, v] of IndexID.VERBATIM_TRS) {
       if (v.only && v.only !== this.type) {
         return
       }
 
-      if (this.key[this.key.length - 1].name.includes(k)) {
-        this.key[this.key.length - 1] = {
-          name: this.key[this.key.length - 1].name.replace(k, `${v.to}`),
-          classes: ['special'],
-        }
+      if (this.keys[this.keys.length - 1].includes(k)) {
+        this.keys[this.keys.length - 1] = this.keys[this.keys.length - 1].replace(k, `${v.to}`)
 
         if (v.type) {
           this.type = v.type
 
-          if (this.type === IType.class && this.key[0] !== 'std') {
-            this.key.unshift({name: 'std'})
+          if (this.type === IType.class && this.keys[0] !== 'std') {
+            this.keys.unshift('std')
           }
         }
       }
-    })
+    }
   }
 
   path_join() {
-    return this.key.map(k => k.name).join('/')
+    return this.keys.join('/')
   }
 
   toString() {
     return `IndexID(${this.join()})`
   }
 
-  join(hint = this.join_hint()) {
-    return `${hint.wrap.left || ''}${this.key.map((k) => k.name).join(hint.delim.text)}${hint.wrap.right || ''}`
+  join() {
+    if (IndexID.isClassy(this.type)) {
+      return `${this.keys.join('::')}`
+    } else {
+      if (this.type === IType.header) {
+        return `<${this.keys.join()}>`
+      } else {
+        return this.keys.join()
+      }
+    }
   }
 
-  join_html(hint = this.join_hint()) {
-    let container  = $(`<div class="key-container delim-${hint.delim.name}" />`)
-    if (hint.wrap.left) {
-      let e = $('<span class="wrap" />')
-      e.text(hint.wrap.left)
-      e.appendTo(container)
-    }
-
-    let keys = $('<div class="keys" />')
-    keys.appendTo(container)
-
-    this.key.forEach((k) => {
-      let e = $('<span class="key" />')
-
-      if (k.classes) {
-        k.classes.forEach((c) =>
-          e.addClass(c)
-        )
-      }
-      e.text(k.name)
-      e.appendTo(keys)
-    })
-
-    if (hint.wrap.right) {
-      let e = $('<span class="wrap" />')
-      e.text(hint.wrap.right)
-      e.appendTo(container)
-    }
-
-    return container
-  }
-
-  join_hint() {
-    let hint = {delim: {name: 'none', text: ''}, wrap: {}}
-
-    switch (this.type) {
-    case IType.header:
-      hint = {
-        wrap: {left: '<', right: '>'},
-        delim: {
-          name: 'slash',
-          text: '/'
-        }
-      }
-      break
-
-    case IType.namespace:
-    case IType.class:
-    case IType.function:
-    case IType.mem_fun:
-    case IType.enum:
-    case IType.variable:
-    case IType.type_alias:
-      hint.delim = {
-        name: 'ns',
-        text: '::'
-      }
-      break
-    }
-
-    return hint
+  async join_html() {
+    return $('<ul>').addClass('keys').append(
+      this.keys.map((k) => $('<li>', {class: 'key'}).text(k))
+    )
   }
 }
 

@@ -1,16 +1,9 @@
 @import './font-awesome';
+@import './badge';
+@import './index';
+
 
 $theme-color: #306E82;
-$badge-header: #4A4;
-$badge-cpp-namespace: #444;
-$badge-cpp-class: #44A;
-$badge-cpp-function: lighten($badge-cpp-class, 15%);
-$badge-cpp-macro: #44DD22;
-$badge-cpp-variable: $badge-cpp-macro;
-$badge-article: #DDD;
-$badge-meta: $badge-article;
-$badge-cpp-spec: #222;
-$badge-google-fallback: #7799DD;
 
 $cs-bg-result: #FDFDFD;
 $cs-bd-result: $theme-color;
@@ -73,7 +66,10 @@ $cr-meta-bg: #F0F0F0;
     margin: 4px -2px 0 0;
     border: 2px solid lighten($cs-bd-result, 20%);
     border-radius: 3px;
-    min-width: 380px;
+
+    min-width: 100%;
+    max-width: 80vw;
+
     z-index: 2;
     background: $cs-bg-result;
     min-height: 2em;
@@ -180,106 +176,14 @@ $cr-meta-bg: #F0F0F0;
 
       border-bottom: 1px solid $cs-bd-result-sep;
 
-      .index {
+      > a {
         display: flex;
-        flex-wrap: wrap;
+      }
 
-        .key-container {
-          .wrap, .keys {
-            display: inline-block;
-          }
-
-          &:not(.delim-none) .key:not(:last-child):after {
-            display: inline-block;
-            margin: 0;
-            padding: 0;
-          }
-
-          &.delim-ns .key:not(:last-child):after {
-            content: '::';
-          }
-          &.delim-slash .key:not(:last-child):after {
-            content: '/';
-          }
-
-          .key.special {
-            font-weight: bold;
-          }
-        }
-
-        .badges {
-          display: flex;
-          align-items: center;
-          margin-left: .5em;
-          font-family: sans-serif;
-          font-size: .9em;
-          line-height: 1.15;
-
-          .badge {
-            margin: 0;
-            display: flex;
-            align-items: center;
-
-            font-weight: bold;
-            border: 1px solid #222; // stub
-            border-radius: 2px;
-
-            background: none;
-
-            box-shadow: inset 0 0 2px 0 rgba(0, 0, 0, .2);
-            padding: 0 .15em 0 0;
-
-            &:last-child {
-              margin-right: 0;
-            }
-
-            &:before {
-              @extend .fa;
-              @extend .fa-fw;
-            }
-
-            &.deprecated_spec, &.removed_spec {
-              display: none;
-            }
-
-            &.removed_spec {
-              $c: #8a6d3b;
-              color: $c;
-              border-color: $c;
-              @extend .fa-ban;
-            }
-
-            &.deprecated_spec {
-              $c: #f90;
-              color: $c;
-              border-color: $c;
-              @extend .fa-warning;
-            }
-
-            &.latest_spec {
-              display: flex;
-            }
-          }
-
-          .badge.cpp11deprecated, .badge.cpp11removed {
-            ~ .badge.latest_spec:after {
-              content: "C++11";
-            }
-          }
-          .badge.cpp14deprecated, .badge.cpp14removed {
-            ~ .badge.latest_spec:after {
-              content: "C++14";
-            }
-          }
-          .badge.cpp17deprecated, .badge.cpp17removed {
-            ~ .badge.latest_spec:after {
-              content: "C++17";
-            }
-          }
-          .badge.cpp20deprecated, .badge.cpp20removed {
-            ~ .badge.latest_spec:after {
-              content: "C++20";
-            }
+      .content > .index {
+        @include cr-index {
+          > .title > .badges {
+            @include cr-badge-auto(".badge");
           }
         }
       }
@@ -374,21 +278,6 @@ $cr-meta-bg: #F0F0F0;
           text-decoration: none;
         }
 
-        &:before {
-          content: 'unknown'; // fallback
-          color: #DDD;
-          background: #888;
-
-          display: inline-block;
-          width: 5.8em;
-          font-family: monospace;
-          font-size: .8em;
-          text-align: center;
-
-          padding: .05em .2em;
-          margin: 0 .5em 0 0;
-        }
-
         > .content {
           display: inline-block;
           flex: 1;
@@ -396,10 +285,13 @@ $cr-meta-bg: #F0F0F0;
         }
       } // a
 
-      &.google-fallback {
+      &.fallback {
         > a:before {
+          flex-basis: 5em;
+          text-align: center;
+
           content: 'Google';
-          color: $badge-google-fallback;
+          color: #7799DD;
           // font-size: .9em;
           margin-top: 0;
           background: none;
@@ -408,9 +300,15 @@ $cr-meta-bg: #F0F0F0;
         }
 
         .content {
+          display: inline-flex;
+          flex-wrap: wrap;
+          align-items: baseline;
+
           .query {
             font-size: .9em;
             font-style: oblique;
+
+            flex-basis: 100%;
           }
 
           .fallback-site {
@@ -428,103 +326,6 @@ $cr-meta-bg: #F0F0F0;
             color: #444;
             background: #DDD;
           }
-        }
-      }
-
-      &.cpp-header {
-        > a:before {
-          content: 'header';
-          background: $badge-header;
-        }
-      }
-
-      &.cpp-namespace {
-        > a:before {
-          content: 'namespace';
-          background: $badge-cpp-namespace;
-          color: #EEE;
-        }
-      }
-
-      &.cpp-class, &.cpp-type-alias, &.cpp-enum {
-        > a:before {
-          background: $badge-cpp-class;
-        }
-      }
-      &.cpp-class {
-        > a:before {
-          content: 'class';
-        }
-      }
-      &.cpp-type-alias {
-        > a:before {
-          content: 'alias';
-        }
-      }
-      &.cpp-enum {
-        > a:before {
-          content: 'enum';
-        }
-      }
-
-      &.cpp-function, &.cpp-mem_fun {
-        > a:before {
-          background: $badge-cpp-function;
-        }
-      }
-      &.cpp-function {
-        > a:before {
-          content: 'function';
-        }
-      }
-      &.cpp-mem_fun {
-        > a:before {
-          content: 'mem_fun';
-        }
-      }
-
-      &.cpp-variable {
-        > a:before {
-          content: 'variable';
-          color: #333;
-          background: $badge-cpp-variable;
-        }
-      }
-
-      &.cpp-macro {
-        > a:before {
-          content: 'macro';
-          color: #333;
-          background: $badge-cpp-macro;
-        }
-      }
-
-      &.article {
-        > a:before {
-          content: 'article';
-          color: #333;
-          background: $badge-article;
-        }
-      }
-
-      &.meta {
-        > a:before {
-          content: 'meta';
-          color: #333;
-          background: $badge-meta;
-        }
-      }
-
-      &.cpp-spec {
-        > a:before {
-          content: 'spec';
-          background: $badge-cpp-spec;
-          font-family: sans-serif;
-        }
-        > a > .content {
-          font-family: serif;
-          font-size: .8em;
-          text-decoration: underline;
         }
       }
     } // .result

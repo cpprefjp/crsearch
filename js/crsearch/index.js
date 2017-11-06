@@ -1,6 +1,9 @@
 import {IndexType as IType} from './index-type'
 import {IndexID} from './index-id'
 
+import {DOM} from './dom'
+
+
 class Index {
   constructor(log, cpp_version, id, json, make_url) {
     this.log = log.makeContext('Index')
@@ -42,30 +45,27 @@ class Index {
     return this.id.type
   }
 
-  join_html() {
-    let container = $('<div>').addClass('index').append(this.id.join_html())
+  async join_html(opts = DOM.defaultOptions) {
+    let container = $('<div>', {'data-index-type': Symbol.keyFor(this.id.type)}).addClass('index')
+    if (IndexID.isClassy(this.id.type)) {
+      container.addClass('classy')
+    }
 
-    let attrs = this.attributes || []
+    container.append($('<div>', {class: 'type'}))
 
-    // if (this.cpp_version) {
-      // attrs.push(`cpp${this.cpp_version}`)
-    // }
+    let title = $('<div>', {class: 'title'}).appendTo(container)
+    title.append(await this.id.join_html(opts))
+
+    let attrs = []
+    if (this.cpp_version) {
+      attrs.push(`added-in-cpp${this.cpp_version}`)
+    }
+    if (this.attributes) {
+      attrs = attrs.concat(this.attributes)
+    }
 
     if (attrs.length) {
-      let e = $('<ul>').addClass('badges')
-      for (const attr of attrs) {
-        let b = $('<li>').addClass('badge').addClass(attr)
-        if (attr.match('deprecated')) {
-          b.addClass('deprecated_spec')
-        } else if (attr.match('removed')) {
-          b.addClass('removed_spec')
-        }
-        if (['deprecated_in_latest', 'removed_in_latest'].includes(attr)) {
-          b.addClass('latest_spec')
-        }
-        b.appendTo(e)
-      }
-      container.append(e)
+      title.append(await DOM.makeBadges(attrs, opts))
     }
 
     return container

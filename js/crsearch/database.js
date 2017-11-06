@@ -39,7 +39,7 @@ class Database {
         if (iid.cpp_namespace[1] === 'string_literals') {
           fallback_001_used = true
           this.log.warn('using fallback for string_literals namespace issue: https://github.com/cpprefjp/site/commit/6325b516f91f7434abbcef1ecaa04950d80ec9a9')
-          iid.key.shift()
+          iid.keys.shift()
           iid.type = IType.function
         }
       }
@@ -89,10 +89,10 @@ class Database {
           this.autoInit(idx.in_header, idx)
 
         } else if (idx.id.type === IType.mem_fun) {
-          let class_keys = [].concat(idx.id.key)
+          let class_keys = [].concat(idx.id.keys)
           class_keys.shift()
           class_keys.pop()
-          const rvid = IndexID.composeReverseID(IType.class, class_keys.map((k) => k.name))
+          const rvid = IndexID.composeReverseID(IType.class, class_keys)
           const cand = this.reverseID.get(rvid)
 
           if (!cand) {
@@ -120,7 +120,7 @@ class Database {
 
         } else {
           if (!idx.in_header) {
-            throw idx
+            throw new Error(`[BUG] got an 'other' type, but in_header was not detected (idx: ${idx})`)
           }
           this.autoInit(idx.in_header, null)
           this.all_headers.get(idx.in_header.id.join()).others.add(idx)
@@ -155,7 +155,7 @@ class Database {
             let fake = new Index(this.log, dns.cpp_version, null, null, (idx) => { return this.make_url(dns.make_path(idx)) })
             fake.is_fake = true
             fake.id = rid
-            fake.id_cache = fake.id.key.map(kv => kv.name).join()
+            fake.id_cache = fake.id.keys.join()
 
             if (fake.id_cache === 'header_name') {
               // shit

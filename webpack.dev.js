@@ -22,7 +22,7 @@ module.exports = Merge.multiple(common, {
         },
       ],
     },
-    devtool: 'cheap-module-eval-source-map',
+    devtool: 'inline-source-map',
     devServer: {
       publicPath: '/',
       contentBase: path.join(__dirname, 'example'),

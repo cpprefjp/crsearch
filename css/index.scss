@@ -1,0 +1,144 @@
+@import './font-awesome';
+
+$type-header: #4A4;
+$type-namespace: #444;
+$type-class: #44A;
+$type-function: lighten($type-class, 15%);
+$type-macro: #44DD22;
+$type-variable: $type-macro;
+$type-article: #DDD;
+$type-meta: $type-article;
+$type-spec: #222;
+
+
+@mixin cr-index {
+  display: inline-flex;
+
+  $cl-key: #3e7cb1;
+
+  > .type {
+    &:before {
+      content: 'unknown'; // fallback
+      color: #DDD;
+      background: #888;
+
+      display: inline-block;
+      width: 5.8em;
+      font-family: monospace;
+      font-size: .8em;
+      text-align: center;
+
+      padding: .05em .2em;
+      margin: 0 .5em 0 0;
+    }
+  }
+
+  .keys {
+    display: inline-flex;
+    flex-wrap: wrap;
+
+    > .key {
+      color: $cl-key;
+    }
+  }
+
+  &[data-index-type="header"] {
+    .keys {
+      &:before {
+        content: '<';
+      }
+      &:after {
+        content: '>';
+      }
+
+      > .key {
+        &:not(:last-child) {
+          &:after {
+            content: '/';
+          }
+        }
+      }
+    }
+
+    > .type:before {
+      content: 'header';
+      background: $type-header;
+    }
+  }
+
+  &[data-index-type="namespace"] > .type:before {
+    content: 'namespace';
+    background: $type-namespace;
+    color: #EEE;
+  }
+
+  &[data-index-type="class"], &[data-index-type="type-alias"], &[data-index-type="enum"] {
+    > .type:before {
+      background: $type-class;
+    }
+  }
+
+  &[data-index-type="class"] > .type:before {
+    content: 'class';
+  }
+  &[data-index-type="type-alias"] > .type:before {
+    content: 'alias';
+  }
+  &[data-index-type="enum"] > .type:before {
+    content: 'enum';
+  }
+
+  &[data-index-type="function"], &[data-index-type="mem_fun"] {
+    > .type:before {
+      background: $type-function;
+    }
+  }
+  &[data-index-type="function"] > .type:before {
+    content: 'function';
+  }
+
+  &[data-index-type="mem_fun"] > .type:before {
+    content: 'mem_fun';
+  }
+
+  &[data-index-type="variable"] > .type:before {
+    content: 'variable';
+    color: #333;
+    background: $type-variable;
+  }
+
+  &[data-index-type="macro"] > .type:before {
+    content: 'macro';
+    color: #333;
+    background: $type-macro;
+  }
+
+  &[data-index-type="article"] > .type:before {
+    content: 'article';
+    color: #333;
+    background: $type-article;
+  }
+
+  &[data-index-type="meta"] > .type:before {
+    content: 'meta';
+    color: #333;
+    background: $type-meta;
+  }
+
+  &.classy {
+    .keys {
+      > .key {
+        &:not(:last-child) {
+          color: lighten($cl-key, 20%);
+
+          &:after {
+            content: "::";
+          }
+        }
+      }
+    }
+  }
+
+  @content;
+}
+

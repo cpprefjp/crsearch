@@ -1,12 +1,109 @@
-body {
-  font-size: 14px;
-  margin: 0;
-  padding: 2rem 2.5rem;
-  background: #f8f8f8;
+@mixin debugme($name, $color, $isAfter: true) {
+  display: flex;
+  position: relative;
+  box-sizing: border-box;
+  border: 2px dashed rgba($color, 0.8);
+
+  &:#{if($isAfter, after, before)} {
+    content: '<#{$name}>';
+    position: absolute;
+    top: 0;
+
+    #{if($isAfter, right, left)}: 0;
+
+    display: block;
+    background: rgba($color, 0.8);
+    color: white;
+
+    border-radius: 12px;
+
+    padding: 1rem 1.5rem;
+
+    z-index: 9;
+
+    font-weight: bold;
+    font-family: monospace;
+  }
 }
 
-.crsearch {
-  width: 280px;
-  margin-left: 200px;
+
+body {
+  font-size: 14px;
+  background: #f8f8f8;
+
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: row;
+
+  @media (max-width: 768px) {
+    flex-direction: column-reverse;
+  }
+}
+
+aside {
+  @include debugme('aside', rgb(50, 120, 47), false);
+  flex-basis: 240px;
+  width: 240px;
+  padding: 2rem 3rem;
+
+  font-family: monospace;
+
+  p {
+    width: 100%;
+    word-wrap: break-word;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    flex-basis: 100%;
+  }
+}
+
+main {
+  flex-grow: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 2rem 4rem;
+
+  @include debugme('main', rgb(20, 220, 20), false);
+
+
+  @media (max-width: 768px) {
+    padding: 1rem 2rem;
+  }
+
+  header {
+    display: flex;
+    justify-content: flex-end;
+
+    padding: 2rem 2.5rem;
+
+    @media (max-width: 768px) {
+      padding: .5rem .25rem;
+    }
+
+    @include debugme('header', rgb(40, 80, 210), false);
+
+    .crsearch {
+      width: 80vw;
+
+      @media (min-width: 780px) {
+        & {
+          width: 320px;
+        }
+      }
+    }
+  }
+  article {
+    position: relative;
+    font-family: serif;
+    line-height: 1.5;
+
+    @include debugme('article', red, false);
+  }
 }
 

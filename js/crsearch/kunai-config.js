@@ -198,7 +198,7 @@ class Config {
   makeMemberData(t) {
     return {
       i: this.getPriorityForIndex(t).index,
-      name: t.id.key[t.id.key.length - 1].name,
+      name: t.id.keys[t.id.keys.length - 1],
     }
   }
 }

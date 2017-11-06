@@ -163,15 +163,15 @@ class CRSearch {
     // this.log.debug(this.selectIndex)
   }
 
-  do_search(e) {
+  async do_search(e) {
     clearTimeout(this.search_timer[e.data.id])
-    this.search_timer[e.data.id] = setTimeout(function(e) {
+    this.search_timer[e.data.id] = setTimeout(async function (e) {
       this.selectIndex = 0
-      this.resultCount = this.do_search_impl(e)
+      this.resultCount = await this.do_search_impl(e)
     }.bind(this, e), 20)
   }
 
-  do_search_impl(e) {
+  async do_search_impl(e) {
     const q = new Query(this.log, this.last_input[e.data.id])
     // this.log.debug(`query: '${q.original_text}'`, q)
 
@@ -218,10 +218,10 @@ class CRSearch {
       // this.log.debug('gr', grouped_targets)
 
       for (const [in_header, the_targets] of grouped_targets) {
-        this.make_result_header(in_header).appendTo(result_list)
+        result_list.append(await this.make_result_header(in_header))
 
         for (const t of the_targets) {
-          let e = this.make_result(
+          let e = await this.make_result(
             t.index.type(),
             t.index,
             t.path
@@ -235,7 +235,7 @@ class CRSearch {
 
     for (const [name, db] of this.db) {
       // always include fallback
-      let e = this.make_result(IType.google_fallback, q.original_text, {
+      let e = await this.make_result(null, q.original_text, {
         name: db.name,
         url: db.base_url.host,
       })
@@ -276,7 +276,7 @@ class CRSearch {
     return url
   }
 
-  make_result_header(header) {
+  async make_result_header(header) {
     let elem = $('<li class="result cr-meta-result in-header" />')
 
     let body = null
@@ -294,24 +294,26 @@ class CRSearch {
     return elem
   }
 
-  make_result(t, target, extra = undefined) {
+  async make_result(t, target, extra = null) {
     let elem = CRSearch.RESULT_PROTO.clone()
-    elem.addClass(Symbol.keyFor(t))
+
     let a = elem.children('a')
     let content = $('<div class="content" />').appendTo(a)
     let url = null
 
     switch (t) {
-    case IType.google_fallback:
+    case null: {
+      elem.addClass('fallback')
       a.attr('href', this.make_google_url(target, extra.url))
       a.attr('target', '_blank')
       $(`<div class="query">${target}</div>`).appendTo(content)
       $(`<div class="fallback-site">${extra.url}</div>`).appendTo(content)
       break
+    }
 
     default:
       a.attr('href', extra)
-      target.join_html().appendTo(content)
+      content.append(await target.join_html({badges: {switches: ['simple']}}))
 
       if (this.opts.force_new_window) {
         a.attr('target', '_blank')
