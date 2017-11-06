@@ -5,6 +5,7 @@ class DOM {
       removed: null,
     },
     badges: {
+      noselfcpp: false,
       switches: [],
     },
   }

@@ -57,7 +57,7 @@ class Index {
     title.append(await this.id.join_html(opts))
 
     let attrs = []
-    if (this.cpp_version) {
+    if (!opts.badges.noselfcpp && this.cpp_version) {
       attrs.push(`added-in-cpp${this.cpp_version}`)
     }
     if (this.attributes) {
