@@ -1,4 +1,5 @@
-@import './font-awesome';
+@import './font-awesome.scss';
+@import './fa-patch.scss';
 
 @mixin cr-badge-spec($color, $icon) {
   border-color: $color;
@@ -39,8 +40,7 @@
   }
 
   i {
-    @extend .fa;
-    @extend .fa-fw;
+    @include fa-patch;
   }
 
   &.added-in-spec {

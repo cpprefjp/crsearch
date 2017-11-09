@@ -1,6 +1,7 @@
-@import './font-awesome';
-@import './badge';
-@import './index';
+@import './font-awesome.scss';
+@import './fa-patch.scss';
+@import './badge.scss';
+@import './index.scss';
 
 
 $theme-color: #306E82;
@@ -55,8 +56,7 @@ $cl-link-hover: #2a6496;
 
       color: rgba(40, 140, 190, 0.9);
 
-      @extend .fa;
-      @extend .fa-fw;
+      @include fa-patch;
       @extend .fa-refresh;
     }
 

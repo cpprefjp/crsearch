@@ -91,7 +91,7 @@ module.exports = {
               {
                 loader: 'css-loader',
                 options: {
-                  minimize: true,
+                  // minimize: false,
                   sourceMap: true,
                 }
               },
