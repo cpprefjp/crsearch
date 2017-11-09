@@ -4,7 +4,7 @@ class IndexID {
   static VERBATIM_TRS = new Map([
     ['コンストラクタ', {to: '(constructor)', only: IType.mem_fun}],
     ['デストラクタ', {to: '(destructor)', only: IType.mem_fun}],
-    ['推論補助', {to: '(deduction guide)', type: IType.class}],
+    ['推論補助', {to: '(deduction guide)', type: IType.mem_fun}],
     ['非メンバ関数', {to: 'non-member function', type: IType.function}],
     ['単項', {to: 'unary'}],
   ])
@@ -65,12 +65,11 @@ class IndexID {
       keys = ns.concat(keys)
     }
     this.cpp_namespace = keys
-
     this.keys = keys.map((k) => k.normalize('NFKC'))
 
     for (const [k, v] of IndexID.VERBATIM_TRS) {
       if (v.only && v.only !== this.type) {
-        return
+        continue
       }
 
       if (this.keys[this.keys.length - 1].includes(k)) {
@@ -79,7 +78,7 @@ class IndexID {
         if (v.type) {
           this.type = v.type
 
-          if (this.type === IType.class && this.keys[0] !== 'std') {
+          if ([IType.class, IType.mem_fun].includes(this.type) && this.keys[0] !== 'std') {
             this.keys.unshift('std')
           }
         }
