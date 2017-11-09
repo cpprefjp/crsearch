@@ -23,6 +23,10 @@ module.exports = Merge.multiple(common, {
     plugins: [
       new OptimizeCSSAssetsPlugin({
         canPrint: true,
+        cssProcessorOptions: {
+          // http://cssnano.co/optimisations/reduceidents/
+          reduceIdents: false,
+        },
       }),
     ],
   },
