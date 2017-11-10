@@ -5,6 +5,8 @@ import {Namespace} from './namespace'
 import {Dictionary} from './dictionary'
 import {Priority, SiteCategory} from './kunai-config'
 
+import {URL} from 'whatwg-url'
+
 import * as Query from './query'
 
 

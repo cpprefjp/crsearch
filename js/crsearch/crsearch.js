@@ -6,6 +6,8 @@ import {IndexType as IType} from './index-type'
 import {Database} from './database'
 import {Index} from './index'
 
+import {URL} from 'whatwg-url'
+
 
 class CRSearch {
   static APPNAME = 'crsearch'
