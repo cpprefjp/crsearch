@@ -102,7 +102,7 @@ $cl-link-hover: #2a6496;
 
       line-height: $cr-input-height;
 
-      &, &:hover, &:focus, &:visited, &:active {
+      &:link, &:hover, &:focus {
         text-decoration: none;
       }
     }
@@ -321,7 +321,7 @@ $cl-link-hover: #2a6496;
           font-size: .75em;
         }
 
-        a, a:link, a:visited {
+        a {
           text-decoration: none;
           font-family: monospace;
         }
