@@ -41,6 +41,7 @@ module.exports = {
           include: [
             path.resolve(__dirname, 'js'),
             path.resolve(__dirname, 'node_modules', 'nagato'),
+            path.resolve(__dirname, 'node_modules', 'whatwg-url'),
           ],
         },
         {
@@ -66,6 +67,7 @@ module.exports = {
       }),
       new webpack.optimize.CommonsChunkPlugin({
         name: 'crsearch-vendor',
+        chunks: ['crsearch'],
         minChunks: function(module) {
           return isExternal(module);
         },

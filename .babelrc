@@ -5,10 +5,11 @@
     }]
   ],
   "plugins": [
+    "transform-runtime",
     "transform-object-assign",
     "transform-function-bind",
-    "transform-runtime",
-    "transform-class-properties"
+    "transform-class-properties",
+    "transform-async-to-generator"
   ]
 }
 
