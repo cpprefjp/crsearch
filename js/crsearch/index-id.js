@@ -68,7 +68,7 @@ class IndexID {
       keys = ns.concat(keys)
     }
     this.cpp_namespace = keys
-    this.keys = keys.map((k) => k.normalize('NFKC'))
+    this.keys = (typeof String.prototype.normalize === 'function') ? keys.map((k) => k.normalize('NFKC')) : keys
 
     for (const [k, v] of IndexID.VERBATIM_TRS) {
       if (v.only && !arrayIncludes([].concat(v.only), this.type)) {
