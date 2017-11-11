@@ -58,6 +58,7 @@
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
+    "core-js": "^2.5.1",
     "font-awesome": "^4.7.0",
     "jquery": "^3.2.1",
     "marked": "^0.3.6",
