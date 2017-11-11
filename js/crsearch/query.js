@@ -9,7 +9,7 @@ class Query {
   constructor(log, text) {
     this.log = log.makeContext('Query')
     this.original_text = text
-    this.frags = text.normalize('NFKC').split(/\s+/).filter(Boolean)
+    this.frags = ((typeof String.prototype.normalize === 'function') ? text.normalize('NFKC') : text).split(/\s+/).filter(Boolean)
 
     this.filters = new Set
 

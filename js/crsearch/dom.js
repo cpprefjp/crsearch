@@ -1,3 +1,5 @@
+const arrayIncludes = require("core-js/library/fn/array/includes")
+
 class DOM {
   static defaultOptions = {
     links: {
@@ -34,7 +36,7 @@ class DOM {
         }
       }
 
-      if (['deprecated_in_latest', 'removed_in_latest', 'added_in_latest'].includes(attr)) {
+      if (arrayIncludes(['deprecated_in_latest', 'removed_in_latest', 'added_in_latest'], attr)) {
         li.addClass('latest-spec')
       }
     }
