@@ -10,6 +10,7 @@ import URL from 'url-parse'
 import * as Query from './query'
 
 const arrayEntries = require('core-js/library/fn/array/entries')
+const arrayIncludes = require("core-js/library/fn/array/includes")
 
 class Database {
   constructor(log, json) {
@@ -111,7 +112,7 @@ class Database {
 
           this.all_classes.get(cand).members.add(idx)
 
-        } else if ([IType.article, IType.meta].includes(idx.id.type)) {
+        } else if (arrayIncludes([IType.article, IType.meta], idx.id.type)) {
           if (idx.isRootArticle()) {
             this.root_articles.set(
               idx.ns,

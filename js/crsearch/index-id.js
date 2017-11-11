@@ -1,5 +1,7 @@
 import {IndexType as IType} from './index-type'
 
+const arrayIncludes = require("core-js/library/fn/array/includes")
+
 class IndexID {
   static VERBATIM_TRS = new Map([
     ['コンストラクタ', {to: '(constructor)', only: IType.mem_fun}],
@@ -31,7 +33,7 @@ class IndexID {
   }
 
   static isClassy(type) {
-    return [IType.class, IType.function, IType.mem_fun, IType.enum, IType.variable, IType.type_alias].includes(type)
+    return arrayIncludes([IType.class, IType.function, IType.mem_fun, IType.enum, IType.variable, IType.type_alias], type)
   }
 
   constructor(log, s_key, json) {
@@ -69,17 +71,17 @@ class IndexID {
     this.keys = keys.map((k) => k.normalize('NFKC'))
 
     for (const [k, v] of IndexID.VERBATIM_TRS) {
-      if (v.only && ![].concat(v.only).includes(this.type)) {
+      if (v.only && !arrayIncludes([].concat(v.only), this.type)) {
         continue
       }
 
-      if (this.keys[this.keys.length - 1].includes(k)) {
+      if (arrayIncludes(this.keys[this.keys.length - 1], k)) {
         this.keys[this.keys.length - 1] = this.keys[this.keys.length - 1].replace(k, `${v.to}`)
 
         if (v.type) {
           this.type = v.type
 
-          if ([IType.class, IType.mem_fun].includes(this.type) && this.keys[0] !== 'std') {
+          if (arrayIncludes([IType.class, IType.mem_fun], this.type) && this.keys[0] !== 'std') {
             this.keys.unshift('std')
           }
         }

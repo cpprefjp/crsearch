@@ -3,6 +3,7 @@ import {IndexID} from './index-id'
 
 import {DOM} from './dom'
 
+const arrayIncludes = require("core-js/library/fn/array/includes")
 
 class Index {
   constructor(log, cpp_version, id, json, make_url) {
@@ -30,7 +31,7 @@ class Index {
   }
 
   isRootArticle() {
-    return this.page_id[0].length === 0 /* && [IType.meta, IType.article].includes(this.id.type) */
+    return this.page_id[0].length === 0 /* && arrayIncludes([IType.meta, IType.article], this.id.type) */
   }
 
   isParent() {
@@ -80,11 +81,11 @@ class Index {
   }
 
   static ambgMatch(idx, q) {
-    if ([IType.article, IType.meta].includes(idx.id.type)) {
-      return idx.id_cache.toLowerCase().includes(q.toLowerCase())
+    if (arrayIncludes([IType.article, IType.meta], idx.id.type)) {
+      return arrayIncludes(idx.id_cache.toLowerCase(), q.toLowerCase())
     }
 
-    return idx.id_cache.includes(q)
+    return arrayIncludes(idx.id_cache, q)
   }
 }
 
