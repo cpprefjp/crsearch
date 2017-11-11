@@ -9,6 +9,7 @@ import URL from 'url-parse'
 
 import * as Query from './query'
 
+const arrayEntries = require('core-js/library/fn/array/entries')
 
 class Database {
   constructor(log, json) {
@@ -33,7 +34,7 @@ class Database {
 
     this.log.debug('[P1] initializing all IndexID...')
     let fallback_001_used = false
-    for (const [s_key, id] of json.ids.entries()) {
+    for (const [s_key, id] of arrayEntries(json.ids)) {
       const iid = new IndexID(this.log, s_key, id)
 
       // legacy fallback
@@ -61,7 +62,7 @@ class Database {
     }
 
     this.log.debug('[P1] initializing all Namespace...')
-    for (const [s_key, j_ns] of json.namespaces.entries()) {
+    for (const [s_key, j_ns] of arrayEntries(json.namespaces)) {
       const ns = new Namespace(this.log, s_key, j_ns, this.ids, this.make_url.bind(this))
       this.log.debug(`got Namespace: '${ns.pretty_name()}'`, ns)
       this.namespaces.push(ns)
