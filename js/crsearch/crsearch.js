@@ -6,7 +6,7 @@ import {IndexType as IType} from './index-type'
 import {Database} from './database'
 import {Index} from './index'
 
-import {URL} from 'whatwg-url'
+import URL from 'url-parse'
 
 
 class CRSearch {
@@ -129,16 +129,20 @@ class CRSearch {
   }
 
   database(base_url) {
+    const autoSuffix = (url) => {
+      if (url.pathname === '/') url.pathname = '/crsearch.json'
+      return url
+    }
+
     try {
       const url = new URL(base_url)
-      this.pendingDB.add(url.toString())
+      this.pendingDB.add(autoSuffix(url).toString())
 
     } catch (e) {
       const a = document.createElement('a')
       a.href = base_url
-      if (a.pathname == '/') a.pathname = '/crsearch.json'
 
-      const url = new URL(a.toString())
+      const url = new URL(autoSuffix(a).toString())
       this.pendingDB.add(url)
     }
   }
@@ -276,7 +280,7 @@ class CRSearch {
 
   make_google_url(q, site) {
     let url = this.opts.google_url
-    url.searchParams.set('q', `${q} site:${site}`)
+    url.set('query', {q: `${q} site:${site}`})
     return url
   }
 

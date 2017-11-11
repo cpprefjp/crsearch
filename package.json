@@ -62,6 +62,6 @@
     "jquery": "^3.2.1",
     "marked": "^0.3.6",
     "nagato": "^1.8.2",
-    "whatwg-url": "^6.3.0"
+    "url-parse": "^1.2.0"
   }
 }
