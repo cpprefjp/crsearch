@@ -1,4 +1,4 @@
-# CRSearch
+# crsearch
 
 [cpprefjp](https://cpprefjp.github.io/) と [boostjp](https://boostjp.github.io/) をいい感じに検索するウィジェット
 
@@ -31,14 +31,15 @@ http://localhost:8080/
 
 ## メンテナ
 
-- [@saki7] ([cpprefjp] Member)
-
+- [@cpprefjp/design]
+- [@saki7] ([cpprefjp] design team)
 
 ## ライセンス
 
 → [LICENSE](LICENSE)
 
 
+[@cpprefjp/design]: https://github.com/orgs/cpprefjp/teams/design
 [@saki7]: https://github.com/saki7
 [cpprefjp]: https://github.com/cpprefjp
 
