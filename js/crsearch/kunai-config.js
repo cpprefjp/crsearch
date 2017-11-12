@@ -11,8 +11,8 @@ const MarkedOpts = {
 //
 
 const Prop = {
-  toplevel_category: Symbol.for('TOPLEVEL_CATEGORY'),
-  order_priority: Symbol.for('order_priority'),
+  toplevel_category: 'TOPLEVEL_CATEGORY',
+  order_priority: 'order_priority',
 }
 
 class Priority {
@@ -88,7 +88,7 @@ class ArticleProcessor {
             break
           }
 
-          const heading = Symbol.for(token.get('text').trim())
+          const heading = token.get('text').trim()
           if (!this.zoneProc.has(heading)) {
             throw new UnhandledHeading(token)
           }

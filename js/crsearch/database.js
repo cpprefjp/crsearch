@@ -270,11 +270,9 @@ class Database {
         }))).sort((a, b) => a.self.id.join() < b.self.id.join() ? -1 : 1),
 
         others: Array.from(h.others).sort((a, b) => {
-          const at = Symbol.keyFor(a.id.type)
-          const bt = Symbol.keyFor(b.id.type)
-          if (at < bt) {
+          if (a.id.type < b.id.type) {
             return -1
-          } else if (at > bt) {
+          } else if (a.id.type > b.id.type) {
             return 1
           } else {
             return a.id.join() < b.id.join() ? -1 : 1

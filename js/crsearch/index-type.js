@@ -1,15 +1,15 @@
 const IndexType = {
-  header: Symbol.for('header'),
-  namespace: Symbol.for('namespace'),
-  class: Symbol.for('class'),
-  function: Symbol.for('function'),
-  mem_fun: Symbol.for('mem_fun'),
-  enum: Symbol.for('enum'),
-  variable: Symbol.for('variable'),
-  type_alias: Symbol.for('type-alias'),
-  macro: Symbol.for('macro'),
-  article: Symbol.for('article'),
-  meta: Symbol.for('meta'),
+  header: 'header',
+  namespace: 'namespace',
+  class: 'class',
+  function: 'function',
+  mem_fun: 'mem_fun',
+  enum: 'enum',
+  variable: 'variable',
+  type_alias: 'type-alias',
+  macro: 'macro',
+  article: 'article',
+  meta: 'meta',
 }
 export {IndexType}
 

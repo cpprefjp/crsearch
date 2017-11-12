@@ -11,7 +11,7 @@ class IndexID {
   ])
 
   static composeReverseID(type, keys) {
-    return `<:RVID:>/${Symbol.keyFor(type)}/${keys.join('<::>')}`
+    return `<:RVID:>/${type}/${keys.join('<::>')}`
   }
 
   toReverseID() {
@@ -37,7 +37,7 @@ class IndexID {
   constructor(log, s_key, json) {
     this.log = log.makeContext('IndexID')
     this.cpp_namespace = json.cpp_namespace
-    this.type = Symbol.for(json.type)
+    this.type = json.type
 
     this.s_key = s_key
     let keys = json.key
