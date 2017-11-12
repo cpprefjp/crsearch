@@ -7,61 +7,22 @@
 
 ## ビルド
 
-- `npm install`
-- `npm run build`
-
-Docker をインストール済みなら:
-
-- `./docker.sh build`
-- `./docker.sh install`
-- `./docker.sh run build`
-
-## デプロイ
-
-### ファイル類
-
-- `/dist/*`
-
-### html
-
-```html
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>CRSearch - sample setup</title>
-    <link href="css/crsearch.css" rel="stylesheet">
-
-    <script type="text/javascript" src="js/crsearch-vendor.js"></script>
-    <script type="text/javascript" src="js/crsearch.js"></script>
-
-    <script type="text/javascript"><!--
-      document.addEventListener('DOMContentLoaded', function() {
-        var crs = new CRSearch;
-        crs.database("https://cpprefjp.github.io");
-        // crs.database("https://boostjp.github.io");
-        crs.searchbox(document.getElementsByClassName('crsearch'));
-      });
-    --></script>
-  </head>
-
-  <body>
-    <div class="crsearch"></div>
-  </body>
-</html>
+```bash
+git submodule update --init
+npm install
+npm run build
 ```
 
 ## 開発
 
-- `npm install`
-- `npm run dev`
-- http://localhost:8080/
+```bash
+git submodule update --init
+npm install
+npm run dev
+```
 
-Docker をインストール済みなら:
+http://localhost:8080/
 
-- `./docker.sh build`
-- `./docker.sh install`
-- `./docker.sh run dev`
-- http://localhost:8080/
 
 ## ドキュメント
 
