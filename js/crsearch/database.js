@@ -29,6 +29,7 @@ class Database {
     this.all_classes = new WeakMap
     this.all_articles = new Set
     this.root_articles = new WeakMap
+    this.all_pages = new Map
 
 
     this.log.debug('[P1] initializing all IndexID...')
@@ -84,6 +85,10 @@ class Database {
       for (let [id, idx] of ns.indexes) {
         this.resolveRelatedTo(ns, idx)
 
+        if (!idx.is_fake) {
+          this.all_pages.set(idx.page_id.join('/'), idx)
+        }
+
         if (idx.id.type === IType.header) {
           this.autoInit(idx, null)
 
@@ -131,7 +136,7 @@ class Database {
     }
 
     console.timeEnd(runID)
-    this.log.info('initialized.')
+    this.log.info('initialized.', this.all_pages)
   }
 
   resolveRelatedTo(ns, idx) {
