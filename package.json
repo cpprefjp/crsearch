@@ -45,7 +45,7 @@
     "html-webpack-include-assets-plugin": "0.0.7",
     "html-webpack-plugin": "^2.30.1",
     "mousetrap": "^1.6.1",
-    "node-sass": "^4.6.0",
+    "node-sass": "^4.6.1",
     "optimize-css-assets-webpack-plugin": "^3.2.0",
     "postcss-loader": "^2.0.8",
     "precss": "^2.0.0",
@@ -61,7 +61,7 @@
     "font-awesome": "^4.7.0",
     "jquery": "^3.2.1",
     "marked": "^0.3.6",
-    "nagato": "^1.8.2",
+    "nagato": "^1.8.3",
     "url-parse": "^1.2.0"
   }
 }
