@@ -29,7 +29,7 @@ class Database {
     this.all_classes = new WeakMap
     this.all_articles = new Set
     this.root_articles = new WeakMap
-    this.all_pages = new Map
+    this.all_fullpath_pages = new Map
 
 
     this.log.debug('[P1] initializing all IndexID...')
@@ -86,7 +86,7 @@ class Database {
         this.resolveRelatedTo(ns, idx)
 
         if (!idx.is_fake) {
-          this.all_pages.set(idx.page_id.join('/'), idx)
+          this.all_fullpath_pages.set([].concat(idx.ns.namespace).concat(idx.page_id.filter((id) => id.length)).join('/'), idx)
         }
 
         if (idx.id.type === IType.header) {
