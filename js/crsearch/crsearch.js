@@ -92,6 +92,7 @@ class CRSearch {
 
         $.ajax({
           url: url,
+          dataType: "json",
 
           success: async (data) => {
             this.log.info('fetched')
