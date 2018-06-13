@@ -1,5 +1,5 @@
 import {IndexType as IType} from './index-type'
-import 'marked'
+import {default as Marked} from 'marked'
 
 const MarkedOpts = {
   gfm: true,
@@ -124,7 +124,7 @@ class Config {
   static Prop = Prop
 
   static parseMD(md_raw, proc) {
-    let lexer = new marked.Lexer(MarkedOpts)
+    let lexer = new Marked.Lexer(MarkedOpts)
 
     return proc.process(lexer.lex(md_raw).map(e => {
       return new Map(Object.entries(e))
