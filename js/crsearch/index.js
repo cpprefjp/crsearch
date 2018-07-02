@@ -47,12 +47,12 @@ class Index {
     const title = $('<div>', {class: 'title'}).appendTo(container)
     title.append(await this._id.join_html(opts))
 
-    let attrs = []
+    const attrs = []
     if (!opts.badges.noselfcpp && this._cpp_version) {
       attrs.push(`added-in-cpp${this._cpp_version}`)
     }
     if (this._attributes) {
-      attrs = attrs.concat(this._attributes)
+      attrs.push(...this._attributes)
     }
 
     if (attrs.length) {
