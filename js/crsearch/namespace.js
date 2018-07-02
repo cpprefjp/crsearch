@@ -28,7 +28,7 @@ class Namespace {
   query(q, found_count, max_count, path_composer) {
     const targets = []
 
-    for (const [id, idx] of this._indexes) {
+    for (const idx of this._indexes.values()) {
       if (q.filters.size && !Array.from(q.filters).some(f => idx.id.type === f)) continue
 
       if (

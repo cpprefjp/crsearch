@@ -29,7 +29,7 @@ class Database {
 
 
     this._log.debug('[P1] initializing all IndexID...')
-    for (const [s_key, id] of json.ids.entries()) {
+    for (const id of json.ids) {
       const iid = new IndexID(this._log, id)
 
       const rvid = iid.toReverseID()
@@ -43,7 +43,7 @@ class Database {
     }
 
     this._log.debug('[P1] initializing all Namespace...')
-    for (const [s_key, j_ns] of json.namespaces.entries()) {
+    for (const j_ns of json.namespaces) {
       const ns = new Namespace(this._log, j_ns, this._ids, this._make_url.bind(this))
       this._log.debug(`got Namespace: '${ns.pretty_name()}'`, ns)
       this._namespaces.push(ns)
@@ -63,7 +63,7 @@ class Database {
         this._topNamespaces.set(ns.namespace[0], ns)
       }
 
-      for (const [id, idx] of ns.indexes) {
+      for (const idx of ns.indexes.values()) {
         this._resolveRelatedTo(ns, idx)
 
         if (!idx.is_fake) {
