@@ -31,7 +31,6 @@ class IndexID {
 
   constructor(log, json) {
     this._log = log.makeContext('IndexID')
-    this._cpp_namespace = json.cpp_namespace
     this._type = json.type
 
     let keys = json.key
@@ -59,7 +58,6 @@ class IndexID {
 
       keys = ns.concat(keys)
     }
-    this._cpp_namespace = keys
     this._keys = keys.map(k => k.normalize('NFKC'))
 
     for (const [k, v] of IndexID.VERBATIM_TRS) {
@@ -109,14 +107,6 @@ class IndexID {
 
   get type() {
     return this._type
-  }
-
-  set type(type) {
-    this._type = type
-  }
-
-  get cpp_namespace() {
-    return this._cpp_namespace
   }
 
   get keys() {

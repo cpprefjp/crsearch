@@ -29,19 +29,8 @@ class Database {
 
 
     this._log.debug('[P1] initializing all IndexID...')
-    let fallback_001_used = false
     for (const [s_key, id] of json.ids.entries()) {
       const iid = new IndexID(this._log, id)
-
-      // legacy fallback
-      if (iid.cpp_namespace && iid.cpp_namespace.length >= 2) {
-        if (iid.cpp_namespace[1] === 'string_literals') {
-          fallback_001_used = true
-          this._log.warn('using fallback for string_literals namespace issue: https://github.com/cpprefjp/site/commit/6325b516f91f7434abbcef1ecaa04950d80ec9a9')
-          iid.keys.shift()
-          iid.type = IType.function
-        }
-      }
 
       const rvid = iid.toReverseID()
       // this._log.debug(`rvid for '${iid}': '${rvid}'`, iid)
@@ -51,10 +40,6 @@ class Database {
 
       this._ids.push(iid)
       this._reverseID.set(rvid, iid)
-    }
-
-    if (!fallback_001_used) {
-      this._log.warn('fallback_001 is not used; maybe time to remove this workaround?')
     }
 
     this._log.debug('[P1] initializing all Namespace...')
