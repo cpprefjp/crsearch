@@ -86,7 +86,7 @@ class Database {
         this._resolveRelatedTo(ns, idx)
 
         if (!idx.is_fake) {
-          this._all_fullpath_pages.set([].concat(idx.ns.namespace).concat(idx.page_id.filter((id) => id.length)).join('/'), idx)
+          this._all_fullpath_pages.set([].concat(idx.ns.namespace).concat(idx.page_id.filter(id => id.length)).join('/'), idx)
         }
 
         if (idx.id.type === IType.header) {
@@ -159,7 +159,7 @@ class Database {
 
           if (!found) {
             const dns = this._default_ns.get(ns.namespace.join('/'))
-            const fake = new Index(this._log, dns.cpp_version, null, null, (idx) => { return this._make_url(dns.make_path(idx)) })
+            const fake = new Index(this._log, dns.cpp_version, null, null, idx => this._make_url(dns.make_path(idx)))
             fake.is_fake = true
             fake.id = rid
             fake.id_cache = fake.id.keys.join()
@@ -237,26 +237,24 @@ class Database {
     const runID = JSON.stringify({name: 'Database::getTree', timestamp: Date.now()})
     console.time(runID)
 
-    const toplevels = Array.from(this._topNamespaces).map(([name, ns]) => {
-      return {
-        category: kc.categories().get(ns.namespace[0]),
-        namespace: ns,
-        root: this._root_articles.get(
-          this._default_ns.get(ns.namespace.join('/'))
-        ),
-        articles: [],
-        headers: [],
-      }
-    }).sort((a, b) => {
-      return a.category.index < b.category.index ? -1 : 1
-    })
+    const toplevels = Array.from(this._topNamespaces).map(([name, ns]) => ({
+      category: kc.categories().get(ns.namespace[0]),
+      namespace: ns,
+      root: this._root_articles.get(
+        this._default_ns.get(ns.namespace.join('/'))
+      ),
+      articles: [],
+      headers: [],
+    })).sort((a, b) =>
+      a.category.index < b.category.index ? -1 : 1
+    )
 
 
     toplevels[kc.categories().get('reference').index].headers =
       Array.from(this._all_headers).map(([name, h]) => ({
         self: h.self,
 
-        classes: Array.from(h.classes).map((([id, c]) => ({
+        classes: Array.from(h.classes).map(([id, c]) => ({
           self: c.self,
           members: Array.from(c.members).sort((a_, b_) => {
             const a = kc.makeMemberData(a_)
@@ -272,7 +270,7 @@ class Database {
               return a.name < b.name ? -1 : 1
             }
           })
-        }))).sort((a, b) => a.self.id.join() < b.self.id.join() ? -1 : 1),
+        })).sort((a, b) => a.self.id.join() < b.self.id.join() ? -1 : 1),
 
         others: Array.from(h.others).sort((a, b) => {
           if (a.id.type < b.id.type) {
@@ -290,9 +288,9 @@ class Database {
       toplevels[kc.categories().get(ar.ns.namespace[0]).index].articles.push(ar)
     }
     for (const t of toplevels) {
-      t.articles.sort((a, b) => {
-        return a.id.join() < b.id.join() ? -1 : 1
-      })
+      t.articles.sort((a, b) =>
+        a.id.join() < b.id.join() ? -1 : 1
+      )
     }
 
     console.timeEnd(runID)

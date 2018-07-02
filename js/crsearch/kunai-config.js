@@ -62,7 +62,7 @@ class ArticleProcessor {
               )
             )
           },
-          'text': (token) => {
+          'text': token => {
             // console.log(token)
             this._single_bufs[this._single_bufs.length - 1] += token.get('text').trim()
           },
@@ -126,9 +126,9 @@ class Config {
   static parseMD(md_raw, proc) {
     const lexer = new Marked.Lexer(MarkedOpts)
 
-    return proc.process(lexer.lex(md_raw).map(e => {
-      return new Map(Object.entries(e))
-    }))
+    return proc.process(lexer.lex(md_raw).map(e =>
+      new Map(Object.entries(e))
+    ))
   }
 
   constructor(data) {
@@ -144,13 +144,13 @@ class Config {
 
     let i = 0
     this._cpp_json = new Map
-    this._cpp_json.set(Prop.order_priority, new Map(data['cpp.json']['order_priority'].map((e) => {
+    this._cpp_json.set(Prop.order_priority, new Map(data['cpp.json']['order_priority'].map(e =>
       // e[0]: id
       // e[1]: description
       // console.log(e)
 
-      return [e[0], [i++, e]]
-    })))
+      [e[0], [i++, e]]
+    )))
 
     this._prioSpecials = new Map
     for (const [k, [i, [key, desc]]] of this._getData(Prop.order_priority)) {

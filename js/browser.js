@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const log = new Logger(['CRSearch', 'Test'])
 
   const crs = new CRSearch({
-    onDatabase: (db) => {
+    onDatabase: db => {
       const kc = new KC.Config({
         'article.md': KC_Article,
         'cpp.json': require('../kunai_configs/cpprefjp/cpp.json'),

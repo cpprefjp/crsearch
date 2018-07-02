@@ -18,7 +18,7 @@ class Namespace {
     }
 
     for (const idx of json.indexes) {
-      const idx_ = new Index(this._log, this._cpp_version, ids[idx.id], idx, (idx) => { return make_url(this.make_path(idx)) })
+      const idx_ = new Index(this._log, this._cpp_version, ids[idx.id], idx, idx => make_url(this.make_path(idx)))
 
       idx_.ns = this
 
@@ -70,7 +70,7 @@ class Namespace {
     const targets = []
 
     for (const [id, idx] of this._indexes) {
-      if (q.filters.size && !Array.from(q.filters).some((f) => { return idx.id.type === f })) continue
+      if (q.filters.size && !Array.from(q.filters).some(f => idx.id.type === f)) continue
 
       if (
         Array.from(q.frags.and).every(q => Index.ambgMatch(idx, q)) &&

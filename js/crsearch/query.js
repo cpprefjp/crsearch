@@ -16,9 +16,9 @@ class Query {
     // filter <headers>
     if (this._frags[0].match(/^</)) {
       this._filters.add(Query._Filter.header)
-      this._frags = this._frags.map((q) => {
-        return q.replace(/[<>]/, '').split(/\//)
-      }).reduce((a, b) => a.concat(b)).filter(Boolean)
+      this._frags = this._frags.map(q =>
+        q.replace(/[<>]/, '').split(/\//)
+      ).reduce((a, b) => a.concat(b)).filter(Boolean)
     }
 
     const real_frags = []

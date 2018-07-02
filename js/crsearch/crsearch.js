@@ -94,12 +94,12 @@ class CRSearch {
           url: url,
           dataType: "json",
 
-          success: async (data) => {
+          success: async data => {
             this._log.info('fetched')
             this._parse(url, data)
           },
 
-          fail: async (e) => {
+          fail: async e => {
             this._log.error('fetch failed', e)
           }
         })
@@ -130,7 +130,7 @@ class CRSearch {
   }
 
   database(base_url) {
-    const autoSuffix = (url) => {
+    const autoSuffix = url => {
       if (url.pathname === '/') url.pathname = '/crsearch.json'
       return url
     }
