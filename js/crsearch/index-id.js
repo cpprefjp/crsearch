@@ -65,8 +65,9 @@ class IndexID {
         continue
       }
 
-      if (this._keys[this._keys.length - 1].includes(k)) {
-        this._keys[this._keys.length - 1] = this._keys[this._keys.length - 1].replace(k, v.to)
+      const last = this._keys[this._keys.length - 1]
+      if (last.includes(k)) {
+        this._keys[this._keys.length - 1] = last.replace(k, v.to)
 
         if (v.type) {
           this._type = v.type
