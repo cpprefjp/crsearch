@@ -3,9 +3,8 @@ import {IndexType as IType} from './index-type'
 
 
 class Namespace {
-  constructor(log, ns_id, json, ids, make_url) {
+  constructor(log, json, ids, make_url) {
     this._log = log.makeContext('Namespace')
-    this._ns_id = ns_id
     this._indexes = new Map
     this._namespace = json.namespace
     this._cpp_version = json.cpp_version || null
@@ -25,45 +24,6 @@ class Namespace {
       // this._log.debug('got Index', idx_)()
       this._indexes.set(idx_.id, idx_)
     }
-  }
-
-  static _makeGenericKey(narray) {
-    return `${[].concat(narray).join('/')}`
-  }
-
-  static _makeCanonicalKey(gkey, cppv) {
-    return `${gkey}///${cppv || null}`
-  }
-
-  _genericKey() {
-    return Namespace._makeGenericKey(this._namespace)
-  }
-
-  _canonicalKey() {
-    return Namespace._makeCanonicalKey(
-      Namespace._makeGenericKey(this._namespace),
-      this._cpp_version
-    )
-  }
-
-  _exactIndex(id) {
-    return this._indexes.get(id)
-  }
-
-  _findIndex(f) {
-    return new Set(Array.from(this._indexes.values()).filter(f))
-  }
-
-  _partitionIndex(f) {
-    const ret = [new Set, new Set]
-    for (const [id, idx] of this._indexes) {
-      if (f(idx)) {
-        ret[0].add(idx)
-      } else {
-        ret[1].add(idx)
-      }
-    }
-    return ret
   }
 
   query(q, found_count, max_count, path_composer) {

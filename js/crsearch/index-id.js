@@ -25,21 +25,15 @@ class IndexID {
     }
   }
 
-  _equals(rhs) {
-    // return this._id === rhs.id
-    return this._s_key === rhs.s_key && this._ns_id === rhs.ns_id
-  }
-
   static isClassy(type) {
     return [IType.class, IType.function, IType.mem_fun, IType.enum, IType.variable, IType.type_alias].includes(type)
   }
 
-  constructor(log, s_key, json) {
+  constructor(log, json) {
     this._log = log.makeContext('IndexID')
     this._cpp_namespace = json.cpp_namespace
     this._type = json.type
 
-    this._s_key = s_key
     let keys = json.key
 
 

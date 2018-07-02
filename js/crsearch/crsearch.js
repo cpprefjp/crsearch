@@ -498,11 +498,6 @@ class CRSearch {
     return false
   }
 
-  _hide_result_wrapper_for(input) {
-    this._find_result_wrapper_for(input).removeClass('visible')
-    return false
-  }
-
   _clear_results_for(input) {
     const res = this._find_results_for(input)
     res.empty()

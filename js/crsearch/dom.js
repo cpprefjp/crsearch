@@ -10,10 +10,6 @@ class DOM {
     },
   }
 
-  static async _makeBadge(attr) {
-
-  }
-
   static async makeBadges(attrs, opts = DOM.defaultOptions) {
     const ul = $('<ul>').addClass('badges').addClass([].concat(opts.badges.switches).join(' '))
     for (const attr of attrs) {

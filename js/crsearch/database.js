@@ -35,7 +35,7 @@ class Database {
     this._log.debug('[P1] initializing all IndexID...')
     let fallback_001_used = false
     for (const [s_key, id] of json.ids.entries()) {
-      const iid = new IndexID(this._log, s_key, id)
+      const iid = new IndexID(this._log, id)
 
       // legacy fallback
       if (iid.cpp_namespace && iid.cpp_namespace.length >= 2) {
@@ -63,7 +63,7 @@ class Database {
 
     this._log.debug('[P1] initializing all Namespace...')
     for (const [s_key, j_ns] of json.namespaces.entries()) {
-      const ns = new Namespace(this._log, s_key, j_ns, this._ids, this._make_url.bind(this))
+      const ns = new Namespace(this._log, j_ns, this._ids, this._make_url.bind(this))
       this._log.debug(`got Namespace: '${ns.pretty_name()}'`, ns)
       this._namespaces.push(ns)
 
@@ -317,10 +317,6 @@ class Database {
 
   _make_url(ns_path) {
     return new URL(`/${ns_path}.html`, this._base_url)
-  }
-
-  _findNamespace(f) {
-    return this._namespaces.filter(f)
   }
 
   get name() {

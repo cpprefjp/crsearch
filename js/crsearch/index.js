@@ -8,7 +8,6 @@ class Index {
   constructor(log, cpp_version, id, json, make_url) {
     this._log = log.makeContext('Index')
     this._in_header = null
-    this._in_class = null
     this._make_url = make_url
     this._ns = null
     this._is_fake = false
@@ -31,14 +30,6 @@ class Index {
 
   isRootArticle() {
     return this._page_id[0].length === 0 /* && [IType.meta, IType.article].includes(this._id.type) */
-  }
-
-  _isParent() {
-    return this._id.type === IType.header
-  }
-
-  _getParent() {
-    return this._in_header
   }
 
   type() {
