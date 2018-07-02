@@ -37,10 +37,7 @@ class IndexID {
 
 
     if (IndexID.isClassy(this._type)) {
-      let ns = ['std']
-      if (json.cpp_namespace) {
-        ns = json.cpp_namespace
-      }
+      const ns = json.cpp_namespace || ['std']
 
       keys = ns.concat(keys)
     }
