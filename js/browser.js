@@ -1,5 +1,4 @@
 import {CRSearch} from './crsearch'
-import {IndexType as IType} from './crsearch/index-type'
 
 import KC_Article from '../kunai_configs/cpprefjp/article.md'
 import * as KC from './crsearch/kunai-config'

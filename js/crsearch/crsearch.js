@@ -2,9 +2,7 @@ import {default as Mousetrap} from 'mousetrap'
 import * as Nagato from 'nagato'
 
 import {Query} from './query'
-import {IndexType as IType} from './index-type'
 import {Database} from './database'
-import {Index} from './index'
 
 import URL from 'url-parse'
 

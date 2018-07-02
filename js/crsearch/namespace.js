@@ -1,5 +1,4 @@
 import {Index} from './index'
-import {IndexType as IType} from './index-type'
 
 
 class Namespace {

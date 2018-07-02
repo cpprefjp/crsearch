@@ -2,12 +2,8 @@ import {IndexType as IType} from './index-type'
 import {IndexID} from './index-id'
 import {Index} from './index'
 import {Namespace} from './namespace'
-import {Dictionary} from './dictionary'
-import {Priority, SiteCategory} from './kunai-config'
 
 import URL from 'url-parse'
-
-import * as Query from './query'
 
 
 class Database {
