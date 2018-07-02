@@ -69,14 +69,14 @@ class CRSearch {
     this._resultCount = 0
     this._hasFocus = false
 
-    Mousetrap.bind('/', function() {
+    Mousetrap.bind('/', () => {
       if (this._hasFocus) return
       return this._select_default_input()
-    }.bind(this))
+    })
 
-    Mousetrap.bind('esc', function() {
-      return this._hide_all_result()
-    }.bind(this))
+    Mousetrap.bind('esc', () =>
+      this._hide_all_result()
+    )
 
     this._log.info('initialized.')
   }
@@ -174,10 +174,10 @@ class CRSearch {
 
   async _do_search(e) {
     clearTimeout(this._search_timer[e.data.id])
-    this._search_timer[e.data.id] = setTimeout(async function (e) {
+    this._search_timer[e.data.id] = setTimeout(async () => {
       this._selectIndex = 0
       this._resultCount = await this._do_search_impl(e)
-    }.bind(this, e), 20)
+    }, 20)
   }
 
   async _do_search_impl(e) {
@@ -399,12 +399,12 @@ class CRSearch {
       }
     })
 
-    input.on('click', function(e) {
+    input.on('click', e => {
       this._show_result_wrapper_for(e.target)
       return this._select_default_input()
-    }.bind(this))
+    })
 
-    input.on('keyup', {id: id}, function(e) {
+    input.on('keyup', {id: id}, e => {
       this._show_result_wrapper_for(e.target)
 
       const text = $(e.target).val().replace(/\s+/g, ' ').trim()
@@ -431,13 +431,13 @@ class CRSearch {
       }
       return false
 
-    }.bind(this))
+    })
     this._default_input = input
 
-    Mousetrap(input.get(0)).bind('esc', function(e) {
+    Mousetrap(input.get(0)).bind('esc', e => {
       $(e.target).blur()
       return this._hide_all_result()
-    }.bind(this))
+    })
 
     const result_wrapper = $('<div />')
     result_wrapper.addClass(CRSearch._RESULT_WRAPPER_KLASS)
@@ -459,10 +459,10 @@ class CRSearch {
     cr_info_link.appendTo(cr_info)
     cr_info.appendTo(result_wrapper)
 
-    input.on('focusin', function() {
+    input.on('focusin', () => {
       this._hasFocus = true
       return this._show_result_wrapper_for(this)
-    }.bind(this))
+    })
 
     input.on('focusout', () => {
       this._hasFocus = false

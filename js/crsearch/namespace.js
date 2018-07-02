@@ -73,8 +73,8 @@ class Namespace {
       if (q.filters.size && !Array.from(q.filters).some((f) => { return idx.id.type === f })) continue
 
       if (
-        Array.from(q.frags.and).every(function(idx, q) { return Index.ambgMatch(idx, q) }.bind(null, idx)) &&
-        !Array.from(q.frags.not).some(function(idx, q) { return Index.ambgMatch(idx, q) }.bind(null, idx))
+        Array.from(q.frags.and).every(q => Index.ambgMatch(idx, q)) &&
+        !Array.from(q.frags.not).some(q => Index.ambgMatch(idx, q))
 
       ) {
         ++found_count
