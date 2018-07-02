@@ -42,20 +42,6 @@ class IndexID {
         ns = json.cpp_namespace
       }
 
-      // legacy workarounds
-      if (keys.some(k => k.match(/::/))) {
-        this._log.warn("Invalid fragment '::' detected. Using legacy fallback until corresponding PR is deployed: https://github.com/cpprefjp/site_generator/pull/39", keys, json)
-        let newKey = []
-        for (const k of keys) {
-          if (k.match(/::/)) {
-            newKey = newKey.concat(k.split(/::/))
-          } else {
-            newKey = newKey.concat(k)
-          }
-        }
-        keys = newKey
-      }
-
       keys = ns.concat(keys)
     }
     this._keys = keys.map(k => k.normalize('NFKC'))
