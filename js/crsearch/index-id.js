@@ -2,10 +2,10 @@ import {IndexType as IType} from './index-type'
 
 class IndexID {
   static VERBATIM_TRS = new Map([
-    ['コンストラクタ', {to: '(constructor)', only: IType.mem_fun}],
-    ['デストラクタ', {to: '(destructor)', only: IType.mem_fun}],
+    ['コンストラクタ', {to: '(constructor)', only: [IType.mem_fun]}],
+    ['デストラクタ', {to: '(destructor)', only: [IType.mem_fun]}],
     ['推論補助', {to: '(deduction guide)', only: [IType.header, IType.mem_fun], type: IType.mem_fun}],
-    ['初期化', {to: '(initialization)', only: IType.header, type: IType.mem_fun}],
+    ['初期化', {to: '(initialization)', only: [IType.header], type: IType.mem_fun}],
     ['非メンバ関数', {to: 'non-member function', type: IType.function}],
     ['単項', {to: 'unary'}],
   ])
@@ -44,7 +44,7 @@ class IndexID {
     this._keys = keys.map(k => k.normalize('NFKC'))
 
     for (const [k, v] of IndexID.VERBATIM_TRS) {
-      if (v.only && ![].concat(v.only).includes(this._type)) {
+      if (v.only && !v.only.includes(this._type)) {
         continue
       }
 
