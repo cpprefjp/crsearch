@@ -10,7 +10,7 @@ class DOM {
     },
   }
 
-  static async makeBadge(attr) {
+  static async _makeBadge(attr) {
 
   }
 

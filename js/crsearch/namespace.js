@@ -4,59 +4,59 @@ import {IndexType as IType} from './index-type'
 
 class Namespace {
   constructor(log, ns_id, json, ids, make_url) {
-    this.log = log.makeContext('Namespace')
-    this.ns_id = ns_id
-    this.indexes = new Map
-    this.namespace = json.namespace
-    this.cpp_version = json.cpp_version || null
+    this._log = log.makeContext('Namespace')
+    this._ns_id = ns_id
+    this._indexes = new Map
+    this._namespace = json.namespace
+    this._cpp_version = json.cpp_version || null
 
 
     if (json.path_prefixes) {
-      this.path_prefixes = json.path_prefixes.join('/')
+      this._path_prefixes = json.path_prefixes.join('/')
     } else {
-      this.path_prefixes = this.namespace.join('/')
+      this._path_prefixes = this._namespace.join('/')
     }
 
     for (const idx of json.indexes) {
-      const idx_ = new Index(this.log, this.cpp_version, ids[idx.id], idx, (idx) => { return make_url(this.make_path(idx)) })
+      const idx_ = new Index(this._log, this._cpp_version, ids[idx.id], idx, (idx) => { return make_url(this.make_path(idx)) })
 
       idx_.ns = this
 
-      // this.log.debug('got Index', idx_)()
-      this.indexes.set(idx_.id, idx_)
+      // this._log.debug('got Index', idx_)()
+      this._indexes.set(idx_.id, idx_)
     }
   }
 
-  static makeGenericKey(narray) {
+  static _makeGenericKey(narray) {
     return `${[].concat(narray).join('/')}`
   }
 
-  static makeCanonicalKey(gkey, cppv) {
+  static _makeCanonicalKey(gkey, cppv) {
     return `${gkey}///${cppv || null}`
   }
 
-  genericKey() {
-    return Namespace.makeGenericKey(this.namespace)
+  _genericKey() {
+    return Namespace._makeGenericKey(this._namespace)
   }
 
-  canonicalKey() {
-    return Namespace.makeCanonicalKey(
-      Namespace.makeGenericKey(this.namespace),
-      this.cpp_version
+  _canonicalKey() {
+    return Namespace._makeCanonicalKey(
+      Namespace._makeGenericKey(this._namespace),
+      this._cpp_version
     )
   }
 
-  exactIndex(id) {
-    return this.indexes.get(id)
+  _exactIndex(id) {
+    return this._indexes.get(id)
   }
 
-  findIndex(f) {
-    return new Set(Array.from(this.indexes.values()).filter(f))
+  _findIndex(f) {
+    return new Set(Array.from(this._indexes.values()).filter(f))
   }
 
-  partitionIndex(f) {
+  _partitionIndex(f) {
     let ret = [new Set, new Set]
-    for (const [id, idx] of this.indexes) {
+    for (const [id, idx] of this._indexes) {
       if (f(idx)) {
         ret[0].add(idx)
       } else {
@@ -69,7 +69,7 @@ class Namespace {
   query(q, found_count, max_count, path_composer) {
     let targets = []
 
-    for (let [id, idx] of this.indexes) {
+    for (let [id, idx] of this._indexes) {
       if (q.filters.size && !Array.from(q.filters).some((f) => { return idx.id.type === f })) continue
 
       if (
@@ -92,25 +92,37 @@ class Namespace {
   make_path(idx) {
     if (idx.page_id) {
       if (idx.page_id[0].length) {
-        return `${this.path_prefixes}/${idx.page_id.join('/')}`
+        return `${this._path_prefixes}/${idx.page_id.join('/')}`
       } else {
-        return `${this.path_prefixes}`
+        return `${this._path_prefixes}`
       }
     } else {
-      return `${this.path_prefixes}/${idx.id.path_join()}`
+      return `${this._path_prefixes}/${idx.id.path_join()}`
     }
   }
 
-  pretty_version() {
-    if (this.cpp_version) {
-      return `C++${this.cpp_version}`
+  _pretty_version() {
+    if (this._cpp_version) {
+      return `C++${this._cpp_version}`
     } else {
       return '(no version)'
     }
   }
 
   pretty_name(include_version = true) {
-    return `${this.namespace.join(' \u226B')}${include_version ? `[${this.pretty_version()}]` : ''}`
+    return `${this._namespace.join(' \u226B')}${include_version ? `[${this._pretty_version()}]` : ''}`
+  }
+
+  get indexes() {
+    return this._indexes
+  }
+
+  get namespace() {
+    return this._namespace
+  }
+
+  get cpp_version() {
+    return this._cpp_version
   }
 }
 

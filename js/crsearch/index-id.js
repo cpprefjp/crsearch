@@ -15,19 +15,19 @@ class IndexID {
   }
 
   toReverseID() {
-    let k = [].concat(this.keys)
-    if (IndexID.isClassy(this.type)) {
+    let k = [].concat(this._keys)
+    if (IndexID.isClassy(this._type)) {
       k.shift()
-      return IndexID.composeReverseID(this.type, k)
+      return IndexID.composeReverseID(this._type, k)
 
     } else {
-      return IndexID.composeReverseID(this.type, k)
+      return IndexID.composeReverseID(this._type, k)
     }
   }
 
-  equals(rhs) {
-    // return this.id === rhs.id
-    return this.s_key === rhs.s_key && this.ns_id === rhs.ns_id
+  _equals(rhs) {
+    // return this._id === rhs.id
+    return this._s_key === rhs.s_key && this._ns_id === rhs.ns_id
   }
 
   static isClassy(type) {
@@ -35,15 +35,15 @@ class IndexID {
   }
 
   constructor(log, s_key, json) {
-    this.log = log.makeContext('IndexID')
-    this.cpp_namespace = json.cpp_namespace
-    this.type = json.type
+    this._log = log.makeContext('IndexID')
+    this._cpp_namespace = json.cpp_namespace
+    this._type = json.type
 
-    this.s_key = s_key
+    this._s_key = s_key
     let keys = json.key
 
 
-    if (IndexID.isClassy(this.type)) {
+    if (IndexID.isClassy(this._type)) {
       let ns = ['std']
       if (json.cpp_namespace) {
         ns = json.cpp_namespace
@@ -51,7 +51,7 @@ class IndexID {
 
       // legacy workarounds
       if (keys.some((k) => k.match(/::/))) {
-        this.log.warn(`Invalid fragment '::' detected. Using legacy fallback until corresponding PR is deployed: https://github.com/cpprefjp/site_generator/pull/39`, keys, json)
+        this._log.warn(`Invalid fragment '::' detected. Using legacy fallback until corresponding PR is deployed: https://github.com/cpprefjp/site_generator/pull/39`, keys, json)
         let newKey = []
         for (const k of keys) {
           if (k.match(/::/)) {
@@ -65,22 +65,22 @@ class IndexID {
 
       keys = ns.concat(keys)
     }
-    this.cpp_namespace = keys
-    this.keys = keys.map((k) => k.normalize('NFKC'))
+    this._cpp_namespace = keys
+    this._keys = keys.map((k) => k.normalize('NFKC'))
 
     for (const [k, v] of IndexID.VERBATIM_TRS) {
-      if (v.only && ![].concat(v.only).includes(this.type)) {
+      if (v.only && ![].concat(v.only).includes(this._type)) {
         continue
       }
 
-      if (this.keys[this.keys.length - 1].includes(k)) {
-        this.keys[this.keys.length - 1] = this.keys[this.keys.length - 1].replace(k, `${v.to}`)
+      if (this._keys[this._keys.length - 1].includes(k)) {
+        this._keys[this._keys.length - 1] = this._keys[this._keys.length - 1].replace(k, `${v.to}`)
 
         if (v.type) {
-          this.type = v.type
+          this._type = v.type
 
-          if ([IType.class, IType.mem_fun].includes(this.type) && this.keys[0] !== 'std') {
-            this.keys.unshift('std')
+          if ([IType.class, IType.mem_fun].includes(this._type) && this._keys[0] !== 'std') {
+            this._keys.unshift('std')
           }
         }
       }
@@ -88,7 +88,7 @@ class IndexID {
   }
 
   path_join() {
-    return this.keys.join('/')
+    return this._keys.join('/')
   }
 
   toString() {
@@ -96,21 +96,37 @@ class IndexID {
   }
 
   join() {
-    if (IndexID.isClassy(this.type)) {
-      return `${this.keys.join('::')}`
+    if (IndexID.isClassy(this._type)) {
+      return `${this._keys.join('::')}`
     } else {
-      if (this.type === IType.header) {
-        return `<${this.keys.join()}>`
+      if (this._type === IType.header) {
+        return `<${this._keys.join()}>`
       } else {
-        return this.keys.join()
+        return this._keys.join()
       }
     }
   }
 
   async join_html() {
     return $('<ul>').addClass('keys').append(
-      this.keys.map((k) => $('<li>', {class: 'key'}).text(k))
+      this._keys.map((k) => $('<li>', {class: 'key'}).text(k))
     )
+  }
+
+  get type() {
+    return this._type
+  }
+
+  set type(type) {
+    this._type = type
+  }
+
+  get cpp_namespace() {
+    return this._cpp_namespace
+  }
+
+  get keys() {
+    return this._keys
   }
 }
 

@@ -15,142 +15,142 @@ class Database {
     const runID = JSON.stringify({name: 'Database::constructor', timestamp: Date.now()})
     console.time(runID)
 
-    this.log = log.makeContext('Database')
-    this.name = json.database_name
-    this.base_url = new URL(json.base_url)
-    this.namespaces = []
-    this.default_ns = new Map
-    this.topNamespaces = new Map
-    this.ids = []
-    this.reverseID = new Map
+    this._log = log.makeContext('Database')
+    this._name = json.database_name
+    this._base_url = new URL(json.base_url)
+    this._namespaces = []
+    this._default_ns = new Map
+    this._topNamespaces = new Map
+    this._ids = []
+    this._reverseID = new Map
 
     // global map
-    this.all_headers = new Map
-    this.all_classes = new WeakMap
-    this.all_articles = new Set
-    this.root_articles = new WeakMap
-    this.all_fullpath_pages = new Map
+    this._all_headers = new Map
+    this._all_classes = new WeakMap
+    this._all_articles = new Set
+    this._root_articles = new WeakMap
+    this._all_fullpath_pages = new Map
 
 
-    this.log.debug('[P1] initializing all IndexID...')
+    this._log.debug('[P1] initializing all IndexID...')
     let fallback_001_used = false
     for (const [s_key, id] of json.ids.entries()) {
-      const iid = new IndexID(this.log, s_key, id)
+      const iid = new IndexID(this._log, s_key, id)
 
       // legacy fallback
       if (iid.cpp_namespace && iid.cpp_namespace.length >= 2) {
         if (iid.cpp_namespace[1] === 'string_literals') {
           fallback_001_used = true
-          this.log.warn('using fallback for string_literals namespace issue: https://github.com/cpprefjp/site/commit/6325b516f91f7434abbcef1ecaa04950d80ec9a9')
+          this._log.warn('using fallback for string_literals namespace issue: https://github.com/cpprefjp/site/commit/6325b516f91f7434abbcef1ecaa04950d80ec9a9')
           iid.keys.shift()
           iid.type = IType.function
         }
       }
 
       const rvid = iid.toReverseID()
-      // this.log.debug(`rvid for '${iid}': '${rvid}'`, iid)
+      // this._log.debug(`rvid for '${iid}': '${rvid}'`, iid)
       // if (rvid.match(/ios_base/)) {
-        // this.log.debug(`rvid '${rvid}'`, rvid, iid)
+        // this._log.debug(`rvid '${rvid}'`, rvid, iid)
       // }
 
-      this.ids.push(iid)
-      this.reverseID.set(rvid, iid)
+      this._ids.push(iid)
+      this._reverseID.set(rvid, iid)
     }
 
     if (!fallback_001_used) {
-      this.log.warn('fallback_001 is not used; maybe time to remove this workaround?')
+      this._log.warn('fallback_001 is not used; maybe time to remove this workaround?')
     }
 
-    this.log.debug('[P1] initializing all Namespace...')
+    this._log.debug('[P1] initializing all Namespace...')
     for (const [s_key, j_ns] of json.namespaces.entries()) {
-      const ns = new Namespace(this.log, s_key, j_ns, this.ids, this.make_url.bind(this))
-      this.log.debug(`got Namespace: '${ns.pretty_name()}'`, ns)
-      this.namespaces.push(ns)
+      const ns = new Namespace(this._log, s_key, j_ns, this._ids, this._make_url.bind(this))
+      this._log.debug(`got Namespace: '${ns.pretty_name()}'`, ns)
+      this._namespaces.push(ns)
 
       // set namespace w/ no cpp_version as default fallback
 
       if (!ns.cpp_version) {
-        this.log.debug(`setting default namespace version for '${ns.namespace.join('/')}'`, ns.pretty_name())
-        this.default_ns.set(ns.namespace.join('/'), ns)
+        this._log.debug(`setting default namespace version for '${ns.namespace.join('/')}'`, ns.pretty_name())
+        this._default_ns.set(ns.namespace.join('/'), ns)
       }
     }
 
 
-    this.log.info('[P2] generating reverse maps...')
-    for (const ns of this.namespaces) {
+    this._log.info('[P2] generating reverse maps...')
+    for (const ns of this._namespaces) {
       if (ns.namespace.length <= 1) {
-        this.topNamespaces.set(ns.namespace[0], ns)
+        this._topNamespaces.set(ns.namespace[0], ns)
       }
 
       for (let [id, idx] of ns.indexes) {
-        this.resolveRelatedTo(ns, idx)
+        this._resolveRelatedTo(ns, idx)
 
         if (!idx.is_fake) {
-          this.all_fullpath_pages.set([].concat(idx.ns.namespace).concat(idx.page_id.filter((id) => id.length)).join('/'), idx)
+          this._all_fullpath_pages.set([].concat(idx.ns.namespace).concat(idx.page_id.filter((id) => id.length)).join('/'), idx)
         }
 
         if (idx.id.type === IType.header) {
-          this.autoInit(idx, null)
+          this._autoInit(idx, null)
 
         } else if (idx.id.type === IType.class) {
-          this.autoInit(idx.in_header, idx)
+          this._autoInit(idx.in_header, idx)
 
         } else if (idx.id.type === IType.mem_fun) {
           let class_keys = [].concat(idx.id.keys)
           class_keys.shift()
           class_keys.pop()
           const rvid = IndexID.composeReverseID(IType.class, class_keys)
-          const cand = this.reverseID.get(rvid)
+          const cand = this._reverseID.get(rvid)
 
           if (!cand) {
-            this.log.error(`[BUG] class candidate for member '${idx.id.join()}' not found (rvid: ${rvid})`, idx)
+            this._log.error(`[BUG] class candidate for member '${idx.id.join()}' not found (rvid: ${rvid})`, idx)
             continue
           }
 
-          // this.log.debug(`rvid candidate for mem_fun '${idx}': '${rvid}' (candidate '${cand}')`, idx, rvid, cand)
+          // this._log.debug(`rvid candidate for mem_fun '${idx}': '${rvid}' (candidate '${cand}')`, idx, rvid, cand)
 
-          if (!this.all_classes.has(cand)) {
-            this.all_classes.set(cand, {self: null, members: new Set})
+          if (!this._all_classes.has(cand)) {
+            this._all_classes.set(cand, {self: null, members: new Set})
           }
 
-          this.all_classes.get(cand).members.add(idx)
+          this._all_classes.get(cand).members.add(idx)
 
         } else if ([IType.article, IType.meta].includes(idx.id.type)) {
           if (idx.isRootArticle()) {
-            this.root_articles.set(
+            this._root_articles.set(
               idx.ns,
               idx
             )
           } else {
-            this.all_articles.add(idx)
+            this._all_articles.add(idx)
           }
 
         } else {
           if (!idx.in_header) {
             throw new Error(`[BUG] got an 'other' type, but in_header was not detected (idx: ${idx})`)
           }
-          this.autoInit(idx.in_header, null)
-          this.all_headers.get(idx.in_header.id.join()).others.add(idx)
+          this._autoInit(idx.in_header, null)
+          this._all_headers.get(idx.in_header.id.join()).others.add(idx)
         }
       } // for ns.indexes
     }
 
     console.timeEnd(runID)
-    this.log.info('initialized.', this.all_pages)
+    this._log.info('initialized.', this._all_pages)
   }
 
-  resolveRelatedTo(ns, idx) {
+  _resolveRelatedTo(ns, idx) {
     if (!idx.related_to) return null
 
     let deref_related_to = new Set
 
     for (const rsid of idx.related_to) {
-      const rid = this.ids[rsid]
+      const rid = this._ids[rsid]
 
       if (rid.type === IType.header) {
         let found = ns.indexes.get(rid)
         if (!found) {
-          for (const in_ns of this.namespaces) {
+          for (const in_ns of this._namespaces) {
             if (in_ns.indexes.has(rid)) {
               found = in_ns.indexes.get(rid)
               break
@@ -158,8 +158,8 @@ class Database {
           }
 
           if (!found) {
-            let dns = this.default_ns.get(ns.namespace.join('/'))
-            let fake = new Index(this.log, dns.cpp_version, null, null, (idx) => { return this.make_url(dns.make_path(idx)) })
+            let dns = this._default_ns.get(ns.namespace.join('/'))
+            let fake = new Index(this._log, dns.cpp_version, null, null, (idx) => { return this._make_url(dns.make_path(idx)) })
             fake.is_fake = true
             fake.id = rid
             fake.id_cache = fake.id.keys.join()
@@ -169,18 +169,18 @@ class Database {
               continue
             }
 
-            // this.log.debug('fake', fake, fake.url())
+            // this._log.debug('fake', fake, fake.url())
             found = fake
 
-            this.log.warn(`no namespace has this index; fake indexing '${fake.id.join()}' --> '${idx.id.join()}'`, 'default namespace:', dns.pretty_name(), '\nfake index:', fake, '\nself:', idx.id.join())
+            this._log.warn(`no namespace has this index; fake indexing '${fake.id.join()}' --> '${idx.id.join()}'`, 'default namespace:', dns.pretty_name(), '\nfake index:', fake, '\nself:', idx.id.join())
 
             dns.indexes.set(rid, fake)
-            this.reverseID.set(rid.toReverseID(), rid)
-            this.autoInit(fake, null)
+            this._reverseID.set(rid.toReverseID(), rid)
+            this._autoInit(fake, null)
           }
 
         } else {
-          // this.log.warn(`related_to entity ${rid.join()} not found in this namespace '${ns.pretty_name()}', falling back to default`, 'default:', rid.join())
+          // this._log.warn(`related_to entity ${rid.join()} not found in this namespace '${ns.pretty_name()}', falling back to default`, 'default:', rid.join())
         }
 
         idx.in_header = found
@@ -192,17 +192,17 @@ class Database {
     return idx.related_to
   }
 
-  autoInit(hparam, cparam) {
+  _autoInit(hparam, cparam) {
     if (!hparam) {
       throw new Error(`hparam is not supplied ('${hparam}', '${cparam}')`)
     }
 
     const hkey = hparam.id
-    if (!this.all_headers.has(hkey.join())) {
-      // this.log.debug(`new: '${hkey}'`, hparam, cparam)
-      this.all_headers.set(hkey.join(), {self: hparam, classes: new Map, others: new Set})
+    if (!this._all_headers.has(hkey.join())) {
+      // this._log.debug(`new: '${hkey}'`, hparam, cparam)
+      this._all_headers.set(hkey.join(), {self: hparam, classes: new Map, others: new Set})
     }
-    let h = this.all_headers.get(hkey.join())
+    let h = this._all_headers.get(hkey.join())
 
     if (!cparam) return [h, null]
 
@@ -212,21 +212,21 @@ class Database {
     // https://github.com/cpprefjp/site_generator/issues/42
 
     // const ckey = cparam.id
-    const ckey = this.reverseID.get(cparam.id.toReverseID())
+    const ckey = this._reverseID.get(cparam.id.toReverseID())
     // -------------------------------------------------------------
 
-    if (!this.all_classes.has(ckey)) {
-      // this.log.debug(`new: '${ckey}'`, hparam, cparam)
-      this.all_classes.set(ckey, {self: cparam, members: new Set})
+    if (!this._all_classes.has(ckey)) {
+      // this._log.debug(`new: '${ckey}'`, hparam, cparam)
+      this._all_classes.set(ckey, {self: cparam, members: new Set})
     } else {
-      if (!this.all_classes.get(ckey).self) {
-        this.all_classes.get(ckey).self = cparam
+      if (!this._all_classes.get(ckey).self) {
+        this._all_classes.get(ckey).self = cparam
       }
     }
-    let c = this.all_classes.get(ckey)
+    let c = this._all_classes.get(ckey)
 
     if (!h.classes.has(ckey)) {
-      // this.log.debug(`'${ckey}' --> '${hkey}'`, hparam, cparam)
+      // this._log.debug(`'${ckey}' --> '${hkey}'`, hparam, cparam)
       h.classes.set(ckey, c)
     }
     return [h, c]
@@ -237,12 +237,12 @@ class Database {
     const runID = JSON.stringify({name: 'Database::getTree', timestamp: Date.now()})
     console.time(runID)
 
-    let toplevels = Array.from(this.topNamespaces).map(([name, ns]) => {
+    let toplevels = Array.from(this._topNamespaces).map(([name, ns]) => {
       return {
         category: kc.categories().get(ns.namespace[0]),
         namespace: ns,
-        root: this.root_articles.get(
-          this.default_ns.get(ns.namespace.join('/'))
+        root: this._root_articles.get(
+          this._default_ns.get(ns.namespace.join('/'))
         ),
         articles: [],
         headers: [],
@@ -253,7 +253,7 @@ class Database {
 
 
     toplevels[kc.categories().get('reference').index].headers =
-      Array.from(this.all_headers).map(([name, h]) => ({
+      Array.from(this._all_headers).map(([name, h]) => ({
         self: h.self,
 
         classes: Array.from(h.classes).map((([id, c]) => ({
@@ -262,7 +262,7 @@ class Database {
             const a = kc.makeMemberData(a_)
             const b = kc.makeMemberData(b_)
 
-            // this.log.debug('a, b', a, b)
+            // this._log.debug('a, b', a, b)
 
             if (a.i < b.i) {
               return -1
@@ -286,7 +286,7 @@ class Database {
 
       })).sort((a, b) => a.self.id.join() < b.self.id.join() ? -1 : 1)
 
-    for (const ar of this.all_articles) {
+    for (const ar of this._all_articles) {
       toplevels[kc.categories().get(ar.ns.namespace[0]).index].articles.push(ar)
     }
     for (let t of toplevels) {
@@ -302,8 +302,8 @@ class Database {
   query(q, found_count, max_count) {
     let targets = []
 
-    for (const ns of this.namespaces) {
-      const res = ns.query(q, found_count, max_count, this.make_url.bind(this))
+    for (const ns of this._namespaces) {
+      const res = ns.query(q, found_count, max_count, this._make_url.bind(this))
       if (res.targets.length == 0) {
         continue
       }
@@ -317,12 +317,24 @@ class Database {
     return {targets: targets, found_count: found_count}
   }
 
-  make_url(ns_path) {
-    return new URL(`/${ns_path}.html`, this.base_url)
+  _make_url(ns_path) {
+    return new URL(`/${ns_path}.html`, this._base_url)
   }
 
-  findNamespace(f) {
-    return this.namespaces.filter(f)
+  _findNamespace(f) {
+    return this._namespaces.filter(f)
+  }
+
+  get name() {
+    return this._name
+  }
+
+  get base_url() {
+    return this._base_url
+  }
+
+  get all_fullpath_pages() {
+    return this._all_fullpath_pages
   }
 }
 export {Database}

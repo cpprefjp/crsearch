@@ -10,10 +10,10 @@ import URL from 'url-parse'
 
 
 class CRSearch {
-  static APPNAME = 'crsearch'
-  static HOMEPAGE = 'https://github.com/cpprefjp/crsearch'
+  static _APPNAME = 'crsearch'
+  static _HOMEPAGE = 'https://github.com/cpprefjp/crsearch'
 
-  static OPTS_DEFAULT = {
+  static _OPTS_DEFAULT = {
     klass: {
       search_button: ['fa', 'fa-fw', 'fa-binoculars'],
     },
@@ -21,16 +21,16 @@ class CRSearch {
     force_new_window: false,
   }
 
-  static KLASS = 'crsearch'
-  static RESULT_WRAPPER_KLASS = 'result-wrapper'
-  static RESULTS_KLASS = 'results'
-  static INPUT_PLACEHOLDER = '"std::...", "<header>", etc.'
+  static _KLASS = 'crsearch'
+  static _RESULT_WRAPPER_KLASS = 'result-wrapper'
+  static _RESULTS_KLASS = 'results'
+  static _INPUT_PLACEHOLDER = '"std::...", "<header>", etc.'
 
-  static MAX_RESULT = 5
+  static _MAX_RESULT = 5
 
-  static RESULT_PROTO = $('<li class="result"><a href="#"></a></li>')
+  static _RESULT_PROTO = $('<li class="result"><a href="#"></a></li>')
 
-  static HELP = `
+  static _HELP = `
     <div class="help-content">
       <div class="message"></div>
       <ul class="examples">
@@ -51,81 +51,81 @@ class CRSearch {
   `
 
   constructor(opts = {}) {
-    this.opts = Object.assign({}, CRSearch.OPTS_DEFAULT, opts)
-    this.log = new Nagato.Logger(CRSearch.APPNAME, new Nagato.Logger.Option(Object.assign({}, this.opts, {
+    this._opts = Object.assign({}, CRSearch._OPTS_DEFAULT, opts)
+    this._log = new Nagato.Logger(CRSearch._APPNAME, new Nagato.Logger.Option(Object.assign({}, this._opts, {
       icon: {
         text: '\u{1F50E}',
         color: '#3A6E83',
       }
     })))
 
-    this.loaded = false
-    this.db = new Map
-    this.pendingDB = new Set
-    this.last_id = 0
-    this.last_input = {}
-    this.search_timer = {}
-    this.selectIndex = 0
-    this.resultCount = 0
-    this.hasFocus = false
+    this._loaded = false
+    this._db = new Map
+    this._pendingDB = new Set
+    this._last_id = 0
+    this._last_input = {}
+    this._search_timer = {}
+    this._selectIndex = 0
+    this._resultCount = 0
+    this._hasFocus = false
 
     Mousetrap.bind('/', function() {
-      if (this.hasFocus) return
-      return this.select_default_input()
+      if (this._hasFocus) return
+      return this._select_default_input()
     }.bind(this))
 
     Mousetrap.bind('esc', function() {
-      return this.hide_all_result()
+      return this._hide_all_result()
     }.bind(this))
 
-    this.log.info('initialized.')
+    this._log.info('initialized.')
   }
 
-  async load() {
+  async _load() {
     try {
       let i = 1
-      for (const url of this.pendingDB) {
+      for (const url of this._pendingDB) {
         if (url.pathname == '/') {
           url.pathname = '/crsearch.json'
         }
-        this.log.info(`fetching database (${i}/${this.pendingDB.size}): ${url}`)
+        this._log.info(`fetching database (${i}/${this._pendingDB.size}): ${url}`)
 
         $.ajax({
           url: url,
           dataType: "json",
 
           success: async (data) => {
-            this.log.info('fetched')
-            this.parse(url, data)
+            this._log.info('fetched')
+            this._parse(url, data)
           },
 
           fail: async (e) => {
-            this.log.error('fetch failed', e)
+            this._log.error('fetch failed', e)
           }
         })
 
         ++i
       }
     } finally {
-      this.pendingDB.clear()
+      this._pendingDB.clear()
     }
 
-    this.loaded = true
+    this._loaded = true
   }
 
-  async parse(url, json) {
-    this.log.info('parsing...', json)
+  async _parse(url, json) {
+    this._log.info('parsing...', json)
 
-    const db = new Database(this.log, json)
-    this.db.set(db.name, db)
-    if (!this.defaultUrl) {
-      this.defaultUrl = new URL(db.base_url).hostname
+    const db = new Database(this._log, json)
+    this._db.set(db.name, db)
+    if (!this._defaultUrl) {
+      this._defaultUrl = new URL(db.base_url).hostname
     }
 
-    this.updateSearchButton('')
-    this.log.info(`parsed '${db.name}'`, db)
-    if (this.opts.onDatabase) {
-      this.opts.onDatabase(db)
+    this._updateSearchButton('')
+    this._log.info(`parsed '${db.name}'`, db)
+    if (this._opts.onDatabase) {
+      this._opts.onDatabase(db)
     }
   }
 
@@ -137,30 +137,30 @@ class CRSearch {
 
     try {
       const url = new URL(base_url)
-      this.pendingDB.add(autoSuffix(url).toString())
+      this._pendingDB.add(autoSuffix(url).toString())
 
     } catch (e) {
       const a = document.createElement('a')
       a.href = base_url
 
       const url = new URL(autoSuffix(a).toString())
-      this.pendingDB.add(url)
+      this._pendingDB.add(url)
     }
   }
 
-  selectChange(isUp, box) {
-    // this.log.debug('selectChange', 'isUp?: ', isUp, 'selectIndex: ', this.selectIndex, box)
+  _selectChange(isUp, box) {
+    // this._log.debug('_selectChange', 'isUp?: ', isUp, '_selectIndex: ', this._selectIndex, box)
 
-    this.selectIndex += isUp ? -1 : 1
-    if (this.selectIndex < 0) {
-      this.selectIndex = this.resultCount
-    } else if (this.selectIndex > this.resultCount) {
-      this.selectIndex = 0
+    this._selectIndex += isUp ? -1 : 1
+    if (this._selectIndex < 0) {
+      this._selectIndex = this._resultCount
+    } else if (this._selectIndex > this._resultCount) {
+      this._selectIndex = 0
     }
 
     for (const e of box.find('.results .result')) {
       let link = $(e).children('a')
-      if (parseInt($(e).attr('data-result-id')) === this.selectIndex) {
+      if (parseInt($(e).attr('data-result-id')) === this._selectIndex) {
         link.addClass('focus')
         link.focus()
       } else {
@@ -169,29 +169,29 @@ class CRSearch {
       }
     }
 
-    // this.log.debug(this.selectIndex)
+    // this._log.debug(this._selectIndex)
   }
 
-  async do_search(e) {
-    clearTimeout(this.search_timer[e.data.id])
-    this.search_timer[e.data.id] = setTimeout(async function (e) {
-      this.selectIndex = 0
-      this.resultCount = await this.do_search_impl(e)
+  async _do_search(e) {
+    clearTimeout(this._search_timer[e.data.id])
+    this._search_timer[e.data.id] = setTimeout(async function (e) {
+      this._selectIndex = 0
+      this._resultCount = await this._do_search_impl(e)
     }.bind(this, e), 20)
   }
 
-  async do_search_impl(e) {
-    const q = new Query(this.log, this.last_input[e.data.id])
-    // this.log.debug(`query: '${q.original_text}'`, q)
+  async _do_search_impl(e) {
+    const q = new Query(this._log, this._last_input[e.data.id])
+    // this._log.debug(`query: '${q.original_text}'`, q)
 
-    let result_list = this.clear_results_for(e.target)
+    let result_list = this._clear_results_for(e.target)
     let extra_info_for = {}
 
     // do the lookup per database
     let res = new Map
 
-    for (const [name, db] of this.db) {
-      const ret = db.query(q, 0, CRSearch.MAX_RESULT)
+    for (const [name, db] of this._db) {
+      const ret = db.query(q, 0, CRSearch._MAX_RESULT)
       extra_info_for[db.name] = {url: db.base_url}
 
       res.set(db.name, ret.targets)
@@ -206,8 +206,8 @@ class CRSearch {
       }
 
       const found_count = ret.found_count
-      if (found_count > CRSearch.MAX_RESULT) {
-        extra_info_for[db.name].html = $(`<div class="message">Showing first<span class="match-count">${CRSearch.MAX_RESULT}</span>matches</div>`)
+      if (found_count > CRSearch._MAX_RESULT) {
+        extra_info_for[db.name].html = $(`<div class="message">Showing first<span class="match-count">${CRSearch._MAX_RESULT}</span>matches</div>`)
       } else {
         extra_info_for[db.name].html = $(`<div class="message">Showing<span class="match-count">all</span>matches</div>`)
       }
@@ -215,7 +215,7 @@ class CRSearch {
 
     let result_id = 0
     for (const [db_name, targets] of res) {
-      result_list.append(this.make_site_header(db_name, extra_info_for[db_name]))
+      result_list.append(this._make_site_header(db_name, extra_info_for[db_name]))
 
       const grouped_targets = targets.reduce((gr, e) => {
         const key = e.index.in_header
@@ -224,13 +224,13 @@ class CRSearch {
         return gr
       }, new Map)
 
-      // this.log.debug('gr', grouped_targets)
+      // this._log.debug('gr', grouped_targets)
 
       for (const [in_header, the_targets] of grouped_targets) {
-        result_list.append(await this.make_result_header(in_header))
+        result_list.append(await this._make_result_header(in_header))
 
         for (const t of the_targets) {
-          let e = await this.make_result(
+          let e = await this._make_result(
             t.index.type(),
             t.index,
             t.path
@@ -242,9 +242,9 @@ class CRSearch {
       }
     }
 
-    for (const [name, db] of this.db) {
+    for (const [name, db] of this._db) {
       // always include fallback
-      let e = await this.make_result(null, q.original_text, {
+      let e = await this._make_result(null, q.original_text, {
         name: db.name,
         url: db.base_url.host,
       })
@@ -258,7 +258,7 @@ class CRSearch {
     return result_id - 1 // i.e. result count
   }
 
-  make_site_header(db_name, extra_info) {
+  _make_site_header(db_name, extra_info) {
     let elem = $('<li class="result cr-meta-result cr-result-header" />')
 
     if (extra_info.html) {
@@ -279,18 +279,18 @@ class CRSearch {
     return elem
   }
 
-  make_google_url(q, site) {
-    let url = this.opts.google_url
+  _make_google_url(q, site) {
+    let url = this._opts.google_url
     url.set('query', {q: `${q} site:${site}`})
     return url
   }
 
-  async make_result_header(header) {
+  async _make_result_header(header) {
     let elem = $('<li class="result cr-meta-result in-header" />')
 
     let body = $('<a>')
     if (header) {
-      if (this.opts.force_new_window) {
+      if (this._opts.force_new_window) {
         body.attr('target', '_blank')
       }
       body.attr('href', header.url())
@@ -300,8 +300,8 @@ class CRSearch {
     return elem
   }
 
-  async make_result(t, target, extra = null) {
-    let elem = CRSearch.RESULT_PROTO.clone()
+  async _make_result(t, target, extra = null) {
+    let elem = CRSearch._RESULT_PROTO.clone()
 
     let a = elem.children('a')
     let content = $('<div class="content" />').appendTo(a)
@@ -310,7 +310,7 @@ class CRSearch {
     switch (t) {
     case null: {
       elem.addClass('fallback')
-      a.attr('href', this.make_google_url(target, extra.url))
+      a.attr('href', this._make_google_url(target, extra.url))
       a.attr('target', '_blank')
       $(`<div class="query">${target}</div>`).appendTo(content)
       $(`<div class="fallback-site">${extra.url}</div>`).appendTo(content)
@@ -321,7 +321,7 @@ class CRSearch {
       a.attr('href', extra)
       content.append(await target.join_html({badges: {switches: ['simple']}}))
 
-      if (this.opts.force_new_window) {
+      if (this._opts.force_new_window) {
         a.attr('target', '_blank')
       }
       break
@@ -330,31 +330,31 @@ class CRSearch {
     return elem
   }
 
-  async updateSearchButton(href) {
-    this.searchButton.attr('href', this.make_google_url(href, this.defaultUrl))
+  async _updateSearchButton(href) {
+    this._searchButton.attr('href', this._make_google_url(href, this._defaultUrl))
   }
 
   async searchbox(sel) {
     let box = $(sel).addClass('loading').append($('<div>', {class: 'loading-icon'}))
-    if (!this.loaded) {
-      await this.load()
+    if (!this._loaded) {
+      await this._load()
     }
     box.removeClass('loading').addClass('loaded')
 
-    this.searchButton = $('<a />')
-    this.searchButton.attr('target', '_blank')
-    this.searchButton.addClass('search')
+    this._searchButton = $('<a />')
+    this._searchButton.attr('target', '_blank')
+    this._searchButton.addClass('search')
 
-    for (const klass of this.opts.klass.search_button) {
-      this.searchButton.addClass(klass)
+    for (const klass of this._opts.klass.search_button) {
+      this._searchButton.addClass(klass)
     }
 
-    const id = this.last_id++;
+    const id = this._last_id++;
     box.attr('data-crsearch-id', id)
-    this.log.info(`creating searchbox ${id}`)
+    this._log.info(`creating searchbox ${id}`)
 
 
-    this.last_input[id] = ''
+    this._last_input[id] = ''
 
     let control = $('<div class="control" />')
     control.appendTo(box)
@@ -363,7 +363,7 @@ class CRSearch {
     input.addClass('input')
     input.addClass('mousetrap')
     input.attr('autocomplete', false)
-    input.attr('placeholder', CRSearch.INPUT_PLACEHOLDER)
+    input.attr('placeholder', CRSearch._INPUT_PLACEHOLDER)
     input.appendTo(control)
 
     const get_root = () => $(document.activeElement).closest('*[data-crsearch-id="' + id + '"]')
@@ -389,128 +389,128 @@ class CRSearch {
     Mousetrap.bind('up', e => {
       if (is_self()) {
         e.preventDefault()
-        this.selectChange(true, box)
+        this._selectChange(true, box)
       }
     })
     Mousetrap.bind('down', e => {
       if (is_self()) {
         e.preventDefault()
-        this.selectChange(false, box)
+        this._selectChange(false, box)
       }
     })
 
     input.on('click', function(e) {
-      this.show_result_wrapper_for(e.target)
-      return this.select_default_input()
+      this._show_result_wrapper_for(e.target)
+      return this._select_default_input()
     }.bind(this))
 
     input.on('keyup', {id: id}, function(e) {
-      this.show_result_wrapper_for(e.target)
+      this._show_result_wrapper_for(e.target)
 
       const text = $(e.target).val().replace(/\s+/g, ' ').trim()
 
-      if (this.last_input[e.data.id] != text) {
-        this.last_input[e.data.id] = text
-        this.updateSearchButton(text)
+      if (this._last_input[e.data.id] != text) {
+        this._last_input[e.data.id] = text
+        this._updateSearchButton(text)
 
         if (text.length >= 2) {
-          this.find_result_wrapper_for(e.target).removeClass('help')
-          this.msg_for(e.target)
-          this.do_search(e)
+          this._find_result_wrapper_for(e.target).removeClass('help')
+          this._msg_for(e.target)
+          this._do_search(e)
 
         } else if (text.length == 0) {
-          this.clear_results_for(e.target)
-          this.msg_for(e.target)
-          this.find_result_wrapper_for(e.target).addClass('help')
+          this._clear_results_for(e.target)
+          this._msg_for(e.target)
+          this._find_result_wrapper_for(e.target).addClass('help')
 
         } else {
-          this.clear_results_for(e.target)
-          this.msg_for(e.target, text.length == 0 ? '' : 'input >= 2 characters...')
-          this.find_result_wrapper_for(e.target).addClass('help')
+          this._clear_results_for(e.target)
+          this._msg_for(e.target, text.length == 0 ? '' : 'input >= 2 characters...')
+          this._find_result_wrapper_for(e.target).addClass('help')
         }
       }
       return false
 
     }.bind(this))
-    this.default_input = input
+    this._default_input = input
 
     Mousetrap(input.get(0)).bind('esc', function(e) {
       $(e.target).blur()
-      return this.hide_all_result()
+      return this._hide_all_result()
     }.bind(this))
 
     let result_wrapper = $('<div />')
-    result_wrapper.addClass(CRSearch.RESULT_WRAPPER_KLASS)
+    result_wrapper.addClass(CRSearch._RESULT_WRAPPER_KLASS)
     result_wrapper.addClass('help')
     result_wrapper.appendTo(box)
 
     let results = $('<ul />')
-    results.addClass(CRSearch.RESULTS_KLASS)
+    results.addClass(CRSearch._RESULTS_KLASS)
     results.appendTo(result_wrapper)
 
-    let help_content = $(CRSearch.HELP)
+    let help_content = $(CRSearch._HELP)
     help_content.appendTo(result_wrapper)
 
     let cr_info = $('<div class="crsearch-info" />')
     let cr_info_link = $('<a />')
-    cr_info_link.attr('href', CRSearch.HOMEPAGE)
+    cr_info_link.attr('href', CRSearch._HOMEPAGE)
     cr_info_link.attr('target', '_blank')
-    cr_info_link.text(`${CRSearch.APPNAME} v${CRS_PACKAGE.version}`)
+    cr_info_link.text(`${CRSearch._APPNAME} v${CRS_PACKAGE.version}`)
     cr_info_link.appendTo(cr_info)
     cr_info.appendTo(result_wrapper)
 
     input.on('focusin', function() {
-      this.hasFocus = true
-      return this.show_result_wrapper_for(this)
+      this._hasFocus = true
+      return this._show_result_wrapper_for(this)
     }.bind(this))
 
     input.on('focusout', () => {
-      this.hasFocus = false
+      this._hasFocus = false
     })
 
-    this.searchButton.appendTo(control)
+    this._searchButton.appendTo(control)
   }
 
-  select_default_input() {
-    this.default_input.select()
+  _select_default_input() {
+    this._default_input.select()
     return false
   }
 
-  find_cr_for(input) {
-    return $(input).closest(`.${CRSearch.KLASS}`)
+  _find_cr_for(input) {
+    return $(input).closest(`.${CRSearch._KLASS}`)
   }
 
-  find_result_wrapper_for(input) {
-    return this.find_cr_for(input).children(`.${CRSearch.RESULT_WRAPPER_KLASS}`)
+  _find_result_wrapper_for(input) {
+    return this._find_cr_for(input).children(`.${CRSearch._RESULT_WRAPPER_KLASS}`)
   }
 
-  find_results_for(input) {
-    return this.find_result_wrapper_for(input).children(`.${CRSearch.RESULTS_KLASS}`)
+  _find_results_for(input) {
+    return this._find_result_wrapper_for(input).children(`.${CRSearch._RESULTS_KLASS}`)
   }
 
-  show_result_wrapper_for(input) {
-    this.find_result_wrapper_for(input).addClass('visible')
+  _show_result_wrapper_for(input) {
+    this._find_result_wrapper_for(input).addClass('visible')
     return false
   }
 
-  msg_for(input, msg = '') {
-    this.find_cr_for(input).find('.result-wrapper .help-content .message').text(msg)
+  _msg_for(input, msg = '') {
+    this._find_cr_for(input).find('.result-wrapper .help-content .message').text(msg)
     return false
   }
 
-  hide_result_wrapper_for(input) {
-    this.find_result_wrapper_for(input).removeClass('visible')
+  _hide_result_wrapper_for(input) {
+    this._find_result_wrapper_for(input).removeClass('visible')
     return false
   }
 
-  clear_results_for(input) {
-    let res = this.find_results_for(input)
+  _clear_results_for(input) {
+    let res = this._find_results_for(input)
     res.empty()
     return res
   }
 
-  hide_all_result() {
-    let res = $(`.${CRSearch.KLASS} .${CRSearch.RESULT_WRAPPER_KLASS}`)
+  _hide_all_result() {
+    let res = $(`.${CRSearch._KLASS} .${CRSearch._RESULT_WRAPPER_KLASS}`)
     res.removeClass('visible')
     return false
   }
