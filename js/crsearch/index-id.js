@@ -90,12 +90,10 @@ class IndexID {
   join() {
     if (IndexID.isClassy(this._type)) {
       return this._keys.join('::')
+    } else if (this._type === IType.header) {
+      return `<${this._keys.join()}>`
     } else {
-      if (this._type === IType.header) {
-        return `<${this._keys.join()}>`
-      } else {
-        return this._keys.join()
-      }
+      return this._keys.join()
     }
   }
 
