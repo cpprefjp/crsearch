@@ -194,7 +194,7 @@ class CRSearch {
 
       res.set(db.name, ret.targets)
       if (res.get(db.name).length == 0) {
-        const msg = $(`<div class="message"><span class="pre">No matches for</span></div>`)
+        const msg = $('<div class="message"><span class="pre">No matches for</span></div>')
         const rec_q = $('<span class="query" />')
         rec_q.text(q.original_text)
         rec_q.appendTo(msg)
@@ -207,7 +207,7 @@ class CRSearch {
       if (found_count > CRSearch._MAX_RESULT) {
         extra_info_for[db.name].html = $(`<div class="message">Showing first<span class="match-count">${CRSearch._MAX_RESULT}</span>matches</div>`)
       } else {
-        extra_info_for[db.name].html = $(`<div class="message">Showing<span class="match-count">all</span>matches</div>`)
+        extra_info_for[db.name].html = $('<div class="message">Showing<span class="match-count">all</span>matches</div>')
       }
     }
 
@@ -260,7 +260,7 @@ class CRSearch {
     const elem = $('<li class="result cr-meta-result cr-result-header" />')
 
     if (extra_info.html) {
-      const extra = $(`<div class="extra" />`)
+      const extra = $('<div class="extra" />')
 
       if (extra_info.klass) {
         extra.addClass(extra_info.klass)
@@ -269,7 +269,7 @@ class CRSearch {
       extra.appendTo(elem)
     }
 
-    const dbn = $(`<a class="db-name" />`)
+    const dbn = $('<a class="db-name" />')
     dbn.attr('href', extra_info.url)
     dbn.attr('target', '_blank')
     dbn.text(db_name)

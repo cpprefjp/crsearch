@@ -171,7 +171,6 @@ class Database {
             this._log.warn(`no namespace has this index; fake indexing '${fake.id.join()}' --> '${idx.id.join()}'`, 'default namespace:', dns.pretty_name(), '\nfake index:', fake, '\nself:', idx.id.join())
 
             dns.indexes.set(rid, fake)
-            this._reverseID.set(rid.toReverseID(), rid)
             this._autoInit(fake, null)
           }
 

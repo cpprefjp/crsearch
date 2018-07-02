@@ -53,7 +53,7 @@ class Namespace {
       if (idx.page_id[0].length) {
         return `${this._path_prefixes}/${idx.page_id.join('/')}`
       } else {
-        return `${this._path_prefixes}`
+        return this._path_prefixes
       }
     } else {
       return `${this._path_prefixes}/${idx.id.path_join()}`

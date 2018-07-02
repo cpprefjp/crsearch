@@ -45,7 +45,7 @@ class IndexID {
 
       // legacy workarounds
       if (keys.some(k => k.match(/::/))) {
-        this._log.warn(`Invalid fragment '::' detected. Using legacy fallback until corresponding PR is deployed: https://github.com/cpprefjp/site_generator/pull/39`, keys, json)
+        this._log.warn("Invalid fragment '::' detected. Using legacy fallback until corresponding PR is deployed: https://github.com/cpprefjp/site_generator/pull/39", keys, json)
         let newKey = []
         for (const k of keys) {
           if (k.match(/::/)) {
@@ -68,7 +68,7 @@ class IndexID {
       }
 
       if (this._keys[this._keys.length - 1].includes(k)) {
-        this._keys[this._keys.length - 1] = this._keys[this._keys.length - 1].replace(k, `${v.to}`)
+        this._keys[this._keys.length - 1] = this._keys[this._keys.length - 1].replace(k, v.to)
 
         if (v.type) {
           this._type = v.type
@@ -91,7 +91,7 @@ class IndexID {
 
   join() {
     if (IndexID.isClassy(this._type)) {
-      return `${this._keys.join('::')}`
+      return this._keys.join('::')
     } else {
       if (this._type === IType.header) {
         return `<${this._keys.join()}>`
