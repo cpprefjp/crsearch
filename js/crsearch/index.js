@@ -46,14 +46,14 @@ class Index {
   }
 
   async join_html(opts = DOM.defaultOptions) {
-    let container = $('<div>', {'data-index-type': this._id.type}).addClass('cr-index')
+    const container = $('<div>', {'data-index-type': this._id.type}).addClass('cr-index')
     if (IndexID.isClassy(this._id.type)) {
       container.addClass('classy')
     }
 
     container.append($('<div>', {class: 'type'}))
 
-    let title = $('<div>', {class: 'title'}).appendTo(container)
+    const title = $('<div>', {class: 'title'}).appendTo(container)
     title.append(await this._id.join_html(opts))
 
     let attrs = []

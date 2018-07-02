@@ -15,10 +15,10 @@ class DOM {
   }
 
   static async makeBadges(attrs, opts = DOM.defaultOptions) {
-    let ul = $('<ul>').addClass('badges').addClass([].concat(opts.badges.switches).join(' '))
+    const ul = $('<ul>').addClass('badges').addClass([].concat(opts.badges.switches).join(' '))
     for (const attr of attrs) {
-      let li = $('<li>', {'data-original-attr': attr}).addClass('badge').appendTo(ul)
-      let target = $('<a>').append($('<i/>')).appendTo(li)
+      const li = $('<li>', {'data-original-attr': attr}).addClass('badge').appendTo(ul)
+      const target = $('<a>').append($('<i/>')).appendTo(li)
 
       const cppm = attr.match(/cpp(\d+)/)
       if (cppm) {

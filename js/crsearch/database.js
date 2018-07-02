@@ -82,7 +82,7 @@ class Database {
         this._topNamespaces.set(ns.namespace[0], ns)
       }
 
-      for (let [id, idx] of ns.indexes) {
+      for (const [id, idx] of ns.indexes) {
         this._resolveRelatedTo(ns, idx)
 
         if (!idx.is_fake) {
@@ -96,7 +96,7 @@ class Database {
           this._autoInit(idx.in_header, idx)
 
         } else if (idx.id.type === IType.mem_fun) {
-          let class_keys = [].concat(idx.id.keys)
+          const class_keys = [].concat(idx.id.keys)
           class_keys.shift()
           class_keys.pop()
           const rvid = IndexID.composeReverseID(IType.class, class_keys)
@@ -142,7 +142,7 @@ class Database {
   _resolveRelatedTo(ns, idx) {
     if (!idx.related_to) return null
 
-    let deref_related_to = new Set
+    const deref_related_to = new Set
 
     for (const rsid of idx.related_to) {
       const rid = this._ids[rsid]
@@ -158,8 +158,8 @@ class Database {
           }
 
           if (!found) {
-            let dns = this._default_ns.get(ns.namespace.join('/'))
-            let fake = new Index(this._log, dns.cpp_version, null, null, (idx) => { return this._make_url(dns.make_path(idx)) })
+            const dns = this._default_ns.get(ns.namespace.join('/'))
+            const fake = new Index(this._log, dns.cpp_version, null, null, (idx) => { return this._make_url(dns.make_path(idx)) })
             fake.is_fake = true
             fake.id = rid
             fake.id_cache = fake.id.keys.join()
@@ -202,7 +202,7 @@ class Database {
       // this._log.debug(`new: '${hkey}'`, hparam, cparam)
       this._all_headers.set(hkey.join(), {self: hparam, classes: new Map, others: new Set})
     }
-    let h = this._all_headers.get(hkey.join())
+    const h = this._all_headers.get(hkey.join())
 
     if (!cparam) return [h, null]
 
@@ -223,7 +223,7 @@ class Database {
         this._all_classes.get(ckey).self = cparam
       }
     }
-    let c = this._all_classes.get(ckey)
+    const c = this._all_classes.get(ckey)
 
     if (!h.classes.has(ckey)) {
       // this._log.debug(`'${ckey}' --> '${hkey}'`, hparam, cparam)
@@ -237,7 +237,7 @@ class Database {
     const runID = JSON.stringify({name: 'Database::getTree', timestamp: Date.now()})
     console.time(runID)
 
-    let toplevels = Array.from(this._topNamespaces).map(([name, ns]) => {
+    const toplevels = Array.from(this._topNamespaces).map(([name, ns]) => {
       return {
         category: kc.categories().get(ns.namespace[0]),
         namespace: ns,
@@ -289,7 +289,7 @@ class Database {
     for (const ar of this._all_articles) {
       toplevels[kc.categories().get(ar.ns.namespace[0]).index].articles.push(ar)
     }
-    for (let t of toplevels) {
+    for (const t of toplevels) {
       t.articles.sort((a, b) => {
         return a.id.join() < b.id.join() ? -1 : 1
       })
@@ -300,7 +300,7 @@ class Database {
   }
 
   query(q, found_count, max_count) {
-    let targets = []
+    const targets = []
 
     for (const ns of this._namespaces) {
       const res = ns.query(q, found_count, max_count, this._make_url.bind(this))

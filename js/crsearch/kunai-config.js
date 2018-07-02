@@ -124,7 +124,7 @@ class Config {
   static Prop = Prop
 
   static parseMD(md_raw, proc) {
-    let lexer = new Marked.Lexer(MarkedOpts)
+    const lexer = new Marked.Lexer(MarkedOpts)
 
     return proc.process(lexer.lex(md_raw).map(e => {
       return new Map(Object.entries(e))

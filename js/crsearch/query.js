@@ -21,7 +21,7 @@ class Query {
       }).reduce((a, b) => a.concat(b)).filter(Boolean)
     }
 
-    let real_frags = []
+    const real_frags = []
     for (const fr of this._frags) {
       const kv = fr.split(/:/)
       if (kv[0] === 'type') {

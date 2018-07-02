@@ -159,7 +159,7 @@ class CRSearch {
     }
 
     for (const e of box.find('.results .result')) {
-      let link = $(e).children('a')
+      const link = $(e).children('a')
       if (parseInt($(e).attr('data-result-id')) === this._selectIndex) {
         link.addClass('focus')
         link.focus()
@@ -184,11 +184,11 @@ class CRSearch {
     const q = new Query(this._log, this._last_input[e.data.id])
     // this._log.debug(`query: '${q.original_text}'`, q)
 
-    let result_list = this._clear_results_for(e.target)
-    let extra_info_for = {}
+    const result_list = this._clear_results_for(e.target)
+    const extra_info_for = {}
 
     // do the lookup per database
-    let res = new Map
+    const res = new Map
 
     for (const [name, db] of this._db) {
       const ret = db.query(q, 0, CRSearch._MAX_RESULT)
@@ -196,8 +196,8 @@ class CRSearch {
 
       res.set(db.name, ret.targets)
       if (res.get(db.name).length == 0) {
-        let msg = $(`<div class="message"><span class="pre">No matches for</span></div>`)
-        let rec_q = $('<span class="query" />')
+        const msg = $(`<div class="message"><span class="pre">No matches for</span></div>`)
+        const rec_q = $('<span class="query" />')
         rec_q.text(q.original_text)
         rec_q.appendTo(msg)
 
@@ -230,7 +230,7 @@ class CRSearch {
         result_list.append(await this._make_result_header(in_header))
 
         for (const t of the_targets) {
-          let e = await this._make_result(
+          const e = await this._make_result(
             t.index.type(),
             t.index,
             t.path
@@ -244,7 +244,7 @@ class CRSearch {
 
     for (const [name, db] of this._db) {
       // always include fallback
-      let e = await this._make_result(null, q.original_text, {
+      const e = await this._make_result(null, q.original_text, {
         name: db.name,
         url: db.base_url.host,
       })
@@ -259,10 +259,10 @@ class CRSearch {
   }
 
   _make_site_header(db_name, extra_info) {
-    let elem = $('<li class="result cr-meta-result cr-result-header" />')
+    const elem = $('<li class="result cr-meta-result cr-result-header" />')
 
     if (extra_info.html) {
-      let extra = $(`<div class="extra" />`)
+      const extra = $(`<div class="extra" />`)
 
       if (extra_info.klass) {
         extra.addClass(extra_info.klass)
@@ -271,7 +271,7 @@ class CRSearch {
       extra.appendTo(elem)
     }
 
-    let dbn = $(`<a class="db-name" />`)
+    const dbn = $(`<a class="db-name" />`)
     dbn.attr('href', extra_info.url)
     dbn.attr('target', '_blank')
     dbn.text(db_name)
@@ -280,15 +280,15 @@ class CRSearch {
   }
 
   _make_google_url(q, site) {
-    let url = this._opts.google_url
+    const url = this._opts.google_url
     url.set('query', {q: `${q} site:${site}`})
     return url
   }
 
   async _make_result_header(header) {
-    let elem = $('<li class="result cr-meta-result in-header" />')
+    const elem = $('<li class="result cr-meta-result in-header" />')
 
-    let body = $('<a>')
+    const body = $('<a>')
     if (header) {
       if (this._opts.force_new_window) {
         body.attr('target', '_blank')
@@ -301,11 +301,11 @@ class CRSearch {
   }
 
   async _make_result(t, target, extra = null) {
-    let elem = CRSearch._RESULT_PROTO.clone()
+    const elem = CRSearch._RESULT_PROTO.clone()
 
-    let a = elem.children('a')
-    let content = $('<div class="content" />').appendTo(a)
-    let url = null
+    const a = elem.children('a')
+    const content = $('<div class="content" />').appendTo(a)
+    const url = null
 
     switch (t) {
     case null: {
@@ -335,7 +335,7 @@ class CRSearch {
   }
 
   async searchbox(sel) {
-    let box = $(sel).addClass('loading').append($('<div>', {class: 'loading-icon'}))
+    const box = $(sel).addClass('loading').append($('<div>', {class: 'loading-icon'}))
     if (!this._loaded) {
       await this._load()
     }
@@ -356,10 +356,10 @@ class CRSearch {
 
     this._last_input[id] = ''
 
-    let control = $('<div class="control" />')
+    const control = $('<div class="control" />')
     control.appendTo(box)
 
-    let input = $('<input type="text" />')
+    const input = $('<input type="text" />')
     input.addClass('input')
     input.addClass('mousetrap')
     input.attr('autocomplete', false)
@@ -439,20 +439,20 @@ class CRSearch {
       return this._hide_all_result()
     }.bind(this))
 
-    let result_wrapper = $('<div />')
+    const result_wrapper = $('<div />')
     result_wrapper.addClass(CRSearch._RESULT_WRAPPER_KLASS)
     result_wrapper.addClass('help')
     result_wrapper.appendTo(box)
 
-    let results = $('<ul />')
+    const results = $('<ul />')
     results.addClass(CRSearch._RESULTS_KLASS)
     results.appendTo(result_wrapper)
 
-    let help_content = $(CRSearch._HELP)
+    const help_content = $(CRSearch._HELP)
     help_content.appendTo(result_wrapper)
 
-    let cr_info = $('<div class="crsearch-info" />')
-    let cr_info_link = $('<a />')
+    const cr_info = $('<div class="crsearch-info" />')
+    const cr_info_link = $('<a />')
     cr_info_link.attr('href', CRSearch._HOMEPAGE)
     cr_info_link.attr('target', '_blank')
     cr_info_link.text(`${CRSearch._APPNAME} v${CRS_PACKAGE.version}`)
@@ -504,13 +504,13 @@ class CRSearch {
   }
 
   _clear_results_for(input) {
-    let res = this._find_results_for(input)
+    const res = this._find_results_for(input)
     res.empty()
     return res
   }
 
   _hide_all_result() {
-    let res = $(`.${CRSearch._KLASS} .${CRSearch._RESULT_WRAPPER_KLASS}`)
+    const res = $(`.${CRSearch._KLASS} .${CRSearch._RESULT_WRAPPER_KLASS}`)
     res.removeClass('visible')
     return false
   }

@@ -55,7 +55,7 @@ class Namespace {
   }
 
   _partitionIndex(f) {
-    let ret = [new Set, new Set]
+    const ret = [new Set, new Set]
     for (const [id, idx] of this._indexes) {
       if (f(idx)) {
         ret[0].add(idx)
@@ -67,9 +67,9 @@ class Namespace {
   }
 
   query(q, found_count, max_count, path_composer) {
-    let targets = []
+    const targets = []
 
-    for (let [id, idx] of this._indexes) {
+    for (const [id, idx] of this._indexes) {
       if (q.filters.size && !Array.from(q.filters).some((f) => { return idx.id.type === f })) continue
 
       if (

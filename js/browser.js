@@ -10,7 +10,7 @@ import {Logger} from 'nagato'
 document.addEventListener('DOMContentLoaded', () => {
   const log = new Logger(['CRSearch', 'Test'])
 
-  let crs = new CRSearch({
+  const crs = new CRSearch({
     onDatabase: (db) => {
       const kc = new KC.Config({
         'article.md': KC_Article,

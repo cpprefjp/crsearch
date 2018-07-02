@@ -15,7 +15,7 @@ class IndexID {
   }
 
   toReverseID() {
-    let k = [].concat(this._keys)
+    const k = [].concat(this._keys)
     if (IndexID.isClassy(this._type)) {
       k.shift()
       return IndexID.composeReverseID(this._type, k)
