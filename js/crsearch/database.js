@@ -186,15 +186,7 @@ class Database {
 
     if (!cparam) return [h, null]
 
-
-    // -------------------------------------------------------------
-    // LEGACY WORKAROUND
-    // https://github.com/cpprefjp/site_generator/issues/42
-
-    // const ckey = cparam.id
-    const ckey = this._reverseID.get(cparam.id.toReverseID())
-    // -------------------------------------------------------------
-
+    const ckey = cparam.id
     if (!this._all_classes.has(ckey)) {
       // this._log.debug(`new: '${ckey}'`, hparam, cparam)
       this._all_classes.set(ckey, {self: cparam, members: new Set})
