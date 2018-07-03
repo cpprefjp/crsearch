@@ -5,27 +5,27 @@ import {DOM} from './dom'
 
 
 class Index {
-  constructor(log, cpp_version, id, json, make_url) {
+  constructor(log, cpp_version, id, json, make_url, ns) {
     this._log = log.makeContext('Index')
     this._in_header = null
     this._make_url = make_url
-    this._ns = null
-    this._is_fake = false
-
-    if (!id) {
-      // this._log.debug('fake Index created')
-      return
-    }
-
+    this._ns = ns
     this._id = id
-    this._page_id = json.page_id
-    this._related_to = json.related_to
-    this._nojump = !!json.nojump
-    this._attributes = json.attributes
     this._cpp_version = cpp_version
 
     // cache
     this._id_cache = this.join()
+
+    if (json) {
+      this._is_fake = false
+      this._page_id = json.page_id
+      this._related_to = json.related_to
+      this._nojump = !!json.nojump
+      this._attributes = json.attributes
+    } else {
+      // this._log.debug('fake Index created')
+      this._is_fake = true
+    }
   }
 
   isRootArticle() {
@@ -94,24 +94,12 @@ class Index {
     return this._ns
   }
 
-  set ns(ns) {
-    this._ns = ns
-  }
-
   get is_fake() {
     return this._is_fake
   }
 
-  set is_fake(is_fake) {
-    this._is_fake = is_fake
-  }
-
   get id() {
     return this._id
-  }
-
-  set id(id) {
-    this._id = id
   }
 
   get page_id() {
@@ -128,14 +116,6 @@ class Index {
 
   get cpp_version() {
     return this._cpp_version
-  }
-
-  get id_cache() {
-    return this._id_cache
-  }
-
-  set id_cache(id_cache) {
-    this._id_cache = id_cache
   }
 }
 

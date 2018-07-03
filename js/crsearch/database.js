@@ -140,12 +140,9 @@ class Database {
 
           if (!found) {
             const dns = this._default_ns.get(ns.namespace.join('/'))
-            const fake = new Index(this._log, dns.cpp_version, null, null, idx => this._make_url(dns.make_path(idx)))
-            fake.is_fake = true
-            fake.id = rid
-            fake.id_cache = fake.id.keys.join()
+            const fake = new Index(this._log, dns.cpp_version, rid, null, idx => this._make_url(dns.make_path(idx)), dns)
 
-            if (fake.id_cache === 'header_name') {
+            if (fake.join() === '<header_name>') {
               // shit
               continue
             }
