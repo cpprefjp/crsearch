@@ -33,34 +33,27 @@ class IndexID {
     this._log = log.makeContext('IndexID')
     this._type = json.type
 
-    let keys = json.key
-
-
-    if (IndexID.isClassy(this._type)) {
-      const ns = json.cpp_namespace || ['std']
-
-      keys = ns.concat(keys)
-    }
-    this._keys = keys.map(k => k.normalize('NFKC'))
-
+    const keys = json.key.map(k => k.normalize('NFKC'))
     for (const [k, v] of IndexID.VERBATIM_TRS) {
       if (v.only && !v.only.includes(this._type)) {
         continue
       }
 
-      const last = this._keys[this._keys.length - 1]
+      const last = keys[keys.length - 1]
       if (last.includes(k)) {
-        this._keys[this._keys.length - 1] = last.replace(k, v.to)
+        keys[keys.length - 1] = last.replace(k, v.to)
 
         if (v.type) {
           this._type = v.type
-
-          if ([IType.class, IType.mem_fun].includes(this._type) && this._keys[0] !== 'std') {
-            this._keys.unshift('std')
-          }
         }
       }
     }
+
+    if (IndexID.isClassy(this._type)) {
+      const ns = json.cpp_namespace || ['std']
+      keys.unshift(...ns)
+    }
+    this._keys = keys
 
     this._name = this._generateName()
 
