@@ -229,7 +229,7 @@ class CRSearch {
 
         for (const t of the_targets) {
           const e = await this._make_result(
-            t.index.type(),
+            t.index.type,
             t.index,
             t.path
           )

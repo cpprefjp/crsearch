@@ -172,7 +172,7 @@ class Config {
     if (!idx.page_id || !idx.page_id.length) {
       throw [1]
     }
-    if (idx.type() === IType.header) {
+    if (idx.type === IType.header) {
       throw [2]
     }
 

@@ -70,13 +70,13 @@ class Database {
           this._all_fullpath_pages.set(idx.ns.namespace.concat(idx.page_id).join('/'), idx)
         }
 
-        if (idx.id.type === IType.header) {
+        if (idx.type === IType.header) {
           this._autoInit(idx, null)
 
-        } else if (idx.id.type === IType.class) {
+        } else if (idx.type === IType.class) {
           this._autoInit(idx.in_header, idx)
 
-        } else if (idx.id.type === IType.mem_fun) {
+        } else if (idx.type === IType.mem_fun) {
           const class_keys = [].concat(idx.id.keys)
           class_keys.shift()
           class_keys.pop()
@@ -96,7 +96,7 @@ class Database {
 
           this._all_classes.get(cand).members.add(idx)
 
-        } else if ([IType.article, IType.meta].includes(idx.id.type)) {
+        } else if ([IType.article, IType.meta].includes(idx.type)) {
           if (idx.isRootArticle()) {
             this._root_articles.set(
               idx.ns,
@@ -242,9 +242,9 @@ class Database {
         })).sort((a, b) => a.self.name < b.self.name ? -1 : 1),
 
         others: Array.from(h.others).sort((a, b) => {
-          if (a.id.type < b.id.type) {
+          if (a.type < b.type) {
             return -1
-          } else if (a.id.type > b.id.type) {
+          } else if (a.type > b.type) {
             return 1
           } else {
             return a.name < b.name ? -1 : 1

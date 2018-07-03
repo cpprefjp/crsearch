@@ -31,7 +31,7 @@ class Namespace {
     const targets = []
 
     for (const idx of this._indexes.values()) {
-      if (q.filters.size && !Array.from(q.filters).some(f => idx.id.type === f)) continue
+      if (q.filters.size && !Array.from(q.filters).some(f => idx.type === f)) continue
 
       if (
         Array.from(q.frags.and).every(q => idx.ambgMatch(q)) &&

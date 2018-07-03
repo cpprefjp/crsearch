@@ -33,10 +33,6 @@ class Index {
     return this._page_id.length === 0 /* && [IType.meta, IType.article].includes(this._id.type) */
   }
 
-  type() {
-    return this._id.type
-  }
-
   async join_html(opts = DOM.defaultOptions) {
     const container = $('<div>', {'data-index-type': this._id.type}).addClass('cr-index')
     if (IndexID.isClassy(this._id.type)) {
@@ -72,7 +68,7 @@ class Index {
   }
 
   ambgMatch(q) {
-    if ([IType.article, IType.meta].includes(this.id.type)) {
+    if ([IType.article, IType.meta].includes(this._id.type)) {
       return this._name.toLowerCase().includes(q.toLowerCase())
     }
 
@@ -121,6 +117,10 @@ class Index {
 
   get name() {
     return this._name
+  }
+
+  get type() {
+    return this._id.type
   }
 
   get path() {
