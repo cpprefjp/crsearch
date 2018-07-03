@@ -14,9 +14,7 @@ class Database {
     this._log = log.makeContext('Database')
     this._name = json.database_name
     this._base_url = new URL(json.base_url)
-    this._namespaces = []
-    this._default_ns = new Map
-    this._topNamespaces = new Map
+    this._path_ns_map = new Map
     this._ids = []
     this._reverseID = new Map
 
@@ -44,25 +42,19 @@ class Database {
 
     this._log.debug('[P1] initializing all Namespace...')
     for (const j_ns of json.namespaces) {
-      const ns = new Namespace(this._log, j_ns, this._ids, path => this._make_url(path))
-      this._log.debug(`got Namespace: '${ns.pretty_name()}'`, ns)
-      this._namespaces.push(ns)
-
-      // set namespace w/ no cpp_version as default fallback
-
-      if (!ns.cpp_version) {
-        this._log.debug(`setting default namespace version for '${ns.namespace.join('/')}'`, ns.pretty_name())
-        this._default_ns.set(ns.namespace.join('/'), ns)
+      const path = j_ns.namespace.join('/')
+      let ns = this._path_ns_map.get(path)
+      if (ns) {
+        ns.merge(j_ns, this._ids)
+      } else {
+        ns = new Namespace(this._log, j_ns, this._ids, path => this._make_url(path))
+        this._path_ns_map.set(path, ns)
       }
     }
 
 
     this._log.info('[P2] generating reverse maps...')
-    for (const ns of this._namespaces) {
-      if (ns.namespace.length <= 1) {
-        this._topNamespaces.set(ns.namespace[0], ns)
-      }
-
+    for (const ns of this._path_ns_map.values()) {
       for (const idx of ns.indexes.values()) {
         this._resolveRelatedTo(ns, idx)
 
@@ -133,33 +125,20 @@ class Database {
       if (rid.type === IType.header) {
         let found = ns.indexes.get(rid)
         if (!found) {
-          for (const in_ns of this._namespaces) {
-            if (in_ns.indexes.has(rid)) {
-              found = in_ns.indexes.get(rid)
-              break
-            }
+          const fake = ns.createIndex(idx.cpp_version, rid, null, [])
+
+          if (fake.name === '<header_name>') {
+            // shit
+            continue
           }
 
-          if (!found) {
-            const dns = this._default_ns.get(ns.namespace.join('/'))
-            const fake = dns.createIndex(idx.cpp_version, rid, null)
+          // this._log.debug('fake', fake, fake.url())
+          found = fake
 
-            if (fake.name === '<header_name>') {
-              // shit
-              continue
-            }
+          this._log.warn(`no namespace has this index; fake indexing '${fake.name}' --> '${idx.name}'`, 'namespace:', ns.pretty_name(), '\nfake index:', fake, '\nself:', idx.name)
 
-            // this._log.debug('fake', fake, fake.url())
-            found = fake
-
-            this._log.warn(`no namespace has this index; fake indexing '${fake.name}' --> '${idx.name}'`, 'default namespace:', dns.pretty_name(), '\nfake index:', fake, '\nself:', idx.name)
-
-            fake.in_header = fake
-            this._autoInit(fake, null)
-          }
-
-        } else {
-          // this._log.warn(`related_to entity ${rid.name} not found in this namespace '${ns.pretty_name()}', falling back to default`, 'default:', rid.name)
+          fake.in_header = fake
+          this._autoInit(fake, null)
         }
 
         idx.in_header = found
@@ -208,12 +187,10 @@ class Database {
     const runID = JSON.stringify({name: 'Database::getTree', timestamp: Date.now()})
     console.time(runID)
 
-    const toplevels = Array.from(this._topNamespaces).map(([name, ns]) => ({
+    const toplevels = Array.from(this._path_ns_map).map(([name, ns]) => ({
       category: kc.categories().get(ns.namespace[0]),
       namespace: ns,
-      root: this._root_articles.get(
-        this._default_ns.get(ns.namespace.join('/'))
-      ),
+      root: this._root_articles.get(ns),
       articles: [],
       headers: [],
     })).sort((a, b) =>
@@ -271,7 +248,7 @@ class Database {
   query(q, found_count, max_count) {
     const targets = []
 
-    for (const ns of this._namespaces) {
+    for (const ns of this._path_ns_map.values()) {
       const res = ns.query(q, found_count, max_count)
       if (res.targets.length == 0) {
         continue

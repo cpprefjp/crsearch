@@ -6,25 +6,30 @@ class Namespace {
     this._log = log.makeContext('Namespace')
     this._indexes = new Map
     this._namespace = json.namespace
-    this._cpp_version = json.cpp_version || null
     this._make_url = idx => make_url(this._make_path(idx))
+    this._path_prefixes = this._namespace.join('/')
 
-
-    if (json.path_prefixes) {
-      this._path_prefixes = json.path_prefixes.join('/')
-    } else {
-      this._path_prefixes = this._namespace.join('/')
-    }
-
-    for (const idx of json.indexes) {
-      this.createIndex(this._cpp_version, ids[idx.id], idx)
-    }
 
     Object.freeze(this)
+
+    this.merge(json, ids)
   }
 
-  createIndex(cpp_version, iid, j_idx) {
-    const idx = new Index(this._log, cpp_version, iid, j_idx, this._make_url, this)
+  merge(json, ids) {
+    const cpp_version = json.cpp_version || null
+    const extra_path = this._extraPath(json.path_prefixes || this._namespace)
+
+    for (const idx of json.indexes) {
+      this.createIndex(cpp_version, ids[idx.id], idx, extra_path)
+    }
+  }
+
+  _extraPath(path_prefixes) {
+    return path_prefixes.slice(this._namespace.length)
+  }
+
+  createIndex(cpp_version, iid, j_idx, extra_path) {
+    const idx = new Index(this._log, cpp_version, iid, j_idx, extra_path, this._make_url, this)
     this._indexes.set(idx.id, idx)
     return idx
   }
@@ -55,16 +60,8 @@ class Namespace {
     }
   }
 
-  _pretty_version() {
-    if (this._cpp_version) {
-      return `C++${this._cpp_version}`
-    } else {
-      return '(no version)'
-    }
-  }
-
-  pretty_name(include_version = true) {
-    return `${this._namespace.join(' \u226B')}${include_version ? `[${this._pretty_version()}]` : ''}`
+  pretty_name() {
+    return this._namespace.join(' \u226B')
   }
 
   get indexes() {
@@ -73,10 +70,6 @@ class Namespace {
 
   get namespace() {
     return this._namespace
-  }
-
-  get cpp_version() {
-    return this._cpp_version
   }
 }
 

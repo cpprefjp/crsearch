@@ -5,7 +5,7 @@ import {DOM} from './dom'
 
 
 class Index {
-  constructor(log, cpp_version, id, json, make_url, ns) {
+  constructor(log, cpp_version, id, json, extra_path, make_url, ns) {
     this._log = log.makeContext('Index')
     this._in_header = null
     this._make_url = make_url
@@ -18,7 +18,7 @@ class Index {
 
     if (json) {
       this._is_fake = false
-      this._page_id = json.page_id.filter(s => s.length !== 0)
+      this._page_id = extra_path.concat(json.page_id.filter(s => s.length !== 0))
       this._related_to = json.related_to
       this._nojump = !!json.nojump
       this._attributes = json.attributes
