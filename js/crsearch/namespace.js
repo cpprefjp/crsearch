@@ -31,13 +31,7 @@ class Namespace {
     const targets = []
 
     for (const idx of this._indexes.values()) {
-      if (q.filters.size && !Array.from(q.filters).some(f => idx.type === f)) continue
-
-      if (
-        Array.from(q.frags.and).every(q => idx.ambgMatch(q)) &&
-        !Array.from(q.frags.not).some(q => idx.ambgMatch(q))
-
-      ) {
+      if (q.match(idx)) {
         ++found_count
 
         if (found_count > max_count) {

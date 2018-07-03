@@ -67,16 +67,14 @@ class Query {
     // this._log.debug(`parsed query ${this._original_text}`, this._frags, this._filters)
   }
 
+  match(idx) {
+    return (this._filters.size === 0 || this._filters.has(idx.type)) &&
+           Array.from(this._frags.and).every(s => idx.ambgMatch(s)) &&
+           !Array.from(this._frags.not).some(s => idx.ambgMatch(s))
+  }
+
   get original_text() {
     return this._original_text
-  }
-
-  get frags() {
-    return this._frags
-  }
-
-  get filters() {
-    return this._filters
   }
 } // Query
 
