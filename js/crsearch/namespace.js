@@ -34,8 +34,8 @@ class Namespace {
       if (q.filters.size && !Array.from(q.filters).some(f => idx.id.type === f)) continue
 
       if (
-        Array.from(q.frags.and).every(q => Index.ambgMatch(idx, q)) &&
-        !Array.from(q.frags.not).some(q => Index.ambgMatch(idx, q))
+        Array.from(q.frags.and).every(q => idx.ambgMatch(q)) &&
+        !Array.from(q.frags.not).some(q => idx.ambgMatch(q))
 
       ) {
         ++found_count

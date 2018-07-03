@@ -71,12 +71,12 @@ class Index {
     return `Index(${this.join()})`
   }
 
-  static ambgMatch(idx, q) {
-    if ([IType.article, IType.meta].includes(idx.id.type)) {
-      return idx._id_cache.toLowerCase().includes(q.toLowerCase())
+  ambgMatch(q) {
+    if ([IType.article, IType.meta].includes(this.id.type)) {
+      return this._id_cache.toLowerCase().includes(q.toLowerCase())
     }
 
-    return idx._id_cache.includes(q)
+    return this._id_cache.includes(q)
   }
 
   get in_header() {
