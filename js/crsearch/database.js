@@ -273,7 +273,7 @@ class Database {
     const targets = []
 
     for (const ns of this._namespaces) {
-      const res = ns.query(q, found_count, max_count, this._make_url.bind(this))
+      const res = ns.query(q, found_count, max_count)
       if (res.targets.length == 0) {
         continue
       }

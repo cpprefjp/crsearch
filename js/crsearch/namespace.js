@@ -25,7 +25,7 @@ class Namespace {
     }
   }
 
-  query(q, found_count, max_count, path_composer) {
+  query(q, found_count, max_count) {
     const targets = []
 
     for (const idx of this._indexes.values()) {
@@ -41,7 +41,7 @@ class Namespace {
         if (found_count > max_count) {
           return {targets: targets, found_count: found_count}
         }
-        targets.push({path: path_composer(this.make_path(idx)), index: idx})
+        targets.push({path: idx.url(), index: idx})
       }
     }
 
