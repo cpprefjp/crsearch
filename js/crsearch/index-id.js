@@ -61,13 +61,11 @@ class IndexID {
         }
       }
     }
+
+    this._name = this._generateName()
   }
 
-  toString() {
-    return `IndexID(${this.join()})`
-  }
-
-  join() {
+  _generateName() {
     if (IndexID.isClassy(this._type)) {
       return this._keys.join('::')
     } else if (this._type === IType.header) {
@@ -75,6 +73,14 @@ class IndexID {
     } else {
       return this._keys.join()
     }
+  }
+
+  toString() {
+    return `IndexID(${this._name})`
+  }
+
+  join() {
+    return this._name
   }
 
   async join_html() {
@@ -89,6 +95,10 @@ class IndexID {
 
   get keys() {
     return this._keys
+  }
+
+  get name() {
+    return this._name
   }
 }
 

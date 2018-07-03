@@ -84,7 +84,7 @@ class Database {
           const cand = this._reverseID.get(rvid)
 
           if (!cand) {
-            this._log.error(`[BUG] class candidate for member '${idx.id.join()}' not found (rvid: ${rvid})`, idx)
+            this._log.error(`[BUG] class candidate for member '${idx.name}' not found (rvid: ${rvid})`, idx)
             continue
           }
 
@@ -111,7 +111,7 @@ class Database {
             throw new Error(`[BUG] got an 'other' type, but in_header was not detected (idx: ${idx})`)
           }
           this._autoInit(idx.in_header, null)
-          this._all_headers.get(idx.in_header.id.join()).others.add(idx)
+          this._all_headers.get(idx.in_header.name).others.add(idx)
         }
       } // for ns.indexes
     }
@@ -142,7 +142,7 @@ class Database {
             const dns = this._default_ns.get(ns.namespace.join('/'))
             const fake = dns.createIndex(idx.cpp_version, rid, null)
 
-            if (fake.join() === '<header_name>') {
+            if (fake.name === '<header_name>') {
               // shit
               continue
             }
@@ -150,14 +150,14 @@ class Database {
             // this._log.debug('fake', fake, fake.url())
             found = fake
 
-            this._log.warn(`no namespace has this index; fake indexing '${fake.id.join()}' --> '${idx.id.join()}'`, 'default namespace:', dns.pretty_name(), '\nfake index:', fake, '\nself:', idx.id.join())
+            this._log.warn(`no namespace has this index; fake indexing '${fake.name}' --> '${idx.name}'`, 'default namespace:', dns.pretty_name(), '\nfake index:', fake, '\nself:', idx.name)
 
             fake.in_header = fake
             this._autoInit(fake, null)
           }
 
         } else {
-          // this._log.warn(`related_to entity ${rid.join()} not found in this namespace '${ns.pretty_name()}', falling back to default`, 'default:', rid.join())
+          // this._log.warn(`related_to entity ${rid.name} not found in this namespace '${ns.pretty_name()}', falling back to default`, 'default:', rid.name)
         }
 
         idx.in_header = found
@@ -175,11 +175,11 @@ class Database {
     }
 
     const hkey = hparam.id
-    if (!this._all_headers.has(hkey.join())) {
+    if (!this._all_headers.has(hkey.name)) {
       // this._log.debug(`new: '${hkey}'`, hparam, cparam)
-      this._all_headers.set(hkey.join(), {self: hparam, classes: new Map, others: new Set})
+      this._all_headers.set(hkey.name, {self: hparam, classes: new Map, others: new Set})
     }
-    const h = this._all_headers.get(hkey.join())
+    const h = this._all_headers.get(hkey.name)
 
     if (!cparam) return [h, null]
 
@@ -239,7 +239,7 @@ class Database {
               return a.name < b.name ? -1 : 1
             }
           })
-        })).sort((a, b) => a.self.id.join() < b.self.id.join() ? -1 : 1),
+        })).sort((a, b) => a.self.name < b.self.name ? -1 : 1),
 
         others: Array.from(h.others).sort((a, b) => {
           if (a.id.type < b.id.type) {
@@ -247,18 +247,18 @@ class Database {
           } else if (a.id.type > b.id.type) {
             return 1
           } else {
-            return a.id.join() < b.id.join() ? -1 : 1
+            return a.name < b.name ? -1 : 1
           }
         }),
 
-      })).sort((a, b) => a.self.id.join() < b.self.id.join() ? -1 : 1)
+      })).sort((a, b) => a.self.name < b.self.name ? -1 : 1)
 
     for (const ar of this._all_articles) {
       toplevels[kc.categories().get(ar.ns.namespace[0]).index].articles.push(ar)
     }
     for (const t of toplevels) {
       t.articles.sort((a, b) =>
-        a.id.join() < b.id.join() ? -1 : 1
+        a.name < b.name ? -1 : 1
       )
     }
 

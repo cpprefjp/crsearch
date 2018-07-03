@@ -293,7 +293,7 @@ class CRSearch {
       }
       body.attr('href', header.url())
     }
-    body.text(header ? header.join() : '(no header)')
+    body.text(header ? header.name : '(no header)')
     body.appendTo(elem)
     return elem
   }

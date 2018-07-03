@@ -14,7 +14,7 @@ class Index {
     this._cpp_version = cpp_version
 
     // cache
-    this._id_cache = this.join()
+    this._name = this._id.name
 
     if (json) {
       this._is_fake = false
@@ -64,19 +64,19 @@ class Index {
   }
 
   join() {
-    return this._id.join()
+    return this._name
   }
 
   toString() {
-    return `Index(${this.join()})`
+    return `Index(${this._name})`
   }
 
   ambgMatch(q) {
     if ([IType.article, IType.meta].includes(this.id.type)) {
-      return this._id_cache.toLowerCase().includes(q.toLowerCase())
+      return this._name.toLowerCase().includes(q.toLowerCase())
     }
 
-    return this._id_cache.includes(q)
+    return this._name.includes(q)
   }
 
   get in_header() {
@@ -117,6 +117,10 @@ class Index {
 
   get cpp_version() {
     return this._cpp_version
+  }
+
+  get name() {
+    return this._name
   }
 
   get path() {
