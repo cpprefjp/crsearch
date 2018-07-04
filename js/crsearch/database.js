@@ -20,7 +20,6 @@ class Database {
 
     // global map
     this._all_headers = new Map
-    this._all_classes = new WeakMap
     this._all_articles = new Set
     this._root_articles = new WeakMap
     this._all_fullpath_pages = new Map
@@ -55,10 +54,10 @@ class Database {
         this._all_fullpath_pages.set(idx.ns.namespace.concat(idx.page_id).join('/'), idx)
 
         if (idx.type === IType.header) {
-          this._autoInit(idx, null)
+          this._initHeader(idx)
 
         } else if ([IType.class, IType.namespace].includes(idx.type)) {
-          this._autoInit(idx.in_header, idx)
+          this._initClass(idx)
 
         } else if ([IType.article, IType.meta].includes(idx.type)) {
           if (idx.isRootArticle()) {
@@ -68,28 +67,15 @@ class Database {
           }
 
         } else {
+          const h = this._all_headers.get(idx.in_header)
           const parentName = idx.id.parentName
           const cand = this._name_iid_map.get(parentName)
 
-          if (!cand) {
-            if (idx.type === IType.mem_fun) {
-              this._log.error(`[BUG] class candidate for member '${idx.name}' not found (rvid: ${rvid})`, idx)
-            } else {
-              if (!idx.in_header) {
-                throw new Error(`[BUG] got an 'other' type, but in_header was not detected (idx: ${idx})`)
-              }
-              this._autoInit(idx.in_header, null)
-              this._all_headers.get(idx.in_header.name).others.add(idx)
-            }
-            continue
+          if (cand) {
+            h.classes.get(cand).members.add(idx)
+          } else {
+            h.others.add(idx)
           }
-
-          if (!this._all_classes.has(cand)) {
-            this._log.warn(`parent class ${cand} not found in _all_classes ${idx}`)
-            this._all_classes.set(cand, {self: null, members: new Set})
-          }
-
-          this._all_classes.get(cand).members.add(idx)
         }
       } // for ns.indexes
     }
@@ -126,7 +112,7 @@ class Database {
           this._log.warn(`no namespace has this index; fake indexing '${fake.name}' --> '${idx.name}'`, 'namespace:', ns.pretty_name(), '\nfake index:', fake, '\nself:', idx.name)
 
           fake.in_header = fake
-          this._autoInit(fake, null)
+          this._initHeader(fake)
         } else {
           found = indexes[0]
         }
@@ -137,39 +123,19 @@ class Database {
     } // deref related_to loop
 
     idx.related_to = deref_related_to
-    return idx.related_to
   }
 
-  _autoInit(hparam, cparam) {
-    if (!hparam) {
-      throw new Error(`hparam is not supplied ('${hparam}', '${cparam}')`)
-    }
+  _initHeader(hdr) {
+    const h = {classes: new Map, others: new Set}
+    this._all_headers.set(hdr, h)
+  }
 
-    const hkey = hparam.id
-    if (!this._all_headers.has(hkey.name)) {
-      // this._log.debug(`new: '${hkey}'`, hparam, cparam)
-      this._all_headers.set(hkey.name, {self: hparam, classes: new Map, others: new Set})
-    }
-    const h = this._all_headers.get(hkey.name)
-
-    if (!cparam) return [h, null]
-
-    const ckey = cparam.id
-    if (!this._all_classes.has(ckey)) {
-      // this._log.debug(`new: '${ckey}'`, hparam, cparam)
-      this._all_classes.set(ckey, {self: cparam, members: new Set})
-    } else {
-      if (!this._all_classes.get(ckey).self) {
-        this._all_classes.get(ckey).self = cparam
-      }
-    }
-    const c = this._all_classes.get(ckey)
-
-    if (!h.classes.has(ckey)) {
-      // this._log.debug(`'${ckey}' --> '${hkey}'`, hparam, cparam)
-      h.classes.set(ckey, c)
-    }
-    return [h, c]
+  _initClass(cls) {
+    const hdr = cls.in_header
+    const h = this._all_headers.get(hdr)
+    const ckey = cls.id
+    const c = {self: cls, members: new Set}
+    h.classes.set(ckey, c)
   }
 
 
@@ -189,8 +155,8 @@ class Database {
 
 
     toplevels[kc.categories().get('reference').index].headers =
-      Array.from(this._all_headers).map(([name, h]) => ({
-        self: h.self,
+      Array.from(this._all_headers).map(([hdr, h]) => ({
+        self: hdr,
 
         classes: Array.from(h.classes).map(([id, c]) => ({
           self: c.self,
