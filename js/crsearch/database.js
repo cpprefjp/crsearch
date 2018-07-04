@@ -143,7 +143,7 @@ class Database {
     const runID = JSON.stringify({name: 'Database::getTree', timestamp: Date.now()})
     console.time(runID)
 
-    const toplevels = Array.from(this._path_ns_map).map(([name, ns]) => ({
+    const toplevels = Array.from(this._path_ns_map.values(), ns => ({
       category: kc.categories().get(ns.namespace[0]),
       namespace: ns,
       root: this._root_articles.get(ns),
@@ -155,10 +155,10 @@ class Database {
 
 
     toplevels[kc.categories().get('reference').index].headers =
-      Array.from(this._all_headers).map(([hdr, h]) => ({
+      Array.from(this._all_headers, ([hdr, h]) => ({
         self: hdr,
 
-        classes: Array.from(h.classes).map(([id, c]) => ({
+        classes: Array.from(h.classes.values(), c => ({
           self: c.self,
           members: Array.from(c.members).sort((a_, b_) => {
             const a = kc.makeMemberData(a_)
