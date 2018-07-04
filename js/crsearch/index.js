@@ -17,18 +17,18 @@ class Index {
     this._name = this._id.name
 
     if (json) {
-      this._is_fake = false
       this._page_id = extra_path.concat(json.page_id.filter(s => s.length !== 0))
       this._related_to = json.related_to
       this._nojump = !!json.nojump
       this._attributes = json.attributes
     } else {
       // this._log.debug('fake Index created')
-      this._is_fake = true
       this._page_id = id.keys.slice(-1)
     }
 
     Object.seal(this)
+
+    id.add_index(this)
   }
 
   isRootArticle() {
@@ -91,10 +91,6 @@ class Index {
 
   get ns() {
     return this._ns
-  }
-
-  get is_fake() {
-    return this._is_fake
   }
 
   get id() {

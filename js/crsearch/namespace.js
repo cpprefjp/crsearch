@@ -19,8 +19,9 @@ class Namespace {
     const cpp_version = json.cpp_version || null
     const extra_path = this._extraPath(json.path_prefixes || this._namespace)
 
-    for (const idx of json.indexes) {
-      this.createIndex(cpp_version, ids[idx.id], idx, extra_path)
+    for (const j_idx of json.indexes) {
+      const idx = this.createIndex(cpp_version, ids[j_idx.id], j_idx, extra_path)
+      this._indexes.set(idx.path, idx)
     }
   }
 
@@ -29,9 +30,7 @@ class Namespace {
   }
 
   createIndex(cpp_version, iid, j_idx, extra_path) {
-    const idx = new Index(this._log, cpp_version, iid, j_idx, extra_path, this._make_url, this)
-    this._indexes.set(idx.id, idx)
-    return idx
+    return new Index(this._log, cpp_version, iid, j_idx, extra_path, this._make_url, this)
   }
 
   query(q, found_count, max_count) {

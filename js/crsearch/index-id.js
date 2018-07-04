@@ -32,6 +32,7 @@ class IndexID {
   constructor(log, json) {
     this._log = log.makeContext('IndexID')
     this._type = json.type
+    this._indexes = []
 
     const keys = json.key.map(k => k.normalize('NFKC'))
     for (const [k, v] of IndexID.VERBATIM_TRS) {
@@ -84,6 +85,10 @@ class IndexID {
     )
   }
 
+  add_index(idx) {
+    this._indexes.push(idx)
+  }
+
   get type() {
     return this._type
   }
@@ -94,6 +99,10 @@ class IndexID {
 
   get name() {
     return this._name
+  }
+
+  get indexes() {
+    return this._indexes
   }
 }
 

@@ -55,12 +55,11 @@ class Database {
 
     this._log.info('[P2] generating reverse maps...')
     for (const ns of this._path_ns_map.values()) {
-      for (const idx of ns.indexes.values()) {
+      for (const path of Array.from(ns.indexes.keys()).sort()) {
+        const idx = ns.indexes.get(path)
         this._resolveRelatedTo(ns, idx)
 
-        if (!idx.is_fake) {
-          this._all_fullpath_pages.set(idx.ns.namespace.concat(idx.page_id).join('/'), idx)
-        }
+        this._all_fullpath_pages.set(idx.ns.namespace.concat(idx.page_id).join('/'), idx)
 
         if (idx.type === IType.header) {
           this._autoInit(idx, null)
@@ -123,9 +122,11 @@ class Database {
       const rid = this._ids[rsid]
 
       if (rid.type === IType.header) {
-        let found = ns.indexes.get(rid)
-        if (!found) {
+        let found = null
+        const indexes = rid.indexes
+        if (indexes.length === 0) {
           const fake = ns.createIndex(idx.cpp_version, rid, null, [])
+          ns.indexes.set(fake.name, fake)
 
           if (fake.name === '<header_name>') {
             // shit
@@ -139,6 +140,8 @@ class Database {
 
           fake.in_header = fake
           this._autoInit(fake, null)
+        } else {
+          found = indexes[0]
         }
 
         idx.in_header = found
