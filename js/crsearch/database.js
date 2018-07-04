@@ -67,7 +67,7 @@ class Database {
         } else if (idx.type === IType.class) {
           this._autoInit(idx.in_header, idx)
 
-        } else if (idx.type === IType.mem_fun) {
+        } else if (IndexID.isClassy(idx.type)) {
           const class_keys = [].concat(idx.id.keys)
           class_keys.shift()
           class_keys.pop()
@@ -75,7 +75,15 @@ class Database {
           const cand = this._reverseID.get(rvid)
 
           if (!cand) {
-            this._log.error(`[BUG] class candidate for member '${idx.name}' not found (rvid: ${rvid})`, idx)
+            if (idx.type === IType.mem_fun) {
+              this._log.error(`[BUG] class candidate for member '${idx.name}' not found (rvid: ${rvid})`, idx)
+            } else {
+              if (!idx.in_header) {
+                throw new Error(`[BUG] got an 'other' type, but in_header was not detected (idx: ${idx})`)
+              }
+              this._autoInit(idx.in_header, null)
+              this._all_headers.get(idx.in_header.name).others.add(idx)
+            }
             continue
           }
 
