@@ -16,7 +16,7 @@ class Database {
     this._base_url = new URL(json.base_url)
     this._path_ns_map = new Map
     this._ids = []
-    this._reverseID = new Map
+    this._name_iid_map = new Map
 
     // global map
     this._all_headers = new Map
@@ -29,15 +29,8 @@ class Database {
     this._log.debug('[P1] initializing all IndexID...')
     for (const id of json.ids) {
       const iid = new IndexID(this._log, id)
-
-      const rvid = iid.toReverseID()
-      // this._log.debug(`rvid for '${iid}': '${rvid}'`, iid)
-      // if (rvid.match(/ios_base/)) {
-        // this._log.debug(`rvid '${rvid}'`, rvid, iid)
-      // }
-
       this._ids.push(iid)
-      this._reverseID.set(rvid, iid)
+      this._name_iid_map.set(iid.name, iid)
     }
 
     this._log.debug('[P1] initializing all Namespace...')
@@ -64,15 +57,12 @@ class Database {
         if (idx.type === IType.header) {
           this._autoInit(idx, null)
 
-        } else if (idx.type === IType.class) {
+        } else if ([IType.class, IType.namespace].includes(idx.type)) {
           this._autoInit(idx.in_header, idx)
 
         } else if (IndexID.isClassy(idx.type)) {
-          const class_keys = [].concat(idx.id.keys)
-          class_keys.shift()
-          class_keys.pop()
-          const rvid = IndexID.composeReverseID(IType.class, class_keys)
-          const cand = this._reverseID.get(rvid)
+          const parentName = idx.id.parentName
+          const cand = this._name_iid_map.get(parentName)
 
           if (!cand) {
             if (idx.type === IType.mem_fun) {

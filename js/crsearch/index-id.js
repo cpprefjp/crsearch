@@ -10,23 +10,8 @@ class IndexID {
     ['単項', {to: 'unary'}],
   ])
 
-  static composeReverseID(type, keys) {
-    return `<:RVID:>/${type}/${keys.join('<::>')}`
-  }
-
-  toReverseID() {
-    const k = [].concat(this._keys)
-    if (IndexID.isClassy(this._type)) {
-      k.shift()
-      return IndexID.composeReverseID(this._type, k)
-
-    } else {
-      return IndexID.composeReverseID(this._type, k)
-    }
-  }
-
   static isClassy(type) {
-    return [IType.class, IType.function, IType.mem_fun, IType.enum, IType.variable, IType.type_alias].includes(type)
+    return [IType.class, IType.function, IType.mem_fun, IType.enum, IType.variable, IType.type_alias, IType.namespace].includes(type)
   }
 
   constructor(log, json) {
@@ -99,6 +84,10 @@ class IndexID {
 
   get name() {
     return this._name
+  }
+
+  get parentName() {
+    return this._keys.slice(0, -1).join('::')
   }
 
   get indexes() {
