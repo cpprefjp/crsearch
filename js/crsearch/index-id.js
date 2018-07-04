@@ -5,7 +5,7 @@ class IndexID {
     ['コンストラクタ', {to: '(constructor)', only: [IType.mem_fun]}],
     ['デストラクタ', {to: '(destructor)', only: [IType.mem_fun]}],
     ['推論補助', {to: '(deduction guide)', only: [IType.header, IType.mem_fun], type: IType.mem_fun}],
-    ['初期化', {to: '(initialization)', only: [IType.header], type: IType.mem_fun}],
+    ['初期化', {to: '(initialization)', only: [IType.header, IType.mem_fun], type: IType.mem_fun}],
     ['非メンバ関数', {to: 'non-member function', type: IType.function}],
     ['単項', {to: 'unary'}],
   ])
