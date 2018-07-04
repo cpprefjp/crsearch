@@ -60,7 +60,14 @@ class Database {
         } else if ([IType.class, IType.namespace].includes(idx.type)) {
           this._autoInit(idx.in_header, idx)
 
-        } else if (IndexID.isClassy(idx.type)) {
+        } else if ([IType.article, IType.meta].includes(idx.type)) {
+          if (idx.isRootArticle()) {
+            this._root_articles.set(idx.ns, idx)
+          } else {
+            this._all_articles.add(idx)
+          }
+
+        } else {
           const parentName = idx.id.parentName
           const cand = this._name_iid_map.get(parentName)
 
@@ -77,30 +84,12 @@ class Database {
             continue
           }
 
-          // this._log.debug(`rvid candidate for mem_fun '${idx}': '${rvid}' (candidate '${cand}')`, idx, rvid, cand)
-
           if (!this._all_classes.has(cand)) {
+            this._log.warn(`parent class ${cand} not found in _all_classes ${idx}`)
             this._all_classes.set(cand, {self: null, members: new Set})
           }
 
           this._all_classes.get(cand).members.add(idx)
-
-        } else if ([IType.article, IType.meta].includes(idx.type)) {
-          if (idx.isRootArticle()) {
-            this._root_articles.set(
-              idx.ns,
-              idx
-            )
-          } else {
-            this._all_articles.add(idx)
-          }
-
-        } else {
-          if (!idx.in_header) {
-            throw new Error(`[BUG] got an 'other' type, but in_header was not detected (idx: ${idx})`)
-          }
-          this._autoInit(idx.in_header, null)
-          this._all_headers.get(idx.in_header.name).others.add(idx)
         }
       } // for ns.indexes
     }
