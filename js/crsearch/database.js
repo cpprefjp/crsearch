@@ -1,6 +1,4 @@
-import {IndexType as IType} from './index-type'
 import {IndexID} from './index-id'
-import {Index} from './index'
 import {Namespace} from './namespace'
 
 import URL from 'url-parse'
@@ -19,11 +17,7 @@ class Database {
     this._name_iid_map = new Map
 
     // global map
-    this._all_headers = new Map
-    this._all_articles = new Set
-    this._root_articles = new WeakMap
     this._all_fullpath_pages = new Map
-
 
     this._log.debug('[P1] initializing all IndexID...')
     for (const id of json.ids) {
@@ -44,40 +38,9 @@ class Database {
       }
     }
 
-
     this._log.info('[P2] generating reverse maps...')
     for (const ns of this._path_ns_map.values()) {
-      for (const path of Array.from(ns.indexes.keys()).sort()) {
-        const idx = ns.indexes.get(path)
-        this._resolveRelatedTo(ns, idx)
-
-        this._all_fullpath_pages.set(idx.ns.namespace.concat(idx.page_id).join('/'), idx)
-
-        if (idx.type === IType.header) {
-          this._initHeader(idx)
-
-        } else if ([IType.class, IType.namespace].includes(idx.type)) {
-          this._initClass(idx)
-
-        } else if ([IType.article, IType.meta].includes(idx.type)) {
-          if (idx.isRootArticle()) {
-            this._root_articles.set(idx.ns, idx)
-          } else {
-            this._all_articles.add(idx)
-          }
-
-        } else {
-          const h = this._all_headers.get(idx.in_header)
-          const parentName = idx.id.parentName
-          const cand = this._name_iid_map.get(parentName)
-
-          if (cand) {
-            h.classes.get(cand).members.add(idx)
-          } else {
-            h.others.add(idx)
-          }
-        }
-      } // for ns.indexes
+      ns.init(this)
     }
 
     console.timeEnd(runID)
@@ -86,116 +49,15 @@ class Database {
     Object.freeze(this)
   }
 
-  _resolveRelatedTo(ns, idx) {
-    if (!idx.related_to) return null
-
-    const deref_related_to = new Set
-
-    for (const rsid of idx.related_to) {
-      const rid = this._ids[rsid]
-
-      if (rid.type === IType.header) {
-        let found = null
-        const indexes = rid.indexes
-        if (indexes.length === 0) {
-          const fake = ns.createIndex(idx.cpp_version, rid, null, [])
-          ns.indexes.set(fake.name, fake)
-
-          if (fake.name === '<header_name>') {
-            // shit
-            continue
-          }
-
-          // this._log.debug('fake', fake, fake.url())
-          found = fake
-
-          this._log.warn(`no namespace has this index; fake indexing '${fake.name}' --> '${idx.name}'`, 'namespace:', ns.pretty_name(), '\nfake index:', fake, '\nself:', idx.name)
-
-          fake.in_header = fake
-          this._initHeader(fake)
-        } else {
-          found = indexes[0]
-        }
-
-        idx.in_header = found
-        deref_related_to.add(found)
-      } // header
-    } // deref related_to loop
-
-    idx.related_to = deref_related_to
-  }
-
-  _initHeader(hdr) {
-    const h = {classes: new Map, others: new Set}
-    this._all_headers.set(hdr, h)
-  }
-
-  _initClass(cls) {
-    const hdr = cls.in_header
-    const h = this._all_headers.get(hdr)
-    const ckey = cls.id
-    const c = {self: cls, members: new Set}
-    h.classes.set(ckey, c)
-  }
-
-
   getTree(kc) {
     const runID = JSON.stringify({name: 'Database::getTree', timestamp: Date.now()})
     console.time(runID)
 
-    const toplevels = Array.from(this._path_ns_map.values(), ns => ({
-      category: kc.categories().get(ns.namespace[0]),
-      namespace: ns,
-      root: this._root_articles.get(ns),
-      articles: [],
-      headers: [],
-    })).sort((a, b) =>
+    const toplevels = Array.from(this._path_ns_map.values(),
+      ns => ns.makeTree(kc)
+    ).sort((a, b) =>
       a.category.index < b.category.index ? -1 : 1
     )
-
-
-    toplevels[kc.categories().get('reference').index].headers =
-      Array.from(this._all_headers, ([hdr, h]) => ({
-        self: hdr,
-
-        classes: Array.from(h.classes.values(), c => ({
-          self: c.self,
-          members: Array.from(c.members).sort((a_, b_) => {
-            const a = kc.makeMemberData(a_)
-            const b = kc.makeMemberData(b_)
-
-            // this._log.debug('a, b', a, b)
-
-            if (a.i < b.i) {
-              return -1
-            } else if (a.i > b.i) {
-              return 1
-            } else {
-              return a.name < b.name ? -1 : 1
-            }
-          })
-        })).sort((a, b) => a.self.name < b.self.name ? -1 : 1),
-
-        others: Array.from(h.others).sort((a, b) => {
-          if (a.type < b.type) {
-            return -1
-          } else if (a.type > b.type) {
-            return 1
-          } else {
-            return a.name < b.name ? -1 : 1
-          }
-        }),
-
-      })).sort((a, b) => a.self.name < b.self.name ? -1 : 1)
-
-    for (const ar of this._all_articles) {
-      toplevels[kc.categories().get(ar.ns.namespace[0]).index].articles.push(ar)
-    }
-    for (const t of toplevels) {
-      t.articles.sort((a, b) =>
-        a.name < b.name ? -1 : 1
-      )
-    }
 
     console.timeEnd(runID)
     return toplevels
@@ -217,6 +79,14 @@ class Database {
       }
     }
     return {targets: targets, found_count: found_count}
+  }
+
+  getIndexIDFromName(name) {
+    return this._name_iid_map.get(name)
+  }
+
+  getIndexID(n) {
+    return this._ids[n]
   }
 
   _make_url(ns_path) {
