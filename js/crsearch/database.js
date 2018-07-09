@@ -44,7 +44,7 @@ class Database {
 
     this._log.debug('[P1] initializing all Namespace...')
     for (const j_ns of json.namespaces) {
-      const ns = new Namespace(this._log, j_ns, this._ids, this._make_url.bind(this))
+      const ns = new Namespace(this._log, j_ns, this._ids, path => this._make_url(path))
       this._log.debug(`got Namespace: '${ns.pretty_name()}'`, ns)
       this._namespaces.push(ns)
 
@@ -140,7 +140,7 @@ class Database {
 
           if (!found) {
             const dns = this._default_ns.get(ns.namespace.join('/'))
-            const fake = new Index(this._log, dns.cpp_version, rid, null, idx => this._make_url(dns.make_path(idx)), dns)
+            const fake = dns.createIndex(dns.cpp_version, rid, null)
 
             if (fake.join() === '<header_name>') {
               // shit
@@ -152,7 +152,6 @@ class Database {
 
             this._log.warn(`no namespace has this index; fake indexing '${fake.id.join()}' --> '${idx.id.join()}'`, 'default namespace:', dns.pretty_name(), '\nfake index:', fake, '\nself:', idx.id.join())
 
-            dns.indexes.set(rid, fake)
             this._autoInit(fake, null)
           }
 
