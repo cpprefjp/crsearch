@@ -63,10 +63,6 @@ class IndexID {
     }
   }
 
-  path_join() {
-    return this._keys.join('/')
-  }
-
   toString() {
     return `IndexID(${this.join()})`
   }

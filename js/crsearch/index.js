@@ -18,18 +18,19 @@ class Index {
 
     if (json) {
       this._is_fake = false
-      this._page_id = json.page_id
+      this._page_id = json.page_id.filter(s => s.length !== 0)
       this._related_to = json.related_to
       this._nojump = !!json.nojump
       this._attributes = json.attributes
     } else {
       // this._log.debug('fake Index created')
       this._is_fake = true
+      this._page_id = id.keys.slice(-1)
     }
   }
 
   isRootArticle() {
-    return this._page_id[0].length === 0 /* && [IType.meta, IType.article].includes(this._id.type) */
+    return this._page_id.length === 0 /* && [IType.meta, IType.article].includes(this._id.type) */
   }
 
   type() {
@@ -116,6 +117,10 @@ class Index {
 
   get cpp_version() {
     return this._cpp_version
+  }
+
+  get path() {
+    return this._page_id.join('/')
   }
 }
 

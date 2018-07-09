@@ -67,7 +67,7 @@ class Database {
         this._resolveRelatedTo(ns, idx)
 
         if (!idx.is_fake) {
-          this._all_fullpath_pages.set([].concat(idx.ns.namespace).concat(idx.page_id.filter(id => id.length)).join('/'), idx)
+          this._all_fullpath_pages.set(idx.ns.namespace.concat(idx.page_id).join('/'), idx)
         }
 
         if (idx.id.type === IType.header) {

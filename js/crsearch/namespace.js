@@ -45,14 +45,11 @@ class Namespace {
   }
 
   make_path(idx) {
-    if (idx.page_id) {
-      if (idx.page_id[0].length) {
-        return `${this._path_prefixes}/${idx.page_id.join('/')}`
-      } else {
-        return this._path_prefixes
-      }
+    const path = idx.path
+    if (path.length !== 0) {
+      return `${this._path_prefixes}/${path}`
     } else {
-      return `${this._path_prefixes}/${idx.id.path_join()}`
+      return this._path_prefixes
     }
   }
 
