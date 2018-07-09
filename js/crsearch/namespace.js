@@ -130,35 +130,40 @@ class Namespace {
       ),
       headers: Array.from(this._all_headers, ([hdr, h]) => ({
         self: hdr,
-
-        classes: Array.from(h.classes.values(), c => ({
-          self: c.self,
-          members: Array.from(c.members).sort((a_, b_) => {
-            const a = kc.makeMemberData(a_)
-            const b = kc.makeMemberData(b_)
-
-            if (a.i < b.i) {
-              return -1
-            } else if (a.i > b.i) {
-              return 1
-            } else {
-              return a.name < b.name ? -1 : 1
-            }
-          })
-        })).sort((a, b) => a.self.name < b.self.name ? -1 : 1),
-
-        others: Array.from(h.others).sort((a, b) => {
-          if (a.type < b.type) {
-            return -1
-          } else if (a.type > b.type) {
-            return 1
-          } else {
-            return a.name < b.name ? -1 : 1
-          }
-        }),
-
+        classes: Namespace._makeClassTree(h.classes, kc),
+        others: Namespace._makeOtherTree(h.others),
       })).sort((a, b) => a.self.name < b.self.name ? -1 : 1)
     }
+  }
+
+  static _makeClassTree(classes, kc) {
+    return Array.from(classes.values(), ({self: cls, members: members}) => ({
+      self: cls,
+      members: Array.from(members).sort((a_, b_) => {
+        const a = kc.makeMemberData(a_)
+        const b = kc.makeMemberData(b_)
+
+        if (a.i < b.i) {
+          return -1
+        } else if (a.i > b.i) {
+          return 1
+        } else {
+          return a.name < b.name ? -1 : 1
+        }
+      })
+    })).sort((a, b) => a.self.name < b.self.name ? -1 : 1)
+  }
+
+  static _makeOtherTree(others) {
+    return Array.from(others).sort((a, b) => {
+      if (a.type < b.type) {
+        return -1
+      } else if (a.type > b.type) {
+        return 1
+      } else {
+        return a.name < b.name ? -1 : 1
+      }
+    })
   }
 
   query(q, found_count, max_count) {
