@@ -140,7 +140,7 @@ class Database {
 
           if (!found) {
             const dns = this._default_ns.get(ns.namespace.join('/'))
-            const fake = dns.createIndex(dns.cpp_version, rid, null)
+            const fake = dns.createIndex(idx.cpp_version, rid, null)
 
             if (fake.join() === '<header_name>') {
               // shit
