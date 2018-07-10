@@ -2,10 +2,6 @@ import {IndexType as IType} from './index-type'
 
 
 class Query {
-  static _Filter = {
-    header: IType.header,
-  }
-
   constructor(log, text) {
     this._log = log.makeContext('Query')
     this._original_text = text
@@ -13,13 +9,6 @@ class Query {
 
     this._filters = new Set
 
-    // filter <headers>
-    if (this._frags[0].match(/^</)) {
-      this._filters.add(Query._Filter.header)
-      this._frags = this._frags.map(q =>
-        q.replace(/[<>]/, '').split(/\//)
-      ).reduce((a, b) => a.concat(b)).filter(Boolean)
-    }
 
     const real_frags = []
     for (const fr of this._frags) {
