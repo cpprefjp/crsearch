@@ -5,19 +5,15 @@ class Query {
   constructor(log, text) {
     this._log = log.makeContext('Query')
     this._original_text = text
-    this._frags = text.normalize('NFKC').split(/\s+/).filter(Boolean)
 
-    this._filters = new Set
-
+    const filters = new Set
+    const and = new Set
+    const not = new Set
 
     const real_frags = []
-    for (const fr of this._frags) {
-      const kv = fr.split(/:/)
-      if (kv[0] === 'type') {
-        if (!kv[1]) continue
-
-        const types = kv[1].split(/,/)
-        for (const t of types) {
+    for (const fr of text.normalize('NFKC').trim().split(/\s+/)) {
+      if (fr.startsWith('type:')) {
+        for (const t of fr.substring(5).split(',')) {
           let kind = null
           switch (t) {
             case 'header':     kind = IType.header; break
@@ -38,28 +34,30 @@ class Query {
           }
 
           if (kind) {
-            this._filters.add(kind)
+            filters.add(kind)
           }
         }
 
+      } else if (fr[0] === '-') {
+        if (fr.length > 1) {
+          not.add(fr.substring(1))
+        }
       } else {
-        real_frags.push(fr)
+        and.add(fr)
       }
     }
 
-    this._frags = real_frags.reduce(
-      (l, r) => { r[0] === '-' ? l.not.add(r.substring(1)) : l.and.add(r); return l },
-      {and: new Set, not: new Set}
-    )
-    this._frags.not.delete('')
+    this._filters = filters
+    this._and = Array.from(and)
+    this._not = Array.from(not)
 
-    // this._log.debug(`parsed query ${this._original_text}`, this._frags, this._filters)
+    // this._log.debug(`parsed query ${this._original_text}`, this._and, this._not, this._filters)
   }
 
   match(idx) {
     return (this._filters.size === 0 || this._filters.has(idx.type)) &&
-           Array.from(this._frags.and).every(s => idx.ambgMatch(s)) &&
-           !Array.from(this._frags.not).some(s => idx.ambgMatch(s))
+           this._and.every(s => idx.ambgMatch(s)) &&
+           !this._not.some(s => idx.ambgMatch(s))
   }
 
   get original_text() {
