@@ -56,7 +56,7 @@ class Query {
   }
 
   match(idx) {
-    return (this._filters.size === 0 || this._filters.has(idx.type)) &&
+    return !idx.isNoJump && (this._filters.size === 0 || this._filters.has(idx.type)) &&
            this._and.every(s => idx.ambgMatch(s)) &&
            !this._not.some(s => idx.ambgMatch(s))
   }

@@ -124,6 +124,10 @@ class Index {
   get path() {
     return this._page_id.join('/')
   }
+
+  get isNoJump() {
+    return this._nojump
+  }
 }
 
 export {Index}
