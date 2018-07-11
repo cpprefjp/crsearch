@@ -58,11 +58,10 @@ class Namespace {
 
       } else {
         const h = this._all_headers.get(idx.in_header)
-        const parentName = idx.id.parentName
-        const cand = this._db.getIndexIDFromName(parentName)
+        const cand = this._indexes.get(idx.parentPath)
 
-        if (cand) {
-          h.classes.get(cand).members.add(idx)
+        if (cand && h.classes.has(cand)) {
+          h.classes.get(cand).add(idx)
         } else {
           h.others.add(idx)
         }
@@ -115,9 +114,7 @@ class Namespace {
   _initClass(cls) {
     const hdr = cls.in_header
     const h = this._all_headers.get(hdr)
-    const ckey = cls.id
-    const c = {self: cls, members: new Set}
-    h.classes.set(ckey, c)
+    h.classes.set(cls, new Set)
   }
 
   makeTree(kc) {
@@ -137,7 +134,7 @@ class Namespace {
   }
 
   static _makeClassTree(classes, kc) {
-    return Array.from(classes.values(), ({self: cls, members: members}) => ({
+    return Array.from(classes.entries(), ([cls, members]) => ({
       self: cls,
       members: Array.from(members).sort((a_, b_) => {
         const a = kc.makeMemberData(a_)

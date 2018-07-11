@@ -86,10 +86,6 @@ class IndexID {
     return this._name
   }
 
-  get parentName() {
-    return this._keys.slice(0, -1).join('::')
-  }
-
   get indexes() {
     return this._indexes
   }

@@ -125,6 +125,10 @@ class Index {
     return this._page_id.join('/')
   }
 
+  get parentPath() {
+    return this._page_id.slice(0, -1).join('/')
+  }
+
   get fullpath() {
     return this._ns.namespace.concat(this._page_id).join('/')
   }

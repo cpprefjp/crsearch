@@ -14,7 +14,6 @@ class Database {
     this._base_url = new URL(json.base_url)
     this._path_ns_map = new Map
     this._ids = []
-    this._name_iid_map = new Map
 
     // global map
     this._all_fullpath_pages = new Map
@@ -23,7 +22,6 @@ class Database {
     for (const id of json.ids) {
       const iid = new IndexID(this._log, id)
       this._ids.push(iid)
-      this._name_iid_map.set(iid.name, iid)
     }
 
     this._log.debug('[P1] initializing all Namespace...')
@@ -79,10 +77,6 @@ class Database {
       }
     }
     return {targets: targets, found_count: found_count}
-  }
-
-  getIndexIDFromName(name) {
-    return this._name_iid_map.get(name)
   }
 
   getIndexID(n) {
