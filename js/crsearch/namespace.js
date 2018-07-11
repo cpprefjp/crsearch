@@ -163,21 +163,16 @@ class Namespace {
     })
   }
 
-  query(q, found_count, max_count) {
+  query(q) {
     const targets = []
 
     for (const idx of this._indexes.values()) {
       if (q.match(idx)) {
-        ++found_count
-
-        if (found_count > max_count) {
-          return {targets: targets, found_count: found_count}
-        }
-        targets.push({path: idx.url(), index: idx})
+        targets.push(idx)
       }
     }
 
-    return {targets: targets, found_count: found_count}
+    return targets
   }
 
   _pretty_name() {

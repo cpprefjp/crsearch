@@ -1,3 +1,4 @@
+import {Index} from './index'
 import {IndexID} from './index-id'
 import {Namespace} from './namespace'
 
@@ -61,22 +62,27 @@ class Database {
     return toplevels
   }
 
-  query(q, found_count, max_count) {
+  query(q, max_count) {
     const targets = []
 
     for (const ns of this._path_ns_map.values()) {
-      const res = ns.query(q, found_count, max_count)
-      if (res.targets.length == 0) {
-        continue
-      }
-      found_count = res.found_count
-      targets.push(...res.targets)
-
-      if (found_count > max_count) {
-        return {targets: targets, found_count: found_count}
-      }
+      targets.push(...ns.query(q))
     }
-    return {targets: targets, found_count: found_count}
+
+    const grouped_targets = targets.sort(Index.compare).slice(0, max_count).reduce(
+      (gr, index) => {
+        const hdr = index.in_header
+        let indexes = gr.get(hdr)
+        if (!indexes) {
+          indexes = []
+          gr.set(hdr, indexes)
+        }
+        indexes.push(index)
+        return gr
+      }, new Map
+    )
+
+    return {targets: grouped_targets, found_count: targets.length}
   }
 
   getIndexID(n) {

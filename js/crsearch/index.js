@@ -136,6 +136,22 @@ class Index {
   get isNoJump() {
     return this._nojump
   }
+
+  static compare(aidx, bidx) {
+    const ahdr = aidx._in_header
+    const bhdr = bidx._in_header
+    const ahname = ahdr && ahdr._name
+    const bhname = bhdr && bhdr._name
+    if (ahname !== bhname) {
+      return ahname < bhname ? -1 : 1
+    }
+    const aname = aidx._name
+    const bname = bidx._name
+    if (aname !== bname) {
+      return aname < bname ? -1 : 1
+    }
+    return aidx.path < bidx.path ? -1 : 1
+  }
 }
 
 export {Index}

@@ -196,51 +196,34 @@ class CRSearch {
     const res = new Map
 
     for (const [name, db] of this._db) {
-      const ret = db.query(q, 0, CRSearch._MAX_RESULT)
+      const ret = db.query(q, CRSearch._MAX_RESULT)
       extra_info_for[db.name] = {url: db.base_url}
 
       res.set(db.name, ret.targets)
-      if (res.get(db.name).length == 0) {
+      const found_count = ret.found_count
+      if (found_count === 0) {
         const msg = $('<div class="message"><span class="pre">No matches for</span></div>')
         const rec_q = $('<span class="query" />')
         rec_q.text(q.original_text)
         rec_q.appendTo(msg)
 
         extra_info_for[db.name].html = msg
-        continue
-      }
-
-      const found_count = ret.found_count
-      if (found_count > CRSearch._MAX_RESULT) {
-        extra_info_for[db.name].html = $(`<div class="message">Showing first<span class="match-count">${CRSearch._MAX_RESULT}</span>matches</div>`)
+      } else if (found_count > CRSearch._MAX_RESULT) {
+        extra_info_for[db.name].html = $(`<div class="message">Showing first<span class="match-count">${CRSearch._MAX_RESULT}</span>of<span class="match-count">${found_count}</span>matches</div>`)
       } else {
         extra_info_for[db.name].html = $('<div class="message">Showing<span class="match-count">all</span>matches</div>')
       }
     }
 
     let result_id = 0
-    for (const [db_name, targets] of res) {
+    for (const [db_name, grouped_targets] of res) {
       result_list.append(this._make_site_header(db_name, extra_info_for[db_name]))
-
-      const grouped_targets = targets.reduce((gr, e) => {
-        const key = e.index.in_header
-        gr.set(key, gr.get(key) || [])
-        gr.get(key).push(e)
-        return gr
-      }, new Map)
-
-      // this._log.debug('gr', grouped_targets)
 
       for (const [in_header, the_targets] of grouped_targets) {
         result_list.append(await this._make_result_header(in_header))
 
-        for (const t of the_targets) {
-          const e = await this._make_result(
-            t.index.type,
-            t.index,
-            t.path
-          )
-
+        for (const idx of the_targets) {
+          const e = await this._make_result(idx.type, idx, idx.url())
           e.attr('data-result-id', result_id++)
           result_list.append(e)
         }
