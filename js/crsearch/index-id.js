@@ -64,7 +64,7 @@ class IndexID {
     return this._name
   }
 
-  async join_html() {
+  join_html() {
     return $('<ul>').addClass('keys').append(
       this._keys.map(k => $('<li>', {class: 'key'}).text(k))
     )

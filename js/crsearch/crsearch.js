@@ -88,29 +88,25 @@ class CRSearch {
 
   async _load() {
     try {
-      let i = 1
-      for (const url of this._pendingDB) {
+      const size = this._pendingDB.size
+      await Promise.all(Array.from(this._pendingDB, async (url, i) => {
         if (url.pathname == '/') {
           url.pathname = '/crsearch.json'
         }
-        this._log.info(`fetching database (${i}/${this._pendingDB.size}): ${url}`)
+        this._log.info(`fetching database (${i + 1}/${size}): ${url}`)
 
-        $.ajax({
-          url: url,
-          dataType: "json",
+        try {
+          const data = await $.ajax({
+            url: url,
+            dataType: "json",
+          })
 
-          success: async data => {
-            this._log.info('fetched')
-            this._parse(url, data)
-          },
-
-          fail: async e => {
-            this._log.error('fetch failed', e)
-          }
-        })
-
-        ++i
-      }
+          this._log.info('fetched')
+          this._parse(url, data)
+        } catch (e) {
+          this._log.error('fetch failed', e)
+        }
+      }))
     } finally {
       this._pendingDB.clear()
     }
@@ -118,7 +114,7 @@ class CRSearch {
     this._loaded = true
   }
 
-  async _parse(url, json) {
+  _parse(url, json) {
     this._log.info('parsing...', json)
 
     const db = new Database(this._log, json)
@@ -127,7 +123,6 @@ class CRSearch {
       this._defaultUrl = new URL(db.base_url).hostname
     }
 
-    this._updateSearchButton('')
     this._log.info(`parsed '${db.name}'`, db)
     if (this._opts.onDatabase) {
       this._opts.onDatabase(db)
@@ -177,15 +172,15 @@ class CRSearch {
     // this._log.debug(this._selectIndex)
   }
 
-  async _do_search(e) {
+  _do_search(e) {
     clearTimeout(this._search_timer[e.data.id])
-    this._search_timer[e.data.id] = setTimeout(async () => {
+    this._search_timer[e.data.id] = setTimeout(() => {
       this._selectIndex = 0
-      this._resultCount = await this._do_search_impl(e)
+      this._resultCount = this._do_search_impl(e)
     }, 20)
   }
 
-  async _do_search_impl(e) {
+  _do_search_impl(e) {
     const q = new Query(this._log, this._last_input[e.data.id])
     // this._log.debug(`query: '${q.original_text}'`, q)
 
@@ -220,10 +215,10 @@ class CRSearch {
       result_list.append(this._make_site_header(db_name, extra_info_for[db_name]))
 
       for (const [in_header, the_targets] of grouped_targets) {
-        result_list.append(await this._make_result_header(in_header))
+        result_list.append(this._make_result_header(in_header))
 
         for (const idx of the_targets) {
-          const e = await this._make_result(idx.type, idx, idx.url())
+          const e = this._make_result(idx.type, idx, idx.url())
           e.attr('data-result-id', result_id++)
           result_list.append(e)
         }
@@ -232,7 +227,7 @@ class CRSearch {
 
     for (const [name, db] of this._db) {
       // always include fallback
-      const e = await this._make_result(null, q.original_text, {
+      const e = this._make_result(null, q.original_text, {
         name: db.name,
         url: db.base_url.host,
       })
@@ -273,7 +268,7 @@ class CRSearch {
     return url
   }
 
-  async _make_result_header(header) {
+  _make_result_header(header) {
     const elem = $('<li class="result cr-meta-result in-header" />')
 
     const body = $('<a>')
@@ -288,7 +283,7 @@ class CRSearch {
     return elem
   }
 
-  async _make_result(t, target, extra = null) {
+  _make_result(t, target, extra = null) {
     const elem = CRSearch._RESULT_PROTO.clone()
 
     const a = elem.children('a')
@@ -307,7 +302,7 @@ class CRSearch {
 
     default:
       a.attr('href', extra)
-      content.append(await target.join_html({badges: {switches: ['simple']}}))
+      content.append(target.join_html({badges: {switches: ['simple']}}))
 
       if (this._opts.force_new_window) {
         a.attr('target', '_blank')
@@ -318,7 +313,7 @@ class CRSearch {
     return elem
   }
 
-  async _updateSearchButton(href) {
+  _updateSearchButton(href) {
     this._searchButton.attr('href', this._make_google_url(href, this._defaultUrl))
   }
 
@@ -336,6 +331,8 @@ class CRSearch {
     for (const klass of this._opts.klass.search_button) {
       this._searchButton.addClass(klass)
     }
+
+    this._updateSearchButton('')
 
     const id = this._last_id++;
     box.attr('data-crsearch-id', id)

@@ -35,7 +35,7 @@ class Index {
     return this._page_id.length === 0 /* && IType.isArticles(this._id.type) */
   }
 
-  async join_html(opts = DOM.defaultOptions) {
+  join_html(opts = DOM.defaultOptions) {
     const container = $('<div>', {'data-index-type': this._id.type}).addClass('cr-index')
     if (IType.isClassy(this._id.type)) {
       container.addClass('classy')
@@ -44,7 +44,7 @@ class Index {
     container.append($('<div>', {class: 'type'}))
 
     const title = $('<div>', {class: 'title'}).appendTo(container)
-    title.append(await this._id.join_html(opts))
+    title.append(this._id.join_html(opts))
 
     const attrs = []
     if (!opts.badges.noselfcpp && this._cpp_version) {
@@ -55,7 +55,7 @@ class Index {
     }
 
     if (attrs.length) {
-      title.append(await DOM.makeBadges(attrs, opts))
+      title.append(DOM.makeBadges(attrs, opts))
     }
 
     return container
