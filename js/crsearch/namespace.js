@@ -61,6 +61,7 @@ class Namespace {
         const cand = this._indexes.get(idx.parentPath)
 
         if (cand && h.classes.has(cand)) {
+          idx.parent = cand
           h.classes.get(cand).add(idx)
         } else {
           h.others.add(idx)

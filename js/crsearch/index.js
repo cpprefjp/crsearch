@@ -9,6 +9,7 @@ class Index {
   constructor(log, cpp_version, id, json, extra_path, ns) {
     this._log = log.makeContext('Index')
     this._in_header = null
+    this._parent = null
     this._ns = ns
     this._id = id
     this._cpp_version = cpp_version
@@ -77,12 +78,26 @@ class Index {
     return this._name.includes(q)
   }
 
+  ambgMatchMulti(q) {
+    if ([IType.article, IType.meta].includes(this._id.type)) {
+      return this._name.toLowerCase().includes(q.toLowerCase())
+    }
+
+    return this._name.includes(q) ||
+      this._in_header && this._in_header._name.includes(q) ||
+      this._parent && this._parent._name.includes(q)
+  }
+
   get in_header() {
     return this._in_header
   }
 
   set in_header(in_header) {
     this._in_header = in_header
+  }
+
+  set parent(parent) {
+    this._parent = parent
   }
 
   url() {

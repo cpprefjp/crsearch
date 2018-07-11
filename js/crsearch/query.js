@@ -50,15 +50,21 @@ class Query {
     this._filters = filters
     this._and = Array.from(and)
     this._not = Array.from(not)
+    this._multi = and.size + not.size > 1
 
-    // this._log.debug(`parsed query ${this._original_text}`, this._and, this._not, this._filters)
     Object.freeze(this)
   }
 
   match(idx) {
     return !idx.isNoJump && (this._filters.size === 0 || this._filters.has(idx.type)) &&
+      (
+        this._multi ?
+           this._and.every(s => idx.ambgMatchMulti(s)) &&
+           !this._not.some(s => idx.ambgMatchMulti(s))
+        :
            this._and.every(s => idx.ambgMatch(s)) &&
            !this._not.some(s => idx.ambgMatch(s))
+      )
   }
 
   get original_text() {
