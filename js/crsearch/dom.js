@@ -36,6 +36,18 @@ class DOM {
     }
     return ul
   }
+
+  static _ENTITIES = {
+    '<': '&lt;',
+    '>': '&gt;',
+    '&': '&amp;',
+    '"': '&quot;',
+    "'": '&apos;',
+  }
+
+  static escape(s) {
+    return s.replace(/[<>&"']/g, c => DOM._ENTITIES[c])
+  }
 }
 
 export {DOM}

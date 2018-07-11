@@ -3,6 +3,7 @@ import * as Nagato from 'nagato'
 
 import {Query} from './query'
 import {Database} from './database'
+import {DOM} from './dom'
 
 import URL from 'url-parse'
 
@@ -316,7 +317,7 @@ class CRSearch {
       elem.addClass('fallback')
       a.attr('href', this._make_google_url(target, extra.url))
       a.attr('target', '_blank')
-      $(`<div class="query">${target}</div>`).appendTo(content)
+      $(`<div class="query">${DOM.escape(target)}</div>`).appendTo(content)
       $(`<div class="fallback-site">${extra.url}</div>`).appendTo(content)
       break
     }
