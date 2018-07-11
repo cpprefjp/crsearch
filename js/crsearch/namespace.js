@@ -7,7 +7,6 @@ class Namespace {
     this._log = log.makeContext('Namespace')
     this._indexes = new Map
     this._namespace = json.namespace
-    this._make_url = idx => db.make_url(this._make_path(idx))
     this._db = db
     this._path_prefixes = this._namespace.join('/')
     this._all_headers = new Map
@@ -34,7 +33,7 @@ class Namespace {
   }
 
   _createIndex(cpp_version, iid, j_idx, extra_path) {
-    return new Index(this._log, cpp_version, iid, j_idx, extra_path, this._make_url, this)
+    return new Index(this._log, cpp_version, iid, j_idx, extra_path, this)
   }
 
   init() {
@@ -42,7 +41,7 @@ class Namespace {
       const idx = this._indexes.get(path)
       this._resolveRelatedTo(idx)
 
-      this._db.all_fullpath_pages.set(this._make_path(idx), idx)
+      this._db.all_fullpath_pages.set(idx.fullpath, idx)
 
       if (idx.type === IType.header) {
         this._initHeader(idx)
@@ -184,21 +183,16 @@ class Namespace {
     return {targets: targets, found_count: found_count}
   }
 
-  _make_path(idx) {
-    const path = idx.path
-    if (path.length !== 0) {
-      return `${this._path_prefixes}/${path}`
-    } else {
-      return this._path_prefixes
-    }
-  }
-
   _pretty_name() {
     return this._namespace.join(' \u226B')
   }
 
   get namespace() {
     return this._namespace
+  }
+
+  get base_url() {
+    return this._db.base_url
   }
 }
 

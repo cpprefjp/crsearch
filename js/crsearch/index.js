@@ -1,14 +1,14 @@
 import {IndexType as IType} from './index-type'
 import {IndexID} from './index-id'
-
 import {DOM} from './dom'
+
+import URL from 'url-parse'
 
 
 class Index {
-  constructor(log, cpp_version, id, json, extra_path, make_url, ns) {
+  constructor(log, cpp_version, id, json, extra_path, ns) {
     this._log = log.makeContext('Index')
     this._in_header = null
-    this._make_url = make_url
     this._ns = ns
     this._id = id
     this._cpp_version = cpp_version
@@ -86,7 +86,7 @@ class Index {
   }
 
   url() {
-    return this._make_url(this)
+    return new URL(`/${this.fullpath}.html`, this._ns.base_url)
   }
 
   get ns() {
@@ -123,6 +123,10 @@ class Index {
 
   get path() {
     return this._page_id.join('/')
+  }
+
+  get fullpath() {
+    return this._ns.namespace.concat(this._page_id).join('/')
   }
 
   get isNoJump() {

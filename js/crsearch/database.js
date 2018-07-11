@@ -89,10 +89,6 @@ class Database {
     return this._ids[n]
   }
 
-  make_url(ns_path) {
-    return new URL(`/${ns_path}.html`, this._base_url)
-  }
-
   get name() {
     return this._name
   }
