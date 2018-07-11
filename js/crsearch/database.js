@@ -31,16 +31,16 @@ class Database {
       const path = j_ns.namespace.join('/')
       let ns = this._path_ns_map.get(path)
       if (ns) {
-        ns.merge(j_ns, this._ids)
+        ns.merge(j_ns)
       } else {
-        ns = new Namespace(this._log, j_ns, this._ids, path => this._make_url(path))
+        ns = new Namespace(this._log, j_ns, this)
         this._path_ns_map.set(path, ns)
       }
     }
 
     this._log.info('[P2] generating reverse maps...')
     for (const ns of this._path_ns_map.values()) {
-      ns.init(this)
+      ns.init()
     }
 
     console.timeEnd(runID)
@@ -89,7 +89,7 @@ class Database {
     return this._ids[n]
   }
 
-  _make_url(ns_path) {
+  make_url(ns_path) {
     return new URL(`/${ns_path}.html`, this._base_url)
   }
 

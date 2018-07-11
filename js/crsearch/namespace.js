@@ -3,11 +3,12 @@ import {Index} from './index'
 
 
 class Namespace {
-  constructor(log, json, ids, make_url) {
+  constructor(log, json, db) {
     this._log = log.makeContext('Namespace')
     this._indexes = new Map
     this._namespace = json.namespace
-    this._make_url = idx => make_url(this._make_path(idx))
+    this._make_url = idx => db.make_url(this._make_path(idx))
+    this._db = db
     this._path_prefixes = this._namespace.join('/')
     this._all_headers = new Map
     this._all_articles = new Set
@@ -15,15 +16,15 @@ class Namespace {
 
     Object.seal(this)
 
-    this.merge(json, ids)
+    this.merge(json)
   }
 
-  merge(json, ids) {
+  merge(json) {
     const cpp_version = json.cpp_version || null
     const extra_path = this._extraPath(json.path_prefixes || this._namespace)
 
     for (const j_idx of json.indexes) {
-      const idx = this._createIndex(cpp_version, ids[j_idx.id], j_idx, extra_path)
+      const idx = this._createIndex(cpp_version, this._db.getIndexID(j_idx.id), j_idx, extra_path)
       this._indexes.set(idx.path, idx)
     }
   }
@@ -36,12 +37,12 @@ class Namespace {
     return new Index(this._log, cpp_version, iid, j_idx, extra_path, this._make_url, this)
   }
 
-  init(db) {
+  init() {
     for (const path of Array.from(this._indexes.keys()).sort()) {
       const idx = this._indexes.get(path)
-      this._resolveRelatedTo(db, idx)
+      this._resolveRelatedTo(idx)
 
-      db.all_fullpath_pages.set(this._make_path(idx), idx)
+      this._db.all_fullpath_pages.set(this._make_path(idx), idx)
 
       if (idx.type === IType.header) {
         this._initHeader(idx)
@@ -59,7 +60,7 @@ class Namespace {
       } else {
         const h = this._all_headers.get(idx.in_header)
         const parentName = idx.id.parentName
-        const cand = db.getIndexIDFromName(parentName)
+        const cand = this._db.getIndexIDFromName(parentName)
 
         if (cand) {
           h.classes.get(cand).members.add(idx)
@@ -70,7 +71,7 @@ class Namespace {
     }
   }
 
-  _resolveRelatedTo(db, idx) {
+  _resolveRelatedTo(idx) {
     if (!idx.related_to) {
       return
     }
@@ -78,7 +79,7 @@ class Namespace {
     const deref_related_to = new Set
 
     for (const rsid of idx.related_to) {
-      const rid = db.getIndexID(rsid)
+      const rid = this._db.getIndexID(rsid)
 
       if (rid.type === IType.header) {
         let found = null
