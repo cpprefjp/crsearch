@@ -46,10 +46,10 @@ class Namespace {
       if (idx.type === IType.header) {
         this._initHeader(idx)
 
-      } else if ([IType.class, IType.namespace].includes(idx.type)) {
+      } else if (IType.isContainer(idx.type)) {
         this._initClass(idx)
 
-      } else if ([IType.article, IType.meta].includes(idx.type)) {
+      } else if (IType.isArticles(idx.type)) {
         if (idx.isRootArticle()) {
           this._root_article = idx
         } else {

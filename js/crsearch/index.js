@@ -1,5 +1,4 @@
 import {IndexType as IType} from './index-type'
-import {IndexID} from './index-id'
 import {DOM} from './dom'
 
 import URL from 'url-parse'
@@ -33,12 +32,12 @@ class Index {
   }
 
   isRootArticle() {
-    return this._page_id.length === 0 /* && [IType.meta, IType.article].includes(this._id.type) */
+    return this._page_id.length === 0 /* && IType.isArticles(this._id.type) */
   }
 
   async join_html(opts = DOM.defaultOptions) {
     const container = $('<div>', {'data-index-type': this._id.type}).addClass('cr-index')
-    if (IndexID.isClassy(this._id.type)) {
+    if (IType.isClassy(this._id.type)) {
       container.addClass('classy')
     }
 
@@ -71,7 +70,7 @@ class Index {
   }
 
   ambgMatch(q) {
-    if ([IType.article, IType.meta].includes(this._id.type)) {
+    if (IType.isArticles(this._id.type)) {
       return this._name.toLowerCase().includes(q.toLowerCase())
     }
 
@@ -79,7 +78,7 @@ class Index {
   }
 
   ambgMatchMulti(q) {
-    if ([IType.article, IType.meta].includes(this._id.type)) {
+    if (IType.isArticles(this._id.type)) {
       return this._name.toLowerCase().includes(q.toLowerCase())
     }
 

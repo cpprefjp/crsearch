@@ -11,7 +11,7 @@ class IndexID {
   ])
 
   static isClassy(type) {
-    return [IType.class, IType.function, IType.mem_fun, IType.enum, IType.variable, IType.type_alias, IType.namespace].includes(type)
+    return IType.isClassy(type)
   }
 
   constructor(log, json) {
@@ -35,7 +35,7 @@ class IndexID {
       }
     }
 
-    if (IndexID.isClassy(this._type)) {
+    if (IType.isClassy(this._type)) {
       const ns = json.cpp_namespace || ['std']
       keys.unshift(...ns)
     }
@@ -47,7 +47,7 @@ class IndexID {
   }
 
   _generateName() {
-    if (IndexID.isClassy(this._type)) {
+    if (IType.isClassy(this._type)) {
       return this._keys.join('::')
     } else if (this._type === IType.header) {
       return `<${this._keys.join()}>`
