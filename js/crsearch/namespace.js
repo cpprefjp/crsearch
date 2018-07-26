@@ -19,6 +19,8 @@ class Namespace {
     for (const idx of json.indexes) {
       this.createIndex(this._cpp_version, ids[idx.id], idx)
     }
+
+    Object.freeze(this)
   }
 
   createIndex(cpp_version, iid, j_idx) {

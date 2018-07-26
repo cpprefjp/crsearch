@@ -27,6 +27,8 @@ class Index {
       this._is_fake = true
       this._page_id = id.keys.slice(-1)
     }
+
+    Object.seal(this)
   }
 
   isRootArticle() {

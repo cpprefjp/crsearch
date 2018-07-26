@@ -19,6 +19,8 @@ class Priority {
   constructor(index, name) {
     this.index = index
     this.name = name
+
+    Object.freeze(this)
   }
 
   toString() {
@@ -30,6 +32,8 @@ class UnhandledHeading {
   constructor(token) {
     this.reason = `unhandled heading '${token.get('text')}'`
     this.args = arguments
+
+    Object.freeze(this)
   }
 }
 
@@ -69,6 +73,10 @@ class ArticleProcessor {
         }
       ],
     ])
+
+    this._currentZoneProc = null
+
+    Object.seal(this)
   }
 
   process(tokens) {
@@ -158,6 +166,8 @@ class Config {
         this._prioSpecials.set(key, new Priority(i, key))
       }
     }
+
+    Object.freeze(this)
   }
 
   _getData(prop) {

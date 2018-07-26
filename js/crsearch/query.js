@@ -52,6 +52,7 @@ class Query {
     this._not = Array.from(not)
 
     // this._log.debug(`parsed query ${this._original_text}`, this._and, this._not, this._filters)
+    Object.freeze(this)
   }
 
   match(idx) {

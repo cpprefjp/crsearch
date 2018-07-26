@@ -118,6 +118,8 @@ class Database {
 
     console.timeEnd(runID)
     this._log.info('initialized.', this._all_pages)
+
+    Object.freeze(this)
   }
 
   _resolveRelatedTo(ns, idx) {

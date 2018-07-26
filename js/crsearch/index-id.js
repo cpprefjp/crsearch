@@ -63,6 +63,8 @@ class IndexID {
     }
 
     this._name = this._generateName()
+
+    Object.freeze(this)
   }
 
   _generateName() {

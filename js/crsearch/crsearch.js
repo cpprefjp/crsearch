@@ -66,6 +66,10 @@ class CRSearch {
     this._selectIndex = 0
     this._resultCount = 0
     this._hasFocus = false
+    this._defaultUrl = null
+    this._searchButton = null
+    this._default_input = null
+
 
     Mousetrap.bind('/', () => {
       if (this._hasFocus) return
@@ -77,6 +81,8 @@ class CRSearch {
     )
 
     this._log.info('initialized.')
+
+    Object.seal(this)
   }
 
   async _load() {
