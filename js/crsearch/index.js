@@ -1,10 +1,10 @@
-import {IndexType as IType} from './index-type'
-import {DOM} from './dom'
+import IType from './index-type'
+import DOM from './dom'
 
 import URL from 'url-parse'
 
 
-class Index {
+export default class Index {
   constructor(log, cpp_version, id, json, extra_path, ns) {
     this._log = log.makeContext('Index')
     this._in_header = null
@@ -167,6 +167,3 @@ class Index {
     return aidx.path < bidx.path ? -1 : 1
   }
 }
-
-export {Index}
-

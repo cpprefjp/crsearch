@@ -1,7 +1,7 @@
-import {IndexType as IType} from './index-type'
+import IType from './index-type'
 
 
-class Query {
+export default class Query {
   constructor(log, text) {
     this._log = log.makeContext('Query')
     this._original_text = text
@@ -71,6 +71,3 @@ class Query {
     return this._original_text
   }
 } // Query
-
-export {Query}
-

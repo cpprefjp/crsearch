@@ -1,8 +1,7 @@
-import {IndexType as IType} from './index-type'
-import {Index} from './index'
+import IType from './index-type'
+import Index from './index'
 
-
-class Namespace {
+export default class Namespace {
   constructor(log, json, db) {
     this._log = log.makeContext('Namespace')
     this._indexes = new Map
@@ -188,6 +187,3 @@ class Namespace {
     return this._db.base_url
   }
 }
-
-export {Namespace}
-

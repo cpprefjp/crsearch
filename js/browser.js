@@ -1,4 +1,4 @@
-import {CRSearch} from './crsearch'
+import CRSearch from './crsearch'
 
 import KC_Article from '../kunai_configs/cpprefjp/article.md'
 import * as KC from './crsearch/kunai-config'

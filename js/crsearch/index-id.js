@@ -1,6 +1,6 @@
-import {IndexType as IType} from './index-type'
+import IType from './index-type'
 
-class IndexID {
+export default class IndexID {
   static VERBATIM_TRS = new Map([
     ['コンストラクタ', {to: '(constructor)', only: [IType.mem_fun]}],
     ['デストラクタ', {to: '(destructor)', only: [IType.mem_fun]}],
@@ -90,6 +90,3 @@ class IndexID {
     return this._indexes
   }
 }
-
-export {IndexID}
-

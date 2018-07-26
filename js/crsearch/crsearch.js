@@ -1,14 +1,14 @@
-import {default as Mousetrap} from 'mousetrap'
+import Mousetrap from 'mousetrap'
 import * as Nagato from 'nagato'
 
-import {Query} from './query'
-import {Database} from './database'
-import {DOM} from './dom'
+import Query from './query'
+import Database from './database'
+import DOM from './dom'
 
 import URL from 'url-parse'
 
 
-class CRSearch {
+export default class CRSearch {
   static _APPNAME = 'crsearch'
   static _HOMEPAGE = 'https://github.com/cpprefjp/crsearch'
 
@@ -495,6 +495,3 @@ class CRSearch {
     return false
   }
 } // CRSearch
-
-export {CRSearch}
-

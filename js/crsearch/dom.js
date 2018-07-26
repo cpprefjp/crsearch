@@ -1,4 +1,4 @@
-class DOM {
+export default class DOM {
   static defaultOptions = {
     links: {
       deprecated: null,
@@ -49,6 +49,3 @@ class DOM {
     return s.replace(/[<>&"']/g, c => DOM._ENTITIES[c])
   }
 }
-
-export {DOM}
-

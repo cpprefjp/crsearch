@@ -1,11 +1,11 @@
-import {Index} from './index'
-import {IndexID} from './index-id'
-import {Namespace} from './namespace'
+import Index from './index'
+import IndexID from './index-id'
+import Namespace from './namespace'
 
 import URL from 'url-parse'
 
 
-class Database {
+export default class Database {
   constructor(log, json) {
     const runID = JSON.stringify({name: 'Database::constructor', timestamp: Date.now()})
     console.time(runID)
@@ -101,5 +101,3 @@ class Database {
     return this._all_fullpath_pages
   }
 }
-export {Database}
-

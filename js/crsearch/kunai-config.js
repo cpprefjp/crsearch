@@ -1,5 +1,5 @@
-import {IndexType as IType} from './index-type'
-import {default as Marked} from 'marked'
+import IType from './index-type'
+import Marked from 'marked'
 
 const MarkedOpts = {
   gfm: true,
@@ -218,4 +218,3 @@ class Config {
 }
 
 export {Prop, Priority, Config}
-

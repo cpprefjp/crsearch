@@ -23,5 +23,7 @@ const IndexType = {
     return [this.class, this.function, this.mem_fun, this.enum, this.variable, this.type_alias, this.namespace].includes(type)
   },
 }
-export {IndexType}
 
+Object.freeze(IndexType)
+
+export default IndexType
