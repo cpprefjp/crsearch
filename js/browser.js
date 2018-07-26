@@ -1,3 +1,5 @@
+"use strict";
+
 import CRSearch from './crsearch'
 
 import KC_Article from '../kunai_configs/cpprefjp/article.md'
