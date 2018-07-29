@@ -1,4 +1,4 @@
-class DOM {
+export default class DOM {
   static defaultOptions = {
     links: {
       deprecated: null,
@@ -10,15 +10,11 @@ class DOM {
     },
   }
 
-  static async makeBadge(attr) {
-
-  }
-
-  static async makeBadges(attrs, opts = DOM.defaultOptions) {
-    let ul = $('<ul>').addClass('badges').addClass([].concat(opts.badges.switches).join(' '))
+  static makeBadges(attrs, opts = DOM.defaultOptions) {
+    const ul = $('<ul>').addClass('badges').addClass([].concat(opts.badges.switches).join(' '))
     for (const attr of attrs) {
-      let li = $('<li>', {'data-original-attr': attr}).addClass('badge').appendTo(ul)
-      let target = $('<a>').append($('<i/>')).appendTo(li)
+      const li = $('<li>', {'data-original-attr': attr}).addClass('badge').appendTo(ul)
+      const target = $('<a>').append($('<i/>')).appendTo(li)
 
       const cppm = attr.match(/cpp(\d+)/)
       if (cppm) {
@@ -40,7 +36,16 @@ class DOM {
     }
     return ul
   }
+
+  static _ENTITIES = {
+    '<': '&lt;',
+    '>': '&gt;',
+    '&': '&amp;',
+    '"': '&quot;',
+    "'": '&apos;',
+  }
+
+  static escape(s) {
+    return s.replace(/[<>&"']/g, c => DOM._ENTITIES[c])
+  }
 }
-
-export {DOM}
-

@@ -1,5 +1,6 @@
-import {CRSearch} from './crsearch'
-import {IndexType as IType} from './crsearch/index-type'
+"use strict";
+
+import CRSearch from './crsearch'
 
 import KC_Article from '../kunai_configs/cpprefjp/article.md'
 import * as KC from './crsearch/kunai-config'
@@ -10,8 +11,8 @@ import {Logger} from 'nagato'
 document.addEventListener('DOMContentLoaded', () => {
   const log = new Logger(['CRSearch', 'Test'])
 
-  let crs = new CRSearch({
-    onDatabase: (db) => {
+  const crs = new CRSearch({
+    onDatabase: db => {
       const kc = new KC.Config({
         'article.md': KC_Article,
         'cpp.json': require('../kunai_configs/cpprefjp/cpp.json'),

@@ -1,118 +1,189 @@
-import {Index} from './index'
-import {IndexType as IType} from './index-type'
+import IType from './index-type'
+import Index from './index'
 
+export default class Namespace {
+  constructor(log, json, db) {
+    this._log = log.makeContext('Namespace')
+    this._indexes = new Map
+    this._namespace = json.namespace
+    this._db = db
+    this._path_prefixes = this._namespace.join('/')
+    this._all_headers = new Map
+    this._all_articles = new Set
+    this._root_article = null
 
-class Namespace {
-  constructor(log, ns_id, json, ids, make_url) {
-    this.log = log.makeContext('Namespace')
-    this.ns_id = ns_id
-    this.indexes = new Map
-    this.namespace = json.namespace
-    this.cpp_version = json.cpp_version || null
+    Object.seal(this)
 
+    this.merge(json)
+  }
 
-    if (json.path_prefixes) {
-      this.path_prefixes = json.path_prefixes.join('/')
-    } else {
-      this.path_prefixes = this.namespace.join('/')
+  merge(json) {
+    const cpp_version = json.cpp_version || null
+    const extra_path = this._extraPath(json.path_prefixes || this._namespace)
+
+    for (const j_idx of json.indexes) {
+      const idx = this._createIndex(cpp_version, this._db.getIndexID(j_idx.id), j_idx, extra_path)
+      this._indexes.set(idx.path, idx)
     }
-
-    for (const idx of json.indexes) {
-      const idx_ = new Index(this.log, this.cpp_version, ids[idx.id], idx, (idx) => { return make_url(this.make_path(idx)) })
-
-      idx_.ns = this
-
-      // this.log.debug('got Index', idx_)()
-      this.indexes.set(idx_.id, idx_)
-    }
   }
 
-  static makeGenericKey(narray) {
-    return `${[].concat(narray).join('/')}`
+  _extraPath(path_prefixes) {
+    return path_prefixes.slice(this._namespace.length)
   }
 
-  static makeCanonicalKey(gkey, cppv) {
-    return `${gkey}///${cppv || null}`
+  _createIndex(cpp_version, iid, j_idx, extra_path) {
+    return new Index(this._log, cpp_version, iid, j_idx, extra_path, this)
   }
 
-  genericKey() {
-    return Namespace.makeGenericKey(this.namespace)
-  }
+  init() {
+    for (const path of Array.from(this._indexes.keys()).sort()) {
+      const idx = this._indexes.get(path)
+      this._resolveRelatedTo(idx)
 
-  canonicalKey() {
-    return Namespace.makeCanonicalKey(
-      Namespace.makeGenericKey(this.namespace),
-      this.cpp_version
-    )
-  }
+      this._db.all_fullpath_pages.set(idx.fullpath, idx)
 
-  exactIndex(id) {
-    return this.indexes.get(id)
-  }
+      if (idx.type === IType.header) {
+        this._initHeader(idx)
 
-  findIndex(f) {
-    return new Set(Array.from(this.indexes.values()).filter(f))
-  }
+      } else if (IType.isContainer(idx.type)) {
+        this._initClass(idx)
 
-  partitionIndex(f) {
-    let ret = [new Set, new Set]
-    for (const [id, idx] of this.indexes) {
-      if (f(idx)) {
-        ret[0].add(idx)
-      } else {
-        ret[1].add(idx)
-      }
-    }
-    return ret
-  }
-
-  query(q, found_count, max_count, path_composer) {
-    let targets = []
-
-    for (let [id, idx] of this.indexes) {
-      if (q.filters.size && !Array.from(q.filters).some((f) => { return idx.id.type === f })) continue
-
-      if (
-        Array.from(q.frags.and).every(function(idx, q) { return Index.ambgMatch(idx, q) }.bind(null, idx)) &&
-        !Array.from(q.frags.not).some(function(idx, q) { return Index.ambgMatch(idx, q) }.bind(null, idx))
-
-      ) {
-        ++found_count
-
-        if (found_count > max_count) {
-          return {targets: targets, found_count: found_count}
+      } else if (IType.isArticles(idx.type)) {
+        if (idx.isRootArticle()) {
+          this._root_article = idx
+        } else {
+          this._all_articles.add(idx)
         }
-        targets.push({path: path_composer(this.make_path(idx)), index: idx})
-      }
-    }
 
-    return {targets: targets, found_count: found_count}
-  }
-
-  make_path(idx) {
-    if (idx.page_id) {
-      if (idx.page_id[0].length) {
-        return `${this.path_prefixes}/${idx.page_id.join('/')}`
       } else {
-        return `${this.path_prefixes}`
+        const h = this._all_headers.get(idx.in_header)
+        const cand = this._indexes.get(idx.parentPath)
+
+        if (cand && h.classes.has(cand)) {
+          idx.parent = cand
+          h.classes.get(cand).add(idx)
+        } else {
+          h.others.add(idx)
+        }
       }
-    } else {
-      return `${this.path_prefixes}/${idx.id.path_join()}`
     }
   }
 
-  pretty_version() {
-    if (this.cpp_version) {
-      return `C++${this.cpp_version}`
-    } else {
-      return '(no version)'
+  _resolveRelatedTo(idx) {
+    if (!idx.related_to) {
+      return
+    }
+
+    const deref_related_to = new Set
+
+    for (const rsid of idx.related_to) {
+      const rid = this._db.getIndexID(rsid)
+
+      if (rid.type === IType.header) {
+        let found = null
+        const indexes = rid.indexes
+        if (indexes.length === 0) {
+          found = this._createIndex(idx.cpp_version, rid, null, [])
+          if (found.name === '<header_name>') {
+            // shit
+            continue
+          }
+          this._indexes.set(found.name, found)
+
+          this._log.warn(`no namespace has this index; fake indexing '${found.name}' --> '${idx.name}'`, 'namespace:', this._pretty_name(), '\nfake index:', found, '\nself:', idx.name)
+
+          found.in_header = found
+          this._initHeader(found)
+        } else {
+          found = indexes[0]
+        }
+
+        idx.in_header = found
+        deref_related_to.add(found)
+      } // header
+    } // deref related_to loop
+
+    idx.related_to = deref_related_to
+  }
+
+  _initHeader(hdr) {
+    const h = {classes: new Map, others: new Set}
+    this._all_headers.set(hdr, h)
+  }
+
+  _initClass(cls) {
+    const hdr = cls.in_header
+    const h = this._all_headers.get(hdr)
+    h.classes.set(cls, new Set)
+  }
+
+  makeTree(kc) {
+    return {
+      category: kc.categories().get(this._namespace[0]),
+      namespace: this,
+      root: this._root_article,
+      articles: Array.from(this._all_articles).sort((a, b) =>
+        a.name < b.name ? -1 : 1
+      ),
+      headers: Array.from(this._all_headers, ([hdr, h]) => ({
+        self: hdr,
+        classes: Namespace._makeClassTree(h.classes, kc),
+        others: Namespace._makeOtherTree(h.others),
+      })).sort((a, b) => a.self.name < b.self.name ? -1 : 1)
     }
   }
 
-  pretty_name(include_version = true) {
-    return `${this.namespace.join(' \u226B')}${include_version ? `[${this.pretty_version()}]` : ''}`
+  static _makeClassTree(classes, kc) {
+    return Array.from(classes.entries(), ([cls, members]) => ({
+      self: cls,
+      members: Array.from(members).sort((a_, b_) => {
+        const a = kc.makeMemberData(a_)
+        const b = kc.makeMemberData(b_)
+
+        if (a.i < b.i) {
+          return -1
+        } else if (a.i > b.i) {
+          return 1
+        } else {
+          return a.name < b.name ? -1 : 1
+        }
+      })
+    })).sort((a, b) => a.self.name < b.self.name ? -1 : 1)
+  }
+
+  static _makeOtherTree(others) {
+    return Array.from(others).sort((a, b) => {
+      if (a.type < b.type) {
+        return -1
+      } else if (a.type > b.type) {
+        return 1
+      } else {
+        return a.name < b.name ? -1 : 1
+      }
+    })
+  }
+
+  query(q) {
+    const targets = []
+
+    for (const idx of this._indexes.values()) {
+      if (q.match(idx)) {
+        targets.push(idx)
+      }
+    }
+
+    return targets
+  }
+
+  _pretty_name() {
+    return this._namespace.join(' \u226B')
+  }
+
+  get namespace() {
+    return this._namespace
+  }
+
+  get base_url() {
+    return this._db.base_url
   }
 }
-
-export {Namespace}
-

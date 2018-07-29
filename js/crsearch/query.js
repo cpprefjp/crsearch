@@ -1,34 +1,19 @@
-import {IndexType as IType} from './index-type'
+import IType from './index-type'
 
 
-class Query {
-  static Filter = {
-    header: IType.header,
-  }
-
+export default class Query {
   constructor(log, text) {
-    this.log = log.makeContext('Query')
-    this.original_text = text
-    this.frags = text.normalize('NFKC').split(/\s+/).filter(Boolean)
+    this._log = log.makeContext('Query')
+    this._original_text = text
 
-    this.filters = new Set
+    const filters = new Set
+    const and = new Set
+    const not = new Set
 
-    // filter <headers>
-    if (this.frags[0].match(/^</)) {
-      this.filters.add(Query.Filter.header)
-      this.frags = this.frags.map((q) => {
-        return q.replace(/[<>]/, '').split(/\//)
-      }).reduce((a, b) => a.concat(b)).filter(Boolean)
-    }
-
-    let real_frags = []
-    for (const fr of this.frags) {
-      const kv = fr.split(/:/)
-      if (kv[0] === 'type') {
-        if (!kv[1]) continue
-
-        const types = kv[1].split(/,/)
-        for (const t of types) {
+    const real_frags = []
+    for (const fr of text.normalize('NFKC').trim().split(/\s+/)) {
+      if (fr.startsWith('type:')) {
+        for (const t of fr.substring(5).split(',')) {
           let kind = null
           switch (t) {
             case 'header':     kind = IType.header; break
@@ -44,29 +29,45 @@ class Query {
             case 'meta':       kind = IType.meta; break
 
             default:
-              this.log.error('unhandled type in query', t)
+              this._log.error('unhandled type in query', t)
               break
           }
 
           if (kind) {
-            this.filters.add(kind)
+            filters.add(kind)
           }
         }
 
+      } else if (fr[0] === '-') {
+        if (fr.length > 1) {
+          not.add(fr.substring(1))
+        }
       } else {
-        real_frags.push(fr)
+        and.add(fr)
       }
     }
 
-    this.frags = real_frags.reduce(
-      (l, r) => { r[0] === '-' ? l.not.add(r.substring(1)) : l.and.add(r); return l },
-      {and: new Set, not: new Set}
-    )
-    this.frags.not.delete('')
+    this._filters = filters
+    this._and = Array.from(and)
+    this._not = Array.from(not)
+    this._multi = and.size + not.size > 1
 
-    // this.log.debug(`parsed query ${this.original_text}`, this.frags, this.filters)
+    Object.freeze(this)
+  }
+
+  match(idx) {
+    return !idx.isNoJump && (this._filters.size === 0 || this._filters.has(idx.type)) &&
+      (
+        this._multi ?
+           this._and.every(s => idx.ambgMatchMulti(s)) &&
+           !this._not.some(s => idx.ambgMatchMulti(s))
+        :
+           this._and.every(s => idx.ambgMatch(s)) &&
+           !this._not.some(s => idx.ambgMatch(s))
+      )
+  }
+
+  get original_text() {
+    return this._original_text
   }
 } // Query
-
-export {Query}
-

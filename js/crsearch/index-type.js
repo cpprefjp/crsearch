@@ -10,6 +10,20 @@ const IndexType = {
   macro: 'macro',
   article: 'article',
   meta: 'meta',
-}
-export {IndexType}
 
+  isContainer(type) {
+    return [this.class, this.namespace].includes(type)
+  },
+
+  isArticles(type) {
+    return [this.article, this.meta].includes(type)
+  },
+
+  isClassy(type) {
+    return [this.class, this.function, this.mem_fun, this.enum, this.variable, this.type_alias, this.namespace].includes(type)
+  },
+}
+
+Object.freeze(IndexType)
+
+export default IndexType

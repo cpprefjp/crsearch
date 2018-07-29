@@ -1,14 +1,11 @@
-export {IndexType} from './crsearch/index-type'
-export {IndexID} from './crsearch/index-id'
-export {Index} from './crsearch/index'
-export {Namespace} from './crsearch/namespace'
-export {Database} from './crsearch/database'
-
-export {DOM} from './crsearch/dom'
+import IndexType from './crsearch/index-type'
+import IndexID from './crsearch/index-id'
+//import Index from './crsearch/index'
+//import Namespace from './crsearch/namespace'
+//import Database from './crsearch/database'
+//import DOM from './crsearch/dom'
+import CRSearch from './crsearch/crsearch'
 
 import * as KC from './crsearch/kunai-config'
 
-export {KC}
-
-export {CRSearch} from './crsearch/crsearch'
-
+export {CRSearch, IndexType, IndexID, KC}

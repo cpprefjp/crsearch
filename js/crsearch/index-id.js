@@ -1,118 +1,92 @@
-import {IndexType as IType} from './index-type'
+import IType from './index-type'
 
-class IndexID {
+export default class IndexID {
   static VERBATIM_TRS = new Map([
-    ['コンストラクタ', {to: '(constructor)', only: IType.mem_fun}],
-    ['デストラクタ', {to: '(destructor)', only: IType.mem_fun}],
+    ['コンストラクタ', {to: '(constructor)', only: [IType.mem_fun]}],
+    ['デストラクタ', {to: '(destructor)', only: [IType.mem_fun]}],
     ['推論補助', {to: '(deduction guide)', only: [IType.header, IType.mem_fun], type: IType.mem_fun}],
-    ['初期化', {to: '(initialization)', only: IType.header, type: IType.mem_fun}],
+    ['初期化', {to: '(initialization)', only: [IType.header, IType.mem_fun], type: IType.mem_fun}],
     ['非メンバ関数', {to: 'non-member function', type: IType.function}],
     ['単項', {to: 'unary'}],
   ])
 
-  static composeReverseID(type, keys) {
-    return `<:RVID:>/${type}/${keys.join('<::>')}`
-  }
-
-  toReverseID() {
-    let k = [].concat(this.keys)
-    if (IndexID.isClassy(this.type)) {
-      k.shift()
-      return IndexID.composeReverseID(this.type, k)
-
-    } else {
-      return IndexID.composeReverseID(this.type, k)
-    }
-  }
-
-  equals(rhs) {
-    // return this.id === rhs.id
-    return this.s_key === rhs.s_key && this.ns_id === rhs.ns_id
-  }
-
   static isClassy(type) {
-    return [IType.class, IType.function, IType.mem_fun, IType.enum, IType.variable, IType.type_alias].includes(type)
+    return IType.isClassy(type)
   }
 
-  constructor(log, s_key, json) {
-    this.log = log.makeContext('IndexID')
-    this.cpp_namespace = json.cpp_namespace
-    this.type = json.type
+  constructor(log, json) {
+    this._log = log.makeContext('IndexID')
+    this._type = json.type
+    this._indexes = []
 
-    this.s_key = s_key
-    let keys = json.key
-
-
-    if (IndexID.isClassy(this.type)) {
-      let ns = ['std']
-      if (json.cpp_namespace) {
-        ns = json.cpp_namespace
-      }
-
-      // legacy workarounds
-      if (keys.some((k) => k.match(/::/))) {
-        this.log.warn(`Invalid fragment '::' detected. Using legacy fallback until corresponding PR is deployed: https://github.com/cpprefjp/site_generator/pull/39`, keys, json)
-        let newKey = []
-        for (const k of keys) {
-          if (k.match(/::/)) {
-            newKey = newKey.concat(k.split(/::/))
-          } else {
-            newKey = newKey.concat(k)
-          }
-        }
-        keys = newKey
-      }
-
-      keys = ns.concat(keys)
-    }
-    this.cpp_namespace = keys
-    this.keys = keys.map((k) => k.normalize('NFKC'))
-
+    const keys = json.key.map(k => k.normalize('NFKC'))
     for (const [k, v] of IndexID.VERBATIM_TRS) {
-      if (v.only && ![].concat(v.only).includes(this.type)) {
+      if (v.only && !v.only.includes(this._type)) {
         continue
       }
 
-      if (this.keys[this.keys.length - 1].includes(k)) {
-        this.keys[this.keys.length - 1] = this.keys[this.keys.length - 1].replace(k, `${v.to}`)
+      const last = keys[keys.length - 1]
+      if (last.includes(k)) {
+        keys[keys.length - 1] = last.replace(k, v.to)
 
         if (v.type) {
-          this.type = v.type
-
-          if ([IType.class, IType.mem_fun].includes(this.type) && this.keys[0] !== 'std') {
-            this.keys.unshift('std')
-          }
+          this._type = v.type
         }
       }
     }
+
+    if (IType.isClassy(this._type)) {
+      const ns = json.cpp_namespace || ['std']
+      keys.unshift(...ns)
+    }
+    this._keys = keys
+
+    this._name = this._generateName()
+
+    Object.freeze(this)
   }
 
-  path_join() {
-    return this.keys.join('/')
-  }
-
-  toString() {
-    return `IndexID(${this.join()})`
-  }
-
-  join() {
-    if (IndexID.isClassy(this.type)) {
-      return `${this.keys.join('::')}`
+  _generateName() {
+    if (IType.isClassy(this._type)) {
+      return this._keys.join('::')
+    } else if (this._type === IType.header) {
+      return `<${this._keys.join()}>`
     } else {
-      if (this.type === IType.header) {
-        return `<${this.keys.join()}>`
-      } else {
-        return this.keys.join()
-      }
+      return this._keys.join()
     }
   }
 
-  async join_html() {
+  toString() {
+    return `IndexID(${this._name})`
+  }
+
+  join() {
+    return this._name
+  }
+
+  join_html() {
     return $('<ul>').addClass('keys').append(
-      this.keys.map((k) => $('<li>', {class: 'key'}).text(k))
+      this._keys.map(k => $('<li>', {class: 'key'}).text(k))
     )
   }
+
+  add_index(idx) {
+    this._indexes.push(idx)
+  }
+
+  get type() {
+    return this._type
+  }
+
+  get keys() {
+    return this._keys
+  }
+
+  get name() {
+    return this._name
+  }
+
+  get indexes() {
+    return this._indexes
+  }
 }
-
-export {IndexID}
-
