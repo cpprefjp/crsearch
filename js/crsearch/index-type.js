@@ -7,6 +7,7 @@ const IndexType = {
   enum: 'enum',
   variable: 'variable',
   type_alias: 'type-alias',
+  concept: 'concept',
   macro: 'macro',
   article: 'article',
   meta: 'meta',
@@ -20,7 +21,7 @@ const IndexType = {
   },
 
   isClassy(type) {
-    return [this.class, this.function, this.mem_fun, this.enum, this.variable, this.type_alias, this.namespace].includes(type)
+    return [this.class, this.function, this.mem_fun, this.enum, this.variable, this.type_alias, this.concept, this.namespace].includes(type)
   },
 }
 

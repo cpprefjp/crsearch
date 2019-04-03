@@ -24,6 +24,7 @@ export default class Query {
             case 'enum':       kind = IType.enum; break
             case 'variable':   kind = IType.variable; break
             case 'type-alias': kind = IType.type_alias; break
+            case 'concept':    kind = IType.concept; break
             case 'macro':      kind = IType.macro; break
             case 'article':    kind = IType.article; break
             case 'meta':       kind = IType.meta; break
