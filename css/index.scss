@@ -75,7 +75,7 @@ $type-spec: #222;
     color: #EEE;
   }
 
-  &[data-index-type="class"], &[data-index-type="type-alias"], &[data-index-type="enum"] {
+  &[data-index-type="class"], &[data-index-type="type-alias"], &[data-index-type="enum"], &[data-index-type="concept"] {
     > .type:before {
       background: $type-class;
     }
@@ -86,6 +86,9 @@ $type-spec: #222;
   }
   &[data-index-type="type-alias"] > .type:before {
     content: 'alias';
+  }
+  &[data-index-type="concept"] > .type:before {
+    content: 'concept';
   }
   &[data-index-type="enum"] > .type:before {
     content: 'enum';
