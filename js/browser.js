@@ -1,15 +1,20 @@
 "use strict";
 
-import CRSearch from './crsearch'
+import { CRSearch } from './crsearch'
 
 import KC_Article from '../kunai_configs/cpprefjp/article.md'
 import * as KC from './crsearch/kunai-config'
 
-import {Logger} from 'nagato'
-
+class DummyLogger {
+  debug() {}
+  info() {}
+  warn() {}
+  error() {}
+  makeContext() { return this; }
+};
 
 document.addEventListener('DOMContentLoaded', () => {
-  const log = new Logger(['CRSearch', 'Test'])
+  const log = new DummyLogger();
 
   const crs = new CRSearch({
     onDatabase: db => {

@@ -1,15 +1,15 @@
 {
   "presets": [
-    ["env", {
+    ["@babel/preset-env", {
       "modules": false
     }]
   ],
   "plugins": [
-    "transform-runtime",
-    "transform-object-assign",
-    "transform-function-bind",
-    "transform-class-properties",
-    "transform-async-to-generator"
+    "@babel/plugin-transform-runtime",
+    "@babel/plugin-transform-object-assign",
+    "@babel/plugin-proposal-function-bind",
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-transform-async-to-generator"
   ]
 }
 

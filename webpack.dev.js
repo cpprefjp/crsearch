@@ -7,6 +7,7 @@ const Merge = require('webpack-merge');
 
 module.exports = Merge.multiple(common, {
   js: {
+    mode: 'development',
     entry: {
       browser: './browser.js',
     },
@@ -57,6 +58,7 @@ module.exports = Merge.multiple(common, {
     ],
   },
   css: {
+    mode: 'development',
     entry: {
       browser: './browser.scss',
     },
