@@ -24,13 +24,13 @@
   },
   "homepage": "https://github.com/cpprefjp/crsearch",
   "devDependencies": {
-    "@babel/core": "^7.8.6",
-    "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/core": "^7.8.7",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-function-bind": "^7.8.3",
     "@babel/plugin-transform-async-to-generator": "^7.8.3",
     "@babel/plugin-transform-object-assign": "^7.8.3",
-    "@babel/preset-env": "^7.8.6",
+    "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/preset-env": "^7.8.7",
     "autoprefixer": "^9.7.4",
     "babel-loader": "^8.0.6",
     "babel-preset-minify": "^0.5.1",
@@ -59,7 +59,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "@babel/runtime": "^7.8.4",
+    "@babel/runtime": "^7.8.7",
     "font-awesome": "^4.7.0",
     "jquery": "^3.4.1",
     "marked": "^0.8.0",
