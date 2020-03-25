@@ -1,5 +1,10 @@
 # Change Log
 
+## master
+
+- C++23 バッジ追加
+- deps 更新
+
 ## 3.0.1
 
 - deps 更新
