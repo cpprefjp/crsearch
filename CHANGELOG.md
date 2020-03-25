@@ -2,6 +2,8 @@
 
 ## master
 
+## 3.0.3 (2020-03-26)
+
 - html-webpack-include-assets-plugin は deprecated なので html-webpack-tags-plugin に変更
 
 ## 3.0.2
