@@ -2,6 +2,8 @@
 
 ## master
 
+- html-webpack-include-assets-plugin は deprecated なので html-webpack-tags-plugin に変更
+
 ## 3.0.2
 
 - C++23 バッジ追加

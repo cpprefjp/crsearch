@@ -2,7 +2,7 @@ const path = require('path');
 const common = require('./webpack.common.js');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
+const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin');
 const Merge = require('webpack-merge');
 
 module.exports = Merge.multiple(common, {
@@ -50,10 +50,13 @@ module.exports = Merge.multiple(common, {
         // append: false,
         // hash: true,
       // }),
-      new HtmlWebpackIncludeAssetsPlugin({
-        assets: ['css/browser.css', 'css/crsearch.css'],
+      new HtmlWebpackTagsPlugin({
+        tags: [
+          'css/browser.css',
+          'css/crsearch.css',
+        ],
         append: true,
-        hash: true,
+        useHash: true,
       }),
     ],
   },
