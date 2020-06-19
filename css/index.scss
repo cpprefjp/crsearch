@@ -9,7 +9,7 @@ $type-variable: $type-macro;
 $type-article: #DDD;
 $type-meta: $type-article;
 $type-spec: #222;
-
+$type-cpo: #fafad2;
 
 @mixin cr-index {
   display: inline-flex;
@@ -117,6 +117,12 @@ $type-spec: #222;
     content: 'macro';
     color: #333;
     background: $type-macro;
+  }
+
+  &[data-index-type="cpo"] > .type:before {
+    content: 'cpo';
+    color: #333;
+    background: $type-cpo;
   }
 
   &[data-index-type="article"] > .type:before {

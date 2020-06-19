@@ -9,6 +9,7 @@ const IndexType = {
   type_alias: 'type-alias',
   concept: 'concept',
   macro: 'macro',
+  cpo: 'cpo',
   article: 'article',
   meta: 'meta',
 
