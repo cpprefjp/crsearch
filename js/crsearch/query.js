@@ -26,6 +26,7 @@ export default class Query {
             case 'type-alias': kind = IType.type_alias; break
             case 'concept':    kind = IType.concept; break
             case 'macro':      kind = IType.macro; break
+            case 'cpo':        kind = IType.cpo; break
             case 'article':    kind = IType.article; break
             case 'meta':       kind = IType.meta; break
 
