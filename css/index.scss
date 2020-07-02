@@ -1,6 +1,7 @@
 @import './font-awesome';
 
 $type-header: #4A4;
+$type-category: #4A4;
 $type-namespace: #444;
 $type-class: #44A;
 $type-function: lighten($type-class, 15%);
@@ -69,13 +70,30 @@ $type-cpo: #fafad2;
     }
   }
 
+  &[data-index-type="category"] {
+    ul.keys {
+      > li.key {
+        &:not(:last-child) {
+          &:after {
+            content: '/';
+          }
+        }
+      }
+    }
+
+    > .type:before {
+      content: 'category';
+      background: $type-category;
+    }
+  }
+
   &[data-index-type="namespace"] > .type:before {
     content: 'namespace';
     background: $type-namespace;
     color: #EEE;
   }
 
-  &[data-index-type="class"], &[data-index-type="type-alias"], &[data-index-type="enum"], &[data-index-type="concept"] {
+  &[data-index-type="class"], &[data-index-type="type-alias"], &[data-index-type="enum"], &[data-index-type="concept"], &[data-index-type="named requirement"] {
     > .type:before {
       background: $type-class;
     }
@@ -89,6 +107,9 @@ $type-cpo: #fafad2;
   }
   &[data-index-type="concept"] > .type:before {
     content: 'concept';
+  }
+  &[data-index-type="named requirement"] > .type:before {
+    content: 'named requirement';
   }
   &[data-index-type="enum"] > .type:before {
     content: 'enum';
