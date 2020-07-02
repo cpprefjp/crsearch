@@ -2,6 +2,13 @@
 
 ## master
 
+## 3.0.5 (2020-07-03)
+
+- conceptと同等の識別子カテゴリとしてnamed requirementを追加。
+    - @faithandbrave
+- headerと同等の識別子カテゴリとしてcategoryを追加。
+    - @faithandbrave
+
 ## 3.0.4 (2020-06-20)
 
 - CPO カテゴリに対応
