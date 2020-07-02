@@ -75,7 +75,7 @@ $type-cpo: #fafad2;
     color: #EEE;
   }
 
-  &[data-index-type="class"], &[data-index-type="type-alias"], &[data-index-type="enum"], &[data-index-type="concept"] {
+  &[data-index-type="class"], &[data-index-type="type-alias"], &[data-index-type="enum"], &[data-index-type="concept"], &[data-index-type="named requirement"] {
     > .type:before {
       background: $type-class;
     }
@@ -89,6 +89,9 @@ $type-cpo: #fafad2;
   }
   &[data-index-type="concept"] > .type:before {
     content: 'concept';
+  }
+  &[data-index-type="named requirement"] > .type:before {
+    content: 'named requirement';
   }
   &[data-index-type="enum"] > .type:before {
     content: 'enum';
