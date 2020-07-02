@@ -1,6 +1,7 @@
 @import './font-awesome';
 
 $type-header: #4A4;
+$type-category: #4A4;
 $type-namespace: #444;
 $type-class: #44A;
 $type-function: lighten($type-class, 15%);
@@ -66,6 +67,23 @@ $type-cpo: #fafad2;
     > .type:before {
       content: 'header';
       background: $type-header;
+    }
+  }
+
+  &[data-index-type="category"] {
+    ul.keys {
+      > li.key {
+        &:not(:last-child) {
+          &:after {
+            content: '/';
+          }
+        }
+      }
+    }
+
+    > .type:before {
+      content: 'category';
+      background: $type-category;
     }
   }
 
