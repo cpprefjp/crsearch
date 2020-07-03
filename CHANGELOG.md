@@ -2,6 +2,11 @@
 
 ## master
 
+## 3.0.6 (2020-07-03)
+
+- カテゴリ追加の修正
+    - @faithandbrave
+
 ## 3.0.5 (2020-07-03)
 
 - conceptと同等の識別子カテゴリとしてnamed requirementを追加。
