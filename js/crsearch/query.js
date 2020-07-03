@@ -17,6 +17,7 @@ export default class Query {
           let kind = null
           switch (t) {
             case 'header':     kind = IType.header; break
+            case 'category':   kind = IType.category; break
             case 'namespace':  kind = IType.namespace; break
             case 'class':      kind = IType.class; break
             case 'function':   kind = IType.function; break
@@ -25,6 +26,7 @@ export default class Query {
             case 'variable':   kind = IType.variable; break
             case 'type-alias': kind = IType.type_alias; break
             case 'concept':    kind = IType.concept; break
+            case 'named requirement': kind = IType.named_requirement; break
             case 'macro':      kind = IType.macro; break
             case 'cpo':        kind = IType.cpo; break
             case 'article':    kind = IType.article; break
