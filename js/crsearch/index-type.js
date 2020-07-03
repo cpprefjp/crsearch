@@ -1,5 +1,6 @@
 const IndexType = {
   header: 'header',
+  category: 'category',
   namespace: 'namespace',
   class: 'class',
   function: 'function',

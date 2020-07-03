@@ -79,7 +79,7 @@ export default class Namespace {
     for (const rsid of idx.related_to) {
       const rid = this._db.getIndexID(rsid)
 
-      if (rid.type === IType.header) {
+      if (rid.type === IType.header || rid.type == IType.category) {
         let found = null
         const indexes = rid.indexes
         if (indexes.length === 0) {
