@@ -9,6 +9,7 @@ const IndexType = {
   variable: 'variable',
   type_alias: 'type-alias',
   concept: 'concept',
+  named_requirement: 'named requirement',
   macro: 'macro',
   cpo: 'cpo',
   article: 'article',
