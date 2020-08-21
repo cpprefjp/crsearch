@@ -23,6 +23,10 @@ const IndexType = {
     return [this.article, this.meta].includes(type)
   },
 
+  isHeader(type) {
+    return [this.header, this.category].includes(type)
+  },
+
   isClassy(type) {
     return [this.class, this.function, this.mem_fun, this.enum, this.variable, this.type_alias, this.concept, this.namespace].includes(type)
   },

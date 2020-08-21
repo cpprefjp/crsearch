@@ -42,7 +42,7 @@ export default class Namespace {
 
       this._db.all_fullpath_pages.set(idx.fullpath, idx)
 
-      if (idx.type === IType.header) {
+      if (IType.isHeader(idx.type)) {
         this._initHeader(idx)
 
       } else if (IType.isContainer(idx.type)) {
@@ -79,7 +79,7 @@ export default class Namespace {
     for (const rsid of idx.related_to) {
       const rid = this._db.getIndexID(rsid)
 
-      if (rid.type === IType.header || rid.type == IType.category) {
+      if (IType.isHeader(rid.type)) {
         let found = null
         const indexes = rid.indexes
         if (indexes.length === 0) {

@@ -49,7 +49,7 @@ export default class IndexID {
   _generateName() {
     if (IType.isClassy(this._type)) {
       return this._keys.join('::')
-    } else if (this._type === IType.header || this._type == IType.category) {
+    } else if (IType.isHeader(this._type)) {
       return `<${this._keys.join()}>`
     } else {
       return this._keys.join()
