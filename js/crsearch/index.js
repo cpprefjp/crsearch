@@ -100,7 +100,7 @@ export default class Index {
   }
 
   url() {
-    return new URL(`/${this.fullpath}.html`, this._ns.base_url)
+    return new URL(`${this.fullpath}.html`, this._ns.base_url)
   }
 
   get ns() {
