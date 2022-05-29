@@ -25,6 +25,7 @@ export default class CRSearch {
     },
     google_url: new URL('https://www.google.co.jp/search'),
     force_new_window: false,
+    base_url: null,
   }
 
   static _KLASS = 'crsearch'
@@ -118,6 +119,8 @@ export default class CRSearch {
 
   _parse(url, json) {
     this._log.info('parsing...', json)
+    if (this._opts.base_url)
+      json.base_url = this._opts.base_url
 
     const db = new Database(this._log, json)
     this._db.set(db.name, db)
