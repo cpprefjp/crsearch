@@ -99,10 +99,16 @@ export default class CRSearch {
         this._log.info(`fetching database (${i + 1}/${size}): ${url}`)
 
         try {
-          const data = await $.ajax({
+          const ajaxSettings = {
             url: url,
             dataType: "json",
-          })
+          }
+          if (/\.js([?#].*)?$/.test(url.toString())) {
+            ajaxSettings.dataType = "jsonp"
+            ajaxSettings.jsonpCallback = "callback"
+            ajaxSettings.crossDomain = true
+          }
+          const data = await $.ajax(ajaxSettings)
 
           this._log.info('fetched')
           this._parse(url, data)
