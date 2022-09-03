@@ -28,7 +28,7 @@ const IndexType = {
   },
 
   isClassy(type) {
-    return [this.class, this.function, this.mem_fun, this.enum, this.variable, this.type_alias, this.concept, this.namespace].includes(type)
+    return [this.class, this.function, this.mem_fun, this.enum, this.variable, this.type_alias, this.concept, this.namespace, this.cpo].includes(type)
   },
 }
 
