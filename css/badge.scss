@@ -153,6 +153,11 @@
       content: "C++23";
     }
   }
+  #{$sel}[data-cpp-version="26"] {
+    & a:before, & ~ #{$sel}.latest-spec:not(.noprefix) a:before {
+      content: "C++26";
+    }
+  }
 }
 
 @mixin cr-badge-auto($sel: "li.badge") {
