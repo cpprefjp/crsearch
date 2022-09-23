@@ -1,6 +1,7 @@
 const IndexType = {
   header: 'header',
   category: 'category',
+  module: 'module',
   namespace: 'namespace',
   class: 'class',
   function: 'function',
@@ -24,7 +25,7 @@ const IndexType = {
   },
 
   isHeader(type) {
-    return [this.header, this.category].includes(type)
+    return [this.header, this.category, this.module].includes(type)
   },
 
   isClassy(type) {

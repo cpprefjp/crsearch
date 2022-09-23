@@ -18,6 +18,7 @@ export default class Query {
           switch (t) {
             case 'header':     kind = IType.header; break
             case 'category':   kind = IType.category; break
+            case 'module':     kind = IType.category; break
             case 'namespace':  kind = IType.namespace; break
             case 'class':      kind = IType.class; break
             case 'function':   kind = IType.function; break
