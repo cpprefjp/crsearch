@@ -163,12 +163,12 @@
     }
   }
 
-  #{$sel}[named-version="future"] {
+  #{$sel}[data-named-version="future"] {
     & a:before, & ~ #{$sel}.latest-spec:not(.noprefix) a:before {
       content: "C++ (将来)";
     }
   }
-  #{$sel}[named-version="archive"] {
+  #{$sel}[data-named-version="archive"] {
     & a:before, & ~ #{$sel}.latest-spec:not(.noprefix) a:before {
       content: "C++ (廃案)";
     }
