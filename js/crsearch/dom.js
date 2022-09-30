@@ -28,6 +28,12 @@ export default class DOM {
         } else if (attr.match('added-in')) {
           li.addClass('added-in-spec').attr('title', `${cppv}で追加`)
         }
+      } else {
+        name = attr == 'future' ? '将来' :
+               attr == 'archive' ? '廃案' :
+               ''
+        li.addClass('named-version-spec').attr('title', `C++ (${name})`)
+        li.attr('named-version', attr)
       }
 
       if (['deprecated_in_latest', 'removed_in_latest', 'added_in_latest'].includes(attr)) {
