@@ -1,3 +1,3 @@
-FROM node:12.16.1-alpine
+FROM node:18.12-alpine
 
 WORKDIR /var/src

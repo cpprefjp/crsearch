@@ -1,12 +1,12 @@
 {
   "name": "crsearch",
-  "version": "3.0.14",
+  "version": "3.0.17",
   "description": "cpprefjp / boostjp searcher",
   "main": "dist/js/crsearch.js",
   "module": "js/crsearch.js",
   "scripts": {
     "build": "webpack --config webpack.prod.js",
-    "dev": "webpack-dev-server --config webpack.dev.js --host 0.0.0.0",
+    "dev": "NODE_OPTIONS='--openssl-legacy-provider' webpack-dev-server --config webpack.dev.js --host 0.0.0.0",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -46,7 +46,7 @@
     "html-webpack-tags-plugin": "^2.0.17",
     "mini-css-extract-plugin": "^0.9.0",
     "mousetrap": "^1.6.5",
-    "node-sass": "^4.14.1",
+    "sass": "^1.56.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "postcss-loader": "^3.0.0",
     "precss": "^4.0.0",
