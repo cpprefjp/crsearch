@@ -25,6 +25,7 @@ export default class CRSearch {
     },
     google_url: new URL('https://www.google.co.jp/search'),
     force_new_window: false,
+    base_url: null,
   }
 
   static _KLASS = 'crsearch'
@@ -98,10 +99,16 @@ export default class CRSearch {
         this._log.info(`fetching database (${i + 1}/${size}): ${url}`)
 
         try {
-          const data = await $.ajax({
+          const ajaxSettings = {
             url: url,
             dataType: "json",
-          })
+          }
+          if (/\.js([?#].*)?$/.test(url.toString())) {
+            ajaxSettings.dataType = "jsonp"
+            ajaxSettings.jsonpCallback = "callback"
+            ajaxSettings.crossDomain = true
+          }
+          const data = await $.ajax(ajaxSettings)
 
           this._log.info('fetched')
           this._parse(url, data)
@@ -118,6 +125,8 @@ export default class CRSearch {
 
   _parse(url, json) {
     this._log.info('parsing...', json)
+    if (this._opts.base_url)
+      json.base_url = this._opts.base_url;
 
     const db = new Database(this._log, json)
     this._db.set(db.name, db)
