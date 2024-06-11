@@ -13,6 +13,7 @@ export default class Database {
     this._log = log.makeContext('Database')
     this._name = json.database_name
     this._base_url = new URL(json.base_url)
+    this._online_base_url = json.online_base_url ? new URL(json.online_base_url) : null
     this._path_ns_map = new Map
     this._ids = []
 
@@ -95,6 +96,10 @@ export default class Database {
 
   get base_url() {
     return this._base_url
+  }
+
+  get online_base_url() {
+    return this._online_base_url
   }
 
   get all_fullpath_pages() {

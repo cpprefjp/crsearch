@@ -25,6 +25,8 @@ export default class CRSearch {
     },
     google_url: new URL('https://www.google.co.jp/search'),
     force_new_window: false,
+    base_url: null,
+    online_base_url: null,
   }
 
   static _KLASS = 'crsearch'
@@ -98,10 +100,16 @@ export default class CRSearch {
         this._log.info(`fetching database (${i + 1}/${size}): ${url}`)
 
         try {
-          const data = await $.ajax({
+          const ajaxSettings = {
             url: url,
             dataType: "json",
-          })
+          }
+          if (/\.js([?#].*)?$/.test(url.toString())) {
+            ajaxSettings.dataType = "jsonp"
+            ajaxSettings.jsonpCallback = "callback"
+            ajaxSettings.crossDomain = true
+          }
+          const data = await $.ajax(ajaxSettings)
 
           this._log.info('fetched')
           this._parse(url, data)
@@ -118,6 +126,10 @@ export default class CRSearch {
 
   _parse(url, json) {
     this._log.info('parsing...', json)
+    if (this._opts.base_url)
+      json.base_url = this._opts.base_url
+    if (this._opts.online_base_url)
+      json.online_base_url = this._opts.online_base_url
 
     const db = new Database(this._log, json)
     this._db.set(db.name, db)
@@ -229,9 +241,10 @@ export default class CRSearch {
 
     for (const [name, db] of this._db) {
       // always include fallback
+      const fallback_site = db.online_base_url ? db.online_base_url.host : db.base_url.host
       const e = this._make_result(null, q.original_text, {
         name: db.name,
-        url: db.base_url.host,
+        url: fallback_site,
       })
       e.attr('data-result-id', result_id++)
       result_list.append(e)
@@ -266,7 +279,8 @@ export default class CRSearch {
 
   _make_google_url(q, site) {
     const url = this._opts.google_url
-    url.set('query', {q: `${q} site:${site}`})
+    if (site != '') q = `${q} site:${site}`
+    url.set('query', {q: q})
     return url
   }
 
