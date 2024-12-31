@@ -2,7 +2,7 @@ const common = require('./webpack.common.js');
 const webpack = require('webpack');
 const Merge = require('webpack-merge');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 
 module.exports = Merge.multiple(common, {
@@ -21,15 +21,18 @@ module.exports = Merge.multiple(common, {
   },
   css: {
     mode: 'production',
-    plugins: [
-      new OptimizeCSSAssetsPlugin({
-        canPrint: true,
-        cssProcessorOptions: {
-          // http://cssnano.co/optimisations/reduceidents/
-          reduceIdents: false,
-        },
-      }),
-    ],
+    optimization: {
+      minimizer: [
+        new CssMinimizerPlugin({
+          minimizerOptions: {
+            processorOptions: {
+              // http://cssnano.co/optimisations/reduceidents/
+              reduceIdents: false,
+            },
+          },
+        }),
+      ],
+    },
   },
 });
 

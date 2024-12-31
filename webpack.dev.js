@@ -25,9 +25,10 @@ module.exports = Merge.multiple(common, {
     },
     devtool: 'inline-source-map',
     devServer: {
-      publicPath: '/',
-      contentBase: path.join(__dirname, 'example'),
-      watchContentBase: true,
+      static: {
+        directory: path.join(__dirname, 'example'),
+        publicPath: '/',
+      },
     },
     plugins: [
       new webpack.DefinePlugin({
@@ -65,7 +66,7 @@ module.exports = Merge.multiple(common, {
     entry: {
       browser: './browser.scss',
     },
-    devtool: 'cheap-module-eval-source-map',
+    devtool: 'eval-cheap-module-source-map',
   },
 });
 

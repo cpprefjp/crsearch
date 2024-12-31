@@ -1,5 +1,5 @@
 import IType from './index-type'
-import Marked from 'marked'
+import { Marked } from 'marked'
 
 const MarkedOpts = {
   gfm: true,

@@ -21,7 +21,12 @@ module.exports = {
           use: [
             {
               loader: 'expose-loader',
-              options: 'CRSearch',
+              options: {
+                exposes: {
+                  globalName: 'CRSearch',
+                  override: true,
+                },
+              },
             },
             {
               loader: 'babel-loader',
