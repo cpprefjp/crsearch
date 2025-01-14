@@ -47,6 +47,32 @@ class ArticleProcessor {
     this._zoneProc = new Map([
       [
         Prop.toplevel_category, {
+          /* Token handlers for Marked >= v1.0.0 */
+          'list': list => {
+            for (const item of list.get('items')) {
+              if (item.type !== 'list_item') continue
+
+              let buf = ''
+              for (const token of item.tokens) {
+                if (token.type === 'text')
+                  buf += token.text
+              }
+
+              const m = buf.match(/^([^[]+)\[([^\]]+)\]$/)
+              if (!m) {
+                throw new Error(`[BUG] unhandled format ${buf}`)
+              }
+
+              this._categories.set(
+                m[2],
+                new Priority(
+                  this._currentIndex++, m[1]
+                )
+              )
+            }
+          },
+
+          /* Token handlers for Marked < v1.0.0 */
           'list_item_start': () => {
             this._single_bufs.push('')
           },
@@ -67,8 +93,8 @@ class ArticleProcessor {
             )
           },
           'text': token => {
-            // console.log(token)
-            this._single_bufs[this._single_bufs.length - 1] += token.get('text').trim()
+            if (this._single_bufs.length > 0)
+              this._single_bufs[this._single_bufs.length - 1] += token.get('text').trim()
           },
         }
       ],
