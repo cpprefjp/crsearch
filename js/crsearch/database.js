@@ -72,13 +72,27 @@ export default class Database {
 
     // 検索クエリとの完全一致を優先するソート
     const grouped_targets = targets.sort((aidx, bidx) => {
-      // 検索クエリとの完全一致を判定
-      const aExact = q._and.some(s => aidx._name === s)
-      const bExact = q._and.some(s => bidx._name === s)
+      // 名前の最後の部分（名前空間を除いた部分）を取得
+      const getLastPart = (name) => {
+        const parts = name.split('::')
+        return parts[parts.length - 1]
+      }
 
-      // 完全一致を優先
-      if (aExact && !bExact) return -1
-      if (!aExact && bExact) return 1
+      // 検索クエリとの完全一致を判定（フル名）
+      const aExactFull = q._and.some(s => aidx._name === s)
+      const bExactFull = q._and.some(s => bidx._name === s)
+
+      // 完全一致（フル名）を最優先
+      if (aExactFull && !bExactFull) return -1
+      if (!aExactFull && bExactFull) return 1
+
+      // 名前空間を除いた部分での完全一致を判定
+      const aExactPart = q._and.some(s => getLastPart(aidx._name) === s)
+      const bExactPart = q._and.some(s => getLastPart(bidx._name) === s)
+
+      // 名前空間を除いた部分での完全一致を次に優先
+      if (aExactPart && !bExactPart) return -1
+      if (!aExactPart && bExactPart) return 1
 
       // 完全一致でない場合、元のcompareロジックを使用
       return Index.compare(aidx, bidx)
