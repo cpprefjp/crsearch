@@ -70,7 +70,19 @@ export default class Database {
       targets.push(...ns.query(q))
     }
 
-    const grouped_targets = targets.sort(Index.compare).slice(0, max_count).reduce(
+    // 検索クエリとの完全一致を優先するソート
+    const grouped_targets = targets.sort((aidx, bidx) => {
+      // 検索クエリとの完全一致を判定
+      const aExact = q._and.some(s => aidx._name === s)
+      const bExact = q._and.some(s => bidx._name === s)
+
+      // 完全一致を優先
+      if (aExact && !bExact) return -1
+      if (!aExact && bExact) return 1
+
+      // 完全一致でない場合、元のcompareロジックを使用
+      return Index.compare(aidx, bidx)
+    }).slice(0, max_count).reduce(
       (gr, index) => {
         const hdr = index.in_header
         let indexes = gr.get(hdr)

@@ -1,6 +1,6 @@
 {
   "name": "crsearch",
-  "version": "3.0.24",
+  "version": "3.0.25",
   "description": "cpprefjp / boostjp searcher",
   "main": "dist/js/crsearch.js",
   "module": "js/crsearch.js",
