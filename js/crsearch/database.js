@@ -86,6 +86,22 @@ export default class Database {
       if (aExactFull && !bExactFull) return -1
       if (!aExactFull && bExactFull) return 1
 
+      // エイリアス（名前空間付き）での完全一致を判定
+      const aExactAlias = q._and.some(s => aidx._namespacedAliases && aidx._namespacedAliases.includes(s))
+      const bExactAlias = q._and.some(s => bidx._namespacedAliases && bidx._namespacedAliases.includes(s))
+
+      // エイリアス（名前空間付き）での完全一致を優先
+      if (aExactAlias && !bExactAlias) return -1
+      if (!aExactAlias && bExactAlias) return 1
+
+      // エイリアス（名前空間なし）での完全一致を判定
+      const aExactAliasShort = q._and.some(s => aidx._aliases && aidx._aliases.includes(s))
+      const bExactAliasShort = q._and.some(s => bidx._aliases && bidx._aliases.includes(s))
+
+      // エイリアス（名前空間なし）での完全一致を優先
+      if (aExactAliasShort && !bExactAliasShort) return -1
+      if (!aExactAliasShort && bExactAliasShort) return 1
+
       // 名前空間を除いた部分での完全一致を判定
       const aExactPart = q._and.some(s => getLastPart(aidx._name) === s)
       const bExactPart = q._and.some(s => getLastPart(bidx._name) === s)

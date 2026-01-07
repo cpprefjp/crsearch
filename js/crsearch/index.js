@@ -21,9 +21,24 @@ export default class Index {
       this._related_to = json.related_to
       this._nojump = !!json.nojump
       this._attributes = json.attributes
+      this._aliases = json.aliases || []
     } else {
       // this._log.debug('fake Index created')
       this._page_id = id.keys.slice(-1)
+      this._aliases = []
+    }
+
+    // 名前空間付きエイリアスを事前計算（例：['string'] -> ['std::string']）
+    if (IType.isClassy(this._id.type)) {
+      const nsKeys = this._id.keys.slice(0, -1)
+      if (nsKeys.length > 0) {
+        const nsPrefix = nsKeys.join('::') + '::'
+        this._namespacedAliases = this._aliases.map(alias => nsPrefix + alias)
+      } else {
+        this._namespacedAliases = this._aliases
+      }
+    } else {
+      this._namespacedAliases = this._aliases
     }
 
     Object.seal(this)
@@ -71,18 +86,24 @@ export default class Index {
 
   ambgMatch(q) {
     if (IType.isArticles(this._id.type)) {
-      return this._name.toLowerCase().includes(q.toLowerCase())
+      const lowerQ = q.toLowerCase()
+      return this._name.toLowerCase().includes(lowerQ) ||
+        this._aliases.some(alias => alias.toLowerCase().includes(lowerQ))
     }
 
-    return this._name.includes(q)
+    return this._name.includes(q) ||
+      this._namespacedAliases.some(alias => alias.includes(q))
   }
 
   ambgMatchMulti(q) {
     if (IType.isArticles(this._id.type)) {
-      return this._name.toLowerCase().includes(q.toLowerCase())
+      const lowerQ = q.toLowerCase()
+      return this._name.toLowerCase().includes(lowerQ) ||
+        this._aliases.some(alias => alias.toLowerCase().includes(lowerQ))
     }
 
     return this._name.includes(q) ||
+      this._namespacedAliases.some(alias => alias.includes(q)) ||
       this._in_header && this._in_header._name.includes(q) ||
       this._parent && this._parent._name.includes(q)
   }
