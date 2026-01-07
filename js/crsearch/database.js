@@ -70,7 +70,7 @@ export default class Database {
       targets.push(...ns.query(q))
     }
 
-    // 検索クエリとの完全一致を優先するソート
+    // 検索クエリとの完全一致を優先し、次に最短マッチを優先するソート
     const grouped_targets = targets.sort((aidx, bidx) => {
       // 名前の最後の部分（名前空間を除いた部分）を取得
       const getLastPart = (name) => {
@@ -94,7 +94,12 @@ export default class Database {
       if (aExactPart && !bExactPart) return -1
       if (!aExactPart && bExactPart) return 1
 
-      // 完全一致でない場合、元のcompareロジックを使用
+      // 最短マッチを優先: 名前の長さでソート（短い方を優先）
+      const aLen = aidx._name.length
+      const bLen = bidx._name.length
+      if (aLen !== bLen) return aLen - bLen
+
+      // 長さが同じ場合、元のcompareロジックを使用
       return Index.compare(aidx, bidx)
     }).slice(0, max_count).reduce(
       (gr, index) => {
