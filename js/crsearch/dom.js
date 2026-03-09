@@ -29,13 +29,15 @@ export default class DOM {
           li.addClass('added-in-spec').attr('title', `${cppv}で追加`)
         }
       } else {
-        name = attr == 'future' ? '将来' :
-               attr == 'archive' ? '廃案' :
-               null
+        const name = attr == 'future' ? '将来' :
+                     attr == 'archive' ? '廃案' :
+                     null
 
         if (name) {
-            li.addClass('named-version-spec').attr('title', `C++ (${name})`)
-            li.attr('named-version', attr)
+          li.addClass('named-version-spec').attr('title', `C++ (${name})`)
+          li.attr('data-named-version', attr)
+        } else if (attr == 'exposition-only') {
+          li.addClass('exposition-only-spec').attr('title', '説明専用')
         }
       }
 
