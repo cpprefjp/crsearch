@@ -63,7 +63,9 @@ export default class Index {
 
     const attrs = []
     if (!opts.badges.noselfcpp && this._cpp_version) {
-      attrs.push(`added-in-cpp${this._cpp_version}`)
+      if (!/^(?:future|archive)$/.test(this._cpp_version)) {
+        attrs.push(`added-in-cpp${this._cpp_version}`)
+      }
     }
     if (this._attributes) {
       attrs.push(...this._attributes)
