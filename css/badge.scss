@@ -59,6 +59,10 @@
     @include cr-badge-spec(#7473CA, '.fa-archive');
   }
 
+  &.exposition-only-spec {
+    @include cr-badge-spec(#666, '.fa-sticky-note-o');
+  }
+
   &.latest-spec a {
     display: flex;
   }
@@ -171,6 +175,12 @@
   #{$sel}[data-named-version="archive"] {
     & a:before, & ~ #{$sel}.latest-spec:not(.noprefix) a:before {
       content: "C++ (廃案)";
+    }
+  }
+
+  #{$sel}.exposition-only-spec {
+    & a:before, & ~ #{$sel}.latest-spec:not(.noprefix) a:before {
+      content: "説明専用";
     }
   }
 }

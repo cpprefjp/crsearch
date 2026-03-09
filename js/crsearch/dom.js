@@ -36,6 +36,8 @@ export default class DOM {
         if (name) {
           li.addClass('named-version-spec').attr('title', `C++ (${name})`)
           li.attr('data-named-version', attr)
+        } else if (attr == 'exposition-only') {
+          li.addClass('exposition-only-spec').attr('title', '説明専用')
         }
       }
 
