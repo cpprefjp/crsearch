@@ -34,8 +34,8 @@ export default class DOM {
                      null
 
         if (name) {
-            li.addClass('named-version-spec').attr('title', `C++ (${name})`)
-            li.attr('named-version', attr)
+          li.addClass('named-version-spec').attr('title', `C++ (${name})`)
+          li.attr('data-named-version', attr)
         }
       }
 
