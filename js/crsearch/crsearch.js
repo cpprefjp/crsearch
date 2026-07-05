@@ -364,6 +364,7 @@ export default class CRSearch {
     input.addClass('input')
     input.addClass('mousetrap')
     input.attr('autocomplete', false)
+    input.attr('autocapitalize', 'off')
     input.attr('placeholder', CRSearch._INPUT_PLACEHOLDER)
     input.appendTo(control)
 
