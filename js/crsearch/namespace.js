@@ -84,7 +84,7 @@ export default class Namespace {
         const indexes = rid.indexes
         if (indexes.length === 0) {
           found = this._createIndex(idx.cpp_version, rid, null, [])
-          if (found.name === '<header_name>') {
+          if (found.name === '<header_name>' || found.name === '<module_name>') {
             // shit
             continue
           }
