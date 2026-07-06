@@ -440,6 +440,12 @@ export default class CRSearch {
       $(e.target).blur()
       return this._hide_all_result()
     })
+    $(document).on('pointerdown', e => {
+      // 検索UIの外側をクリックした時、検索結果を非表示にする
+      if (!$(e.target).closest(`.${CRSearch._KLASS}`).length) {
+        this._hide_all_result()
+      }
+    })
 
     const result_wrapper = $('<div />')
     result_wrapper.addClass(CRSearch._RESULT_WRAPPER_KLASS)
